@@ -91,12 +91,12 @@ rule filter_samples_in_vcf:
         done
         """
 
-# Problem here
 rule merge_vcfs:
     input:
         rules.filter_samples_in_vcf.output
+        #expand('Chr{{chromosome}}_{i}.vcf.gz', i = range(1, count + 1))
     output:
-        'Chr{chromosme}.vcf.gz'
+        'Chr{chromosome}.vcf.gz'
     shell:
         """
         bcftools merge -m all {input} -O z -o {output}
@@ -106,8 +106,8 @@ rule merge_vcfs:
 # This is just for tests so it runs without complaining
 #rule testing:
 #    input:
-#        rules.merge_vcfs.output
-        #ids = rules.extract_samples_list.output
+#    #    rules.merge_vcfs.output
+#     ids = rules.filter_samples_in_vcf.output
 #    output:
 #        'Chr{chromosome}.vcf.gz'
 #    shell:
