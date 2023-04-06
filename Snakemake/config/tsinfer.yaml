@@ -6,12 +6,6 @@ vcfDir: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/"
 bcftoolsModule: "igmm/apps/bcftools/1.9"
 ancestralAllele: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/AncestralAlleleVcf.txt"
 meta: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/Meta.csv"
-populations:
-  "carnica" : "C"
-  "ligustica" : "C"
-  "mellifera" : "M"
-  "caucasica" : "O"
-  "scutellata" : "A"
-  "unicolor" : "A"
-  "capensis" : "A"
-  "hybrid" : "H"
+chromosome_length:
+  1 : 100000
+  2 : 100000
