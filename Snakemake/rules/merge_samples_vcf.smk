@@ -4,113 +4,108 @@
 #
 import itertools
 import numpy as np
-configfile: 'test.yaml'
+configfile: 'config.yaml'
 
-def list_full_paths(directory):
-    return [os.path.join(directory, file) for file in os.listdir(directory)]
+dir = config['vcfDir']
+# single file patterns
+(PREFIX, SUFFIX) = glob_wildcards(dir+'/{prefix}_{suffix}.vcf')
+#print(PREFIX)
 
-def dic_files_per_chromosome(direc_lst, noChromosomes):
-    file_dic={}
-    for i in range(1, noChromosomes + 1):
-        file_dic[i] = [name for name in direc_lst if str(i) in name]
-
-    return file_dic
 
 rule all:
     input:
-        expand('Chr{chromosome}.vcf.gz', chromosome=range(1, config['noChromosomes'] + 1))
+        expand('{prefix}_{suffix}', zip, prefix=(PREFIX), suffix=SUFFIX)
+        #expand('Chr{chromosome}.vcf.gz', chromosome=range(1, config['noChromosomes'] + 1))
 
-#workdir: config['vcfDir']
-
-VCFs =[x for x in list_full_paths(config['vcfDir']) if x.endswith(".vcf")]
-print('here are vcfs', VCFs)
-
-file_dic = dic_files_per_chromosome(VCFs, config['noChromosomes'])
-count = list(set(map(len, file_dic.values())))[0]
-#print(file_dic)
-#print(count)
 
 rule extract_samples_list:
-    input:
-        files = lambda wildcards: expand(
-            ['{files}'], files = file_dic[int(wildcards.chromosome)]
-        )
-    output:
-        expand('ids{{chromosome}}_{i}', i = range(1, count + 1))
+    input: dir + '/{prefix}_{suffix}.vcf'
+    output: '{prefix}_{suffix}.txt'
     shell:
         """
-        vcfs=( {input.files} )
-        outfiles=( {output} )
-
-        for ((i=0; i<${{#vcfs[@]}}; i++)); do
-            bcftools query -l ${{vcfs[$i]}} > ${{outfiles[$i]}}
-        done
+        bcftools query -l {input} > {output}
         """
+
+#rule extract_samples_list:
+#    input:
+#        expand(dir + '/{prefix}_{suffix}.vcf', zip, prefix=PREFIX, suffix=SUFFIX)
+#        files = lambda wildcards: expand(
+#            ['{files}'], files = file_dic[int(wildcards.chromosome)]
+#        )
+#    output:
+#        expand('{prefix}_{suffix}.txt', zip, prefix=PREFIX, suffix=SUFFIX)
+        #expand('ids{{chromosome}}_{i}', i = range(1, count + 1))
+#    shell:
+#        """
+#        vcfs=( {input} )
+#        outfiles=( {output} )
+
+#        for ((i=0; i<${{#vcfs[@]}}; i++)); do
+#            bcftools query -l ${{vcfs[$i]}} > ${{outfiles[$i]}}
+#        done
+
+#        """
 
 rule compare_samples:
     input:
-        rules.extract_samples_list.output
+#    # takes input from previous rule
+        expand('{prefix}_{suffix}.txt', zip, prefix=PREFIX, suffix=SUFFIX)
     output:
-        expand('ids{{chromosome}}_filtered_{i}', i = range(1, count + 1))
+    # create output based on combination of wildcards
+        #expand('{{prefix}}_{suffix}_filtered.txt', zip, prefix=PREFIX, suffix=SUFFIX)
+        expand('{prefix}_{suffix}_filtered.txt', zip, prefix=PREFIX, suffix=SUFFIX)
     run:
-        samplelist=[]
-        for file in input:
-            with open(file, 'r') as f:
-                samplelist.append(f.read().splitlines())
+#    # run in python
+        prefix = list(set([file.split('_')[0] for file in input]))
+        # group input and output files by chromosome
 
-        #samplelist.append(list(np.loadtxt(lst, dtype = str))) for lst in input]
-        print(len(samplelist))
+        for name in prefix:
+        # execute for each chromosome group
+            infiles = [file for file in input if name in file] # define input files
+            outfiles = [file for file in output if name in file] # define output files
 
-        for a, b in itertools.combinations(samplelist, 2):
-            [b.remove(element) for element in a if element in b]
+            samplelist=[] # creates holder to read in content of input files (this is updated every loop)
 
+            for ifile in infiles:  # read the content of the files and append to list (each file content is a list within list)
+                with open(ifile, 'r') as f:
+                    samplelist.append(f.read().splitlines())
 
-        for i, file in enumerate(output):
-            with open(file, 'w') as f:
-                for line in samplelist[i]:
-                    f.write(f'{line}\n')
-            f.close()
+            for a, b in itertools.combinations(samplelist,2): # compare the lists in samplelist by pair
+                [b.remove(element) for element in a if element in b] # if id exists already in firs list, remove from second
+
+            for i, ofile in enumerate(outfiles): # write out filtered lists
+                with open(ofile, 'w') as f:
+                    [f.write(f'{line}\n') for line in samplelist[i]]
+                    f.close()
 
 rule filter_samples_in_vcf:
     input:
-        files = lambda wildcards: expand(
-            ['{files}'], files = file_dic[int(wildcards.chromosome)]
-        ),
-        ids  = rules.compare_samples.output
-    output:
-        expand('Chr{{chromosome}}_{i}.vcf.gz', i = range(1, count + 1))
+        file = dir + '/{prefix}_{suffix}.vcf',
+        id = '{prefix}_{suffix}_filtered.txt'
+    output: '{prefix}_{suffix}.vcf.gz'
     shell:
         """
-        vcfs=( {input.files} )
-        ids=( {input.ids} )
-        outfiles=( {output} )
-
-        for ((i=0; i<${{#vcfs[@]}}; i++)); do
-            bcftools view -S ${{ids[$i]}} --force-samples ${{vcfs[$i]}} -O z -o ${{outfiles[$i]}}
-            bcftools index ${{outfiles[$i]}}
-        done
+        bcftools view -S {input.id} --force-samples {input.file} -O z -o {output}
+        bcftools index {output}
         """
 
 rule merge_vcfs:
     input:
-        rules.filter_samples_in_vcf.output
-        #expand('Chr{{chromosome}}_{i}.vcf.gz', i = range(1, count + 1))
-    output:
-        'Chr{chromosome}.vcf.gz'
+        files=expand('{{prefix}}_{suffix}.vcf.gz', suffix=set(SUFFIX))
+        #direct={dir}
+    output: directory(expand('{{prefix}}_{suffix}', suffix=set(SUFFIX)))
     shell:
         """
-        bcftools merge -m all {input} -O z -o {output}
-        bcftools index {output}
-        """
+        files='{output}'
+        dir='{config[vcfDir]}'
+        echo ${{files}}
 
-# This is just for tests so it runs without complaining
-#rule testing:
-#    input:
-#    #    rules.merge_vcfs.output
-#     ids = rules.filter_samples_in_vcf.output
-#    output:
-#        'Chr{chromosome}.vcf.gz'
-#    shell:
-#        """
-#        echo {output}
-#        """
+        bcftools merge -m all {input.files} -O z -o ${{dir}}/{wildcards.prefix}.vcf.gz
+        bcftools index ${{dir}}/{wildcards.prefix}.vcf.gz
+
+        mkdir {output}
+
+        for f in ${{files}}; do
+            mv ${{f}}*.* ${{dir}}/${{f}}*.* ${{f}}
+        done
+        """
