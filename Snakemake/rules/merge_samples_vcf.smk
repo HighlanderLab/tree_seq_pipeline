@@ -4,17 +4,19 @@
 #
 import itertools
 import numpy as np
-configfile: 'config.yaml'
+configfile: 'test.yaml'
 
 dir = config['vcfDir']
 # single file patterns
 (PREFIX, SUFFIX) = glob_wildcards(dir+'/{prefix}_{suffix}.vcf')
-#print(PREFIX)
-
+wildcard_constraints:
+    prefix='Chr[\w+,^_]', # prefix = Chr + everything until if finds a '_'
+    suffix='(?<=_)[^_, ^.]*' # suffix = everything between '_'
 
 rule all:
     input:
-        expand('{prefix}_{suffix}', zip, prefix=(PREFIX), suffix=SUFFIX)
+        expand('{prefix}_{suffix}', zip, prefix=PREFIX, suffix=SUFFIX),
+        expand(dir + '/{prefix}_merged.vcf', prefix=set(PREFIX))
         #expand('Chr{chromosome}.vcf.gz', chromosome=range(1, config['noChromosomes'] + 1))
 
 
@@ -25,26 +27,6 @@ rule extract_samples_list:
         """
         bcftools query -l {input} > {output}
         """
-
-#rule extract_samples_list:
-#    input:
-#        expand(dir + '/{prefix}_{suffix}.vcf', zip, prefix=PREFIX, suffix=SUFFIX)
-#        files = lambda wildcards: expand(
-#            ['{files}'], files = file_dic[int(wildcards.chromosome)]
-#        )
-#    output:
-#        expand('{prefix}_{suffix}.txt', zip, prefix=PREFIX, suffix=SUFFIX)
-        #expand('ids{{chromosome}}_{i}', i = range(1, count + 1))
-#    shell:
-#        """
-#        vcfs=( {input} )
-#        outfiles=( {output} )
-
-#        for ((i=0; i<${{#vcfs[@]}}; i++)); do
-#            bcftools query -l ${{vcfs[$i]}} > ${{outfiles[$i]}}
-#        done
-
-#        """
 
 rule compare_samples:
     input:
@@ -82,7 +64,7 @@ rule filter_samples_in_vcf:
     input:
         file = dir + '/{prefix}_{suffix}.vcf',
         id = '{prefix}_{suffix}_filtered.txt'
-    output: '{prefix}_{suffix}.vcf.gz'
+    output: '{prefix}_{suffix}_filtered.vcf.gz'
     shell:
         """
         bcftools view -S {input.id} --force-samples {input.file} -O z -o {output}
@@ -90,22 +72,44 @@ rule filter_samples_in_vcf:
         """
 
 rule merge_vcfs:
-    input:
-        files=expand('{{prefix}}_{suffix}.vcf.gz', suffix=set(SUFFIX))
-        #direct={dir}
-    output: directory(expand('{{prefix}}_{suffix}', suffix=set(SUFFIX)))
+    input: expand('{{prefix}}_{suffix}_filtered.vcf.gz', suffix=set(SUFFIX))
+
+    output:
+        direct=directory(expand('{{prefix}}_{suffix}', suffix=set(SUFFIX))),
+        file=dir + '/{prefix}_merged.vcf'
     shell:
         """
-        files='{output}'
+        files='{output.direct}'
         dir='{config[vcfDir]}'
-        echo ${{files}}
 
-        bcftools merge -m all {input.files} -O z -o ${{dir}}/{wildcards.prefix}.vcf.gz
-        bcftools index ${{dir}}/{wildcards.prefix}.vcf.gz
+        bcftools merge -m all {input} > {wildcards.prefix}_tmp.vcf
 
-        mkdir {output}
+        mkdir {output.direct}
 
         for f in ${{files}}; do
-            mv ${{f}}*.* ${{dir}}/${{f}}*.* ${{f}}
+            echo this is f ${{f}}
+            if [ ${{dir}}/${{f}}.vcf == "{output.file}" ]; then
+                mv ${{f}}*.* ${{f}}/
+            else
+                mv ${{f}}*.* ${{dir}}/${{f}}.vcf ${{f}}/
+            fi
         done
+
+        mv {wildcards.prefix}_tmp.vcf {output.file}
+
         """
+
+#rule phase:
+#    input: '{prefix}.vcf.gz'
+#        map = '{prefix}.map'
+#    output: '{prefix}_phased.vcf.gz'
+#    shell:
+#        """
+#        str='{wildcards.prefix}'
+#        chr=$(echo ${{str:3}})
+#
+#        shapeit4 --input {input.file} --map {input.map} --region ${{chr}} --output {output} --sequencing
+#        bcftools index {output}
+
+#        """
+##
