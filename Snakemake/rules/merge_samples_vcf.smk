@@ -16,12 +16,12 @@ wildcard_constraints:
 rule all:
     input:
         expand('{prefix}_{suffix}', zip, prefix=PREFIX, suffix=SUFFIX),
-        expand(dir + '/{prefix}_merged.vcf', prefix=set(PREFIX))
+        expand(dir + '/{prefix}_merged.vcf.gz', prefix=set(PREFIX))
         #expand('Chr{chromosome}.vcf.gz', chromosome=range(1, config['noChromosomes'] + 1))
 
 
 rule extract_samples_list:
-    input: dir + '/{prefix}_{suffix}.vcf'
+    input: dir + '/{prefix}_{suffix}.vcf.gz'
     output: '{prefix}_{suffix}.txt'
     shell:
         """
@@ -76,13 +76,13 @@ rule merge_vcfs:
 
     output:
         direct=directory(expand('{{prefix}}_{suffix}', suffix=set(SUFFIX))),
-        file=dir + '/{prefix}_merged.vcf'
+        file=dir + '/{prefix}_merged.vcf.gz'
     shell:
         """
         files='{output.direct}'
         dir='{config[vcfDir]}'
 
-        bcftools merge -m all {input} > {wildcards.prefix}_tmp.vcf
+        bcftools merge -m all {input} -O z -o {wildcards.prefix}_tmp.vcf.gz
 
         mkdir {output.direct}
 
@@ -96,6 +96,7 @@ rule merge_vcfs:
         done
 
         mv {wildcards.prefix}_tmp.vcf {output.file}
+        bcftools index {output.file}
 
         """
 
