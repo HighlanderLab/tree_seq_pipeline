@@ -4,7 +4,7 @@
 #
 import itertools
 import numpy as np
-configfile: 'test.yaml'
+configfile: '../config/config.yaml'
 
 dir = config['vcfDir']
 # single file patterns
