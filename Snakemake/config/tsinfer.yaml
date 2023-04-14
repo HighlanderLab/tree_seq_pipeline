@@ -5,7 +5,7 @@ noChromosomes: 2
 vcfDir: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/"
 bcftoolsModule: "igmm/apps/bcftools/1.9"
 ancestralAllele: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/AncestralAlleleVcf.txt"
-meta: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/Meta.csv"
+meta: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/SampleMetaData.csv"
 chromosome_length:
-  1 : 100000
-  2 : 100000
+  1 : 1000000
+  2 : 1000000
