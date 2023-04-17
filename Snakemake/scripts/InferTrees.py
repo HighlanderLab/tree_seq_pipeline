@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
-
+import sys
+print(sys.executable)
 import cyvcf2
 import tsinfer
 import pandas as pd

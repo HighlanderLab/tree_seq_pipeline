@@ -8,6 +8,8 @@ rule all:
 rule prepare_sample_file:
     input:
         "Tsinfer/Chr{chromosome}_ancestral.vcf.gz"
+    conda:
+        "../envs/tsinfer_env.yaml"
     output:
         "Tsinfer/Chr{chromosome}.samples"
     script:
@@ -16,6 +18,7 @@ rule prepare_sample_file:
 rule infer:
     input:
         "Tsinfer/Chr{chromosome}.samples"
+    conda:  "../envs/tsinfer_env.yaml"
     output:
         "Tsinfer/Chr{chromosome}.trees"
     script:
