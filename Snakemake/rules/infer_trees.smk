@@ -7,19 +7,26 @@ rule all:
 
 rule prepare_sample_file:
     input:
-        "Tsinfer/Chr{chromosome}_ancestral.vcf.gz"
+        vcf="Tsinfer/Chr{chromosome}_ancestral.vcf.gz",
+        meta=config['meta']
     conda:
-        "../envs/tsinfer_env.yaml"
+        "tsinfer"
     output:
         "Tsinfer/Chr{chromosome}.samples"
-    script:
-        "../scripts/PrepareTsinferSampleFile.py"
+    params:
+        chrLength= lambda wildcards: config['chromosome_length'][int(wildcards.chromosome)],
+        ploidy=config['ploidy'],
+        snakemakedir=config['snakemakedir']
+    shell:
+        "python {params.snakemakedir}/scripts/PrepareTsinferSampleFile.py {wildcards.chromosome} {input.vcf} {input.meta} {output} {params.ploidy} {params.chrLength}"
 
 rule infer:
     input:
         "Tsinfer/Chr{chromosome}.samples"
-    conda:  "../envs/tsinfer_env.yaml"
+    conda:  "tsinfer"
     output:
         "Tsinfer/Chr{chromosome}.trees"
-    script:
-        "../scripts/InferTrees.py"
+    params:
+        snakemakedir=config['snakemakedir']
+    shell:
+        "python {params.snakemakedir}/scripts/InferTrees.py {input} {output}"

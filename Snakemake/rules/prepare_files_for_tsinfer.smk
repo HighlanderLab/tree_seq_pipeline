@@ -133,7 +133,7 @@ rule change_infoAA_vcf:
     shell:
         """
         HEADERNUM=$(( $(grep "##" {input.vcf} | wc -l) + 1 ))
-        INFOLINE=$(( $(grep -Fn "INFO" {input.vcf} | cut --delimiter=":" --fields=1  | head -n1) ))
+        INFOLINE=$(( $(grep -Fn "INFO" {input.vcf} | cut -d ":" -f 1  | head -n1) ))
         awk -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $2; next}}}} FNR<=HEADER{{{{print}}}}; \
         FNR==INFO{{{{printf "##INFO=<ID=AA,Number=1,Type=String,Description=Ancestral Allele>\\n"}}}}; \
         FNR>HEADER{{{{$8="AA="a[FNR-HEADER]; print}}}}' OFS="\t" {input.ancestralAllele} {input.vcf} > {output}

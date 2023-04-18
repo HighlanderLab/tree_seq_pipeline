@@ -10,15 +10,20 @@ import numpy as np
 import sys
 import os
 
-chromosome = snakemake.wildcards['chromosome']
-vcfFile = snakemake.input[0]
-meta = snakemake.config['meta']
-sampleFile = snakemake.output[0]
-ploidy = snakemake.config['ploidy']
-chrLength = snakemake.config['chrLength']
+# chromosome = snakemake.wildcards['chromosome']
+# vcfFile = snakemake.input[0]
+# meta = snakemake.config['meta']
+# sampleFile = snakemake.output[0]
+# ploidy = snakemake.config['ploidy']
+# chrLength = snakemake.config['chrLength']
 
-
-print("Chromosome is " + str(chromosome))
+args = sys.argv
+chromosome = int(args[1])
+vcfFile = args[2]
+meta = args[3]
+sampleFile = args[4]
+ploidy = int(args[5])
+chrLength = args[6]
 
 #######################################################################
 # Define the functions to read in the vcf
