@@ -1,0 +1,23 @@
+Project:
+  Snakemake:
+    config: #configfile.yaml
+    envs: #rules_envs.yaml
+    scripts: #all_python.py
+    rules: #rules.smk
+    logs: #rule.log
+    #snakefile
+  vcfDir:
+    #to_split.vcf.gz
+    #Chr_final.vcf.gz
+    #Chr_final.vcf.gz.csi
+    Chr: #raw.vcf.gz
+    combined: #to_split.vcf.gz (after split)
+  mapsDir: #genetic.map
+  ancestral_allele: #ancestral.txt
+  Tsinfer:
+    #chr_ancestral.vcf.gz
+    #chr_ancestral.vcf.gz.csi
+    files: #metadata.txt
+    trees: #Chr.trees
+    samples: #Chr.samples
+    stats:
