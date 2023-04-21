@@ -1,0 +1,29 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job stats:
+job                    count    min threads    max threads
+-------------------  -------  -------------  -------------
+all                        1              1              1
+infer                      2              1              1
+prepare_sample_file        2              1              1
+total                      5              1              1
+
+Select jobs to execute...
+
+[Tue Apr 18 11:08:26 2023]
+rule prepare_sample_file:
+    input: Tsinfer/Chr1_ancestral.vcf.gz, /home/jana/Documents/1Projects/HoneybeeDemo/Data/SampleMetaData.csv
+    output: Tsinfer/Chr1.samples
+    jobid: 2
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+InputFunctionException in line 12 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk:
+Error:
+  TypeError: int() argument must be a string, a bytes-like object or a real number, not 'list'
+Wildcards:
+  chromosome=1
+Traceback:
+  File "/home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk", line 5, in get_chrLength

@@ -1,0 +1,2 @@
+SyntaxError in line 35 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/prepare_files_for_tsinfer.smk:
+EOF in multi-line statement (prepare_files_for_tsinfer.smk, line 35)

@@ -1,0 +1,4 @@
+ModuleNotFoundError in line 3 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk:
+No module named 'cyvcf2'
+  File "/home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk", line 3, in <module>
+  File "/home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/../scripts/PrepareTsinferSampleFile.py", line 5, in <module>

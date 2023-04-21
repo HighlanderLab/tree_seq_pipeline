@@ -1,0 +1,265 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                        count    min threads    max threads
+-----------------------  -------  -------------  -------------
+all                            1              1              1
+change_infoAA_vcf              2              1              1
+combine_major_ancestral        2              1              1
+compress_vcf                   2              1              1
+decompress                     2              1              1
+extract_vcf_pos                2              1              1
+get_af                         2              1              1
+get_major                      2              1              1
+match_ancestral_vcf            2              1              1
+split_vcfs                     2              1              1
+total                         19              1              1
+
+Select jobs to execute...
+
+[Mon Apr 17 10:37:59 2023]
+rule split_vcfs:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr1And2Small.vcf.gz
+    output: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr1.vcf.gz
+    jobid: 4
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:37:59 2023]
+Finished job 4.
+1 of 19 steps (5%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:37:59 2023]
+rule get_af:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr1.vcf.gz
+    output: Tsinfer/tmp/Info1.INFO
+    jobid: 7
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:37:59 2023]
+Finished job 7.
+2 of 19 steps (11%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:37:59 2023]
+rule get_major:
+    input: Tsinfer/tmp/Info1.INFO
+    output: Tsinfer/tmp/Major1.txt
+    jobid: 6
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:37:59 2023]
+Finished job 6.
+3 of 19 steps (16%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:37:59 2023]
+rule combine_major_ancestral:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/AncestralAlleleVcf.txt, Tsinfer/tmp/Major1.txt
+    output: Tsinfer/tmp/AncestralMajor1.txt
+    jobid: 5
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:37:59 2023]
+Finished job 5.
+4 of 19 steps (21%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:37:59 2023]
+rule decompress:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr1.vcf.gz, Tsinfer/tmp/AncestralMajor1.txt
+    output: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr1.vcf
+    jobid: 3
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:37:59 2023]
+Finished job 3.
+5 of 19 steps (26%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule extract_vcf_pos:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr1.vcf
+    output: Tsinfer/tmp/VcfPos1.txt
+    jobid: 9
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 9.
+6 of 19 steps (32%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule match_ancestral_vcf:
+    input: Tsinfer/tmp/VcfPos1.txt, Tsinfer/tmp/AncestralMajor1.txt
+    output: Tsinfer/tmp/AncestralVcfMatch1.txt
+    jobid: 8
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 8.
+7 of 19 steps (37%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule change_infoAA_vcf:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr1.vcf, Tsinfer/tmp/AncestralVcfMatch1.txt
+    output: Tsinfer/Chr1_ancestral.vcf
+    jobid: 2
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 2.
+8 of 19 steps (42%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule compress_vcf:
+    input: Tsinfer/Chr1_ancestral.vcf
+    output: Tsinfer/Chr1_ancestral.vcf.gz
+    jobid: 1
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 1.
+9 of 19 steps (47%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule split_vcfs:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr1And2Small.vcf.gz
+    output: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr2.vcf.gz
+    jobid: 13
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 13.
+10 of 19 steps (53%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule get_af:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr2.vcf.gz
+    output: Tsinfer/tmp/Info2.INFO
+    jobid: 16
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 16.
+11 of 19 steps (58%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule get_major:
+    input: Tsinfer/tmp/Info2.INFO
+    output: Tsinfer/tmp/Major2.txt
+    jobid: 15
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 15.
+12 of 19 steps (63%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule combine_major_ancestral:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/AncestralAlleleVcf.txt, Tsinfer/tmp/Major2.txt
+    output: Tsinfer/tmp/AncestralMajor2.txt
+    jobid: 14
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 14.
+13 of 19 steps (68%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule decompress:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr2.vcf.gz, Tsinfer/tmp/AncestralMajor2.txt
+    output: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr2.vcf
+    jobid: 12
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 12.
+14 of 19 steps (74%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule extract_vcf_pos:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr2.vcf
+    output: Tsinfer/tmp/VcfPos2.txt
+    jobid: 18
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 18.
+15 of 19 steps (79%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule match_ancestral_vcf:
+    input: Tsinfer/tmp/VcfPos2.txt, Tsinfer/tmp/AncestralMajor2.txt
+    output: Tsinfer/tmp/AncestralVcfMatch2.txt
+    jobid: 17
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 17.
+16 of 19 steps (84%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule change_infoAA_vcf:
+    input: /home/jana/Documents/1Projects/HoneybeeDemo/Data/RawVCF/Chr2.vcf, Tsinfer/tmp/AncestralVcfMatch2.txt
+    output: Tsinfer/Chr2_ancestral.vcf
+    jobid: 11
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 11.
+17 of 19 steps (89%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+rule compress_vcf:
+    input: Tsinfer/Chr2_ancestral.vcf
+    output: Tsinfer/Chr2_ancestral.vcf.gz
+    jobid: 10
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 10.
+18 of 19 steps (95%) done
+Select jobs to execute...
+
+[Mon Apr 17 10:38:00 2023]
+localrule all:
+    input: Tsinfer/Chr1_ancestral.vcf.gz, Tsinfer/Chr2_ancestral.vcf.gz
+    jobid: 0
+    resources: tmpdir=/tmp
+
+[Mon Apr 17 10:38:00 2023]
+Finished job 0.
+19 of 19 steps (100%) done
+Complete log: /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/.snakemake/log/2023-04-17T103758.597243.snakemake.log

@@ -1,0 +1,2 @@
+SyntaxError in line 1 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk:
+Colon expected after keyword include. (infer_trees.smk, line 1)

@@ -18,12 +18,11 @@ import os
 # chrLength = snakemake.config['chrLength']
 
 args = sys.argv
-chromosome = int(args[1])
-vcfFile = args[2]
-meta = args[3]
-sampleFile = args[4]
-ploidy = int(args[5])
-chrLength = args[6]
+vcfFile = args[1]
+meta = args[2]
+sampleFile = args[3]
+ploidy = int(args[4])
+chrLength = args[5]
 
 #######################################################################
 # Define the functions to read in the vcf
@@ -96,7 +95,7 @@ vcfD = cyvcf2.VCF(vcfFile, strict_gt=True)
 
 # Create samples for haploid data
 with tsinfer.SampleData(path=sampleFile,
-                        sequence_length=chrLength[chromosome],
+                        sequence_length=chrLength,
                         num_flush_threads=10, max_file_size=2**30) as samples:
    populations = add_populations(vcf = vcfD, samples = samples, metaData = metaFile)
    print("populations determined")

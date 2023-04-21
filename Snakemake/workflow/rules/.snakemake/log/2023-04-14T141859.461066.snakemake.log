@@ -1,0 +1,36 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                    count    min threads    max threads
+-------------------  -------  -------------  -------------
+all                        1              1              1
+infer                      2              1              1
+prepare_sample_file        2              1              1
+total                      5              1              1
+
+Select jobs to execute...
+
+[Fri Apr 14 14:19:00 2023]
+rule prepare_sample_file:
+    input: Tsinfer/Chr2_ancestral.vcf.gz, /home/jana/Documents/1Projects/HoneybeeDemo/Data/SampleMetaData.csv
+    output: Tsinfer/Chr2.samples
+    jobid: 4
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Fri Apr 14 14:19:00 2023]
+Error in rule prepare_sample_file:
+    jobid: 4
+    output: Tsinfer/Chr2.samples
+
+RuleException:
+WorkflowError in line 15 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk:
+Failed to open source file /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/scripts/PrepareTsinferSampleFile.py
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/scripts/PrepareTsinferSampleFile.py'
+  File "/home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk", line 15, in __rule_prepare_sample_file
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/.snakemake/log/2023-04-14T141859.461066.snakemake.log

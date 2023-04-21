@@ -1,0 +1,2 @@
+SyntaxError in line 20 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk:
+invalid character '¨' (U+00A8)

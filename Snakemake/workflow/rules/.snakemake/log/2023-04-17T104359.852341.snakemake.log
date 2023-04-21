@@ -1,0 +1,9 @@
+Building DAG of jobs...
+Creating conda environment /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/../envs/tsinfer_env.yaml...
+Downloading and installing remote packages.
+CreateCondaEnvironmentException:
+Could not create conda environment from /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/../envs/tsinfer_env.yaml:
+Encountered problems while solving.
+Problem: nothing provides __glibc >=2.17 needed by libstdcxx-ng-11.2.0-h1234567_1
+
+

@@ -1,0 +1,54 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Conda environments: ignored
+Job stats:
+job                    count    min threads    max threads
+-------------------  -------  -------------  -------------
+all                        1              1              1
+infer                      2              1              1
+prepare_sample_file        2              1              1
+total                      5              1              1
+
+Select jobs to execute...
+
+[Tue Apr 18 09:28:13 2023]
+rule prepare_sample_file:
+    input: Tsinfer/Chr1_ancestral.vcf.gz
+    output: Tsinfer/Chr1.samples
+    jobid: 2
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+[Tue Apr 18 09:28:13 2023]
+rule prepare_sample_file:
+    input: Tsinfer/Chr2_ancestral.vcf.gz
+    output: Tsinfer/Chr2.samples
+    jobid: 4
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+[Tue Apr 18 09:28:13 2023]
+Error in rule prepare_sample_file:
+    jobid: 4
+    output: Tsinfer/Chr2.samples
+
+[Tue Apr 18 09:28:13 2023]
+Error in rule prepare_sample_file:
+    jobid: 2
+    output: Tsinfer/Chr1.samples
+
+RuleException:
+CalledProcessError in line 16 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk:
+Command 'set -euo pipefail;  /usr/bin/python3 /home/jana/Documents/1Projects/HoneybeeDemo/.snakemake/scripts/tmp7y3viqo0.PrepareTsinferSampleFile.py' returned non-zero exit status 1.
+  File "/home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk", line 16, in __rule_prepare_sample_file
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+RuleException:
+CalledProcessError in line 16 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk:
+Command 'set -euo pipefail;  /usr/bin/python3 /home/jana/Documents/1Projects/HoneybeeDemo/.snakemake/scripts/tmpbx4iodn1.PrepareTsinferSampleFile.py' returned non-zero exit status 1.
+  File "/home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk", line 16, in __rule_prepare_sample_file
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/.snakemake/log/2023-04-18T092812.238662.snakemake.log

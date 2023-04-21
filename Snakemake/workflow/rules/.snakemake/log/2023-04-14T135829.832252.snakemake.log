@@ -1,0 +1,3 @@
+NameError in line 1 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk:
+name 'prepare_files_for_tsinfer' is not defined
+  File "/home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk", line 1, in <module>

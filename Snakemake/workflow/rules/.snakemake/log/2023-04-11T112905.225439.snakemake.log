@@ -1,0 +1,3 @@
+SyntaxError:
+Not all output, log and benchmark files of rule get_af contain the same wildcards. This is crucial though, in order to avoid that two or more jobs write to the same file.
+  File "/home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/prepare_files_for_tsinfer.smk", line 52, in <module>

@@ -1,0 +1,24 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job stats:
+job                    count    min threads    max threads
+-------------------  -------  -------------  -------------
+all                        1              1              1
+infer                      2              1              1
+prepare_sample_file        2              1              1
+total                      5              1              1
+
+Select jobs to execute...
+
+[Tue Apr 18 09:54:08 2023]
+rule prepare_sample_file:
+    input: Tsinfer/Chr1_ancestral.vcf.gz, /home/jana/Documents/1Projects/HoneybeeDemo/Data/SampleMetaData.csv
+    output: Tsinfer/Chr1.samples
+    jobid: 2
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+RuleException in line 8 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk:
+NameError: The name 'chrLength' is unknown in this context. Please make sure that you defined that variable. Also note that braces not used for variable access have to be escaped by repeating them, i.e. {{print $1}}

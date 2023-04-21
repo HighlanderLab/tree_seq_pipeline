@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 8 of /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/infer_trees.smk:
+Missing input files for rule prepare_sample_file:
+Tsinfer/Chr1.vcf

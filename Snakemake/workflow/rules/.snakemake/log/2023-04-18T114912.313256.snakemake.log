@@ -1,0 +1,66 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job stats:
+job                    count    min threads    max threads
+-------------------  -------  -------------  -------------
+all                        1              1              1
+infer                      2              1              1
+prepare_sample_file        2              1              1
+total                      5              1              1
+
+Select jobs to execute...
+
+[Tue Apr 18 11:49:13 2023]
+rule prepare_sample_file:
+    input: Tsinfer/Chr1_ancestral.vcf.gz, /home/jana/Documents/1Projects/HoneybeeDemo/Data/SampleMetaData.csv
+    output: Tsinfer/Chr1.samples
+    jobid: 2
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+Activating conda environment: tsinfer
+
+[Tue Apr 18 11:49:13 2023]
+rule prepare_sample_file:
+    input: Tsinfer/Chr2_ancestral.vcf.gz, /home/jana/Documents/1Projects/HoneybeeDemo/Data/SampleMetaData.csv
+    output: Tsinfer/Chr2.samples
+    jobid: 4
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+Activating conda environment: tsinfer
+[Tue Apr 18 11:49:15 2023]
+Finished job 4.
+1 of 5 steps (20%) done
+Select jobs to execute...
+
+[Tue Apr 18 11:49:15 2023]
+rule infer:
+    input: Tsinfer/Chr2.samples
+    output: Tsinfer/Chr2.trees
+    jobid: 3
+    wildcards: chromosome=2
+    resources: tmpdir=/tmp
+
+Activating conda environment: tsinfer
+[Tue Apr 18 11:49:16 2023]
+Finished job 2.
+2 of 5 steps (40%) done
+Select jobs to execute...
+
+[Tue Apr 18 11:49:16 2023]
+rule infer:
+    input: Tsinfer/Chr1.samples
+    output: Tsinfer/Chr1.trees
+    jobid: 1
+    wildcards: chromosome=1
+    resources: tmpdir=/tmp
+
+Activating conda environment: tsinfer
+[Tue Apr 18 11:49:17 2023]
+Finished job 3.
+3 of 5 steps (60%) done
+Terminating processes on user request, this might take some time.
+Complete log: /home/jana/github/tree_seq_pipeline_Jana/Snakemake/rules/.snakemake/log/2023-04-18T114912.313256.snakemake.log
