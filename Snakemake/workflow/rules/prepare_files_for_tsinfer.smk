@@ -12,16 +12,18 @@ rule get_af:
 rule get_major:
     input:
         rules.get_af.output
-    output: temp('Major{chromosome}.txt')
+    output:
+        temp('Major{chromosome}.txt')
     shell:
-        "awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else"
-        "if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}"
+        """
+        awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
+        """
 
 rule combine_major_ancestral:
     input:
         ancestral=config['ancestralAllele'],
         major=rules.get_major.output
-    output: tmp('AncestralMajor{chromosome}.txt')
+    output: temp('AncestralMajor{chromosome}.txt')
     shell:
         """
         join -a1 -t ","  -j 1 -o 1.1,1.2,2.2 <(sort -k1,1 {input.major}) <(sort -k1,1 {input.ancestral}) > tmpMA
@@ -47,7 +49,7 @@ rule extract_vcf_pos:
     #envmodules:
     #    config['bcftoolsModule']
     params:
-        vcfDir=vcfDir
+        vcfDir=config['vcfDir']
     shell:
         """
         bcftools query -f '%CHROM %POS\n' {input} > tmp

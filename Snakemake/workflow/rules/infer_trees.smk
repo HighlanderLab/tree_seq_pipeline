@@ -13,12 +13,10 @@ rule prepare_sample_file:
     output:
         "Tsinfer/samples/{chromosome}.samples"
     params:
-        chrLength= lambda wildcards:
-            config['chromosome_length'][int(wildcards.chromosome.split("_")[1])],
-        ploidy=config['ploidy'],
-        snakemakedir=config['snakemakedir']
+        chrLength= lambda wildcards:  config['chromosome_length'][int(wildcards.chromosome.split("_")[1])],
+        ploidy=config['ploidy']
     shell:
-        "python Snakemake/scripts/PrepareTsinferSampleFile.py "
+        "python ../scripts/PrepareTsinferSampleFile.py "
         "{input.vcf} {input.meta} {output} {params.ploidy} {params.chrLength}"
 
 rule infer:
@@ -27,7 +25,5 @@ rule infer:
     conda:  "tsinfer"
     output:
         "Tsinfer/trees/{chromosome}.trees"
-    params:
-        snakemakedir=config['snakemakedir']
     shell:
-        "python Snakemake/scripts/InferTrees.py {input} {output}"
+        "python ../scripts/InferTrees.py {input} {output}"
