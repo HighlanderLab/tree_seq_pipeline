@@ -18,7 +18,7 @@ if len(splitFiles) > 0:
             """
             echo {input}
             cp {input} {output}
-            bcftools index {output}
+bcftools index {output}
             """
 
 
@@ -52,7 +52,6 @@ rule create_vcf_input:
         import yaml
         chrDict = {wildcards.chromosome: [input.splitOutput, input.combinedOutput]}
         chrYaml = yaml.dump(chrDict)
-        outfile = str(output[0])
-        f = open(outfile, "w")
+        outfile = str(output[0]        f = open(outfile, "w")
         f.write(chrYaml)
         f.close()
