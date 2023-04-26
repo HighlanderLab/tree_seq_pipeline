@@ -1,7 +1,7 @@
 # import some python modules to define variables
+import shutil
 from os import listdir
 from pathlib import Path
-import shutil
 from os.path import isfile, join
 
 
@@ -14,39 +14,39 @@ configfile: '../config/tsinfer.yaml'
 report: "reports/tsinfer.rst"
 
 ##### setup singularity #####
-# CAn we set conda env here???
+# Can we set conda env here???
 
-##### Define some variables $$$$$
-# files are expected to be stored in the vcfDir folder.
-# files for each chromosome should be in a separate folder (for clarity).
+##### Define some variables #####
+# all files should be in the vcfDir/RawVCF folder
+# files that need spliting are named: Combined_something.vcf.gz
+# files already separated by chr are named: Chr{n}_something.vcf.gz
+# the script will identify and (1) split, if necessary,
+# (2) sort into the correct Chr folder in vcfDir.
+
 # defining variables that will be used throughout the script
 vcfdir=config['vcfDir'] # from config file, the path to vcf
+# this folder can be any where but must have the following structure:
+# vcfDir:
+#   - RawVCF
+#   - Chr1
+#   -Chr...
 
-chromosomes = [f'Chr_{n}' for n in range(1, config['noChromosomes'] + 1)]
+chromosomes = [f'Chr{n}' for n in range(1, config['noChromosomes'] + 1)]
 # set a list of 'Chr' + chr# combinations to be used as wildcards
 
 #allfiles = [f.split('.')[0].split('_')[1] for f in listdir(f'{vcfdir}/{chromosomes[0]}')
-VCFs = [f for f in listdir(f'{vcfdir}/RawVCF') if f.endswith('vcf.gz')]
-VCFNames = [f.strip("vcf.gz") for f in VCFs]
+#VCFs = [f for f in listdir(f'{vcfdir}/RawVCF') if f.endswith('vcf.gz')]
+#VCFNames = [f.strip("vcf.gz") for f in VCFs]
 
 #VCFs = [f for f in listdir(f'{vcfdir}')
 #if isfile(join(f'{vcfdir}', f)) and f.endswith('vcf.gz')]
 
 ##### load rules #####
-#if len(VCFs) == 1:
 include: "rules/split.smk"
-#if len(allfiles) > 1:
 include: "rules/merge_samples_vcf.smk"
-if (os.path.isfile(f'{vcfdir}/Chr_1/Chr_1_split.vcf.gz')):
-    rule rename_vcf_file:
-        input: [f'{vcfdir}' + x for x in expand('/{{chromosome}}/{{chromosome}}_split.vcf.gz', chromosome=chromosomes)]
-        output: [f'{vcfdir}' + x for x in expand('/{{chromosome}}.vcf.gz', chromosome=chromosomes)]
-        shell:
-            "mv {input} {output}"
 include: "rules/prepare_files_for_tsinfer.smk"
 include: "rules/phasing.smk"
 include: "rules/infer_trees.smk"
-
 
 ##### target rules #####
 # At the end it should generate a phased vcf file that combines all files for
@@ -54,6 +54,5 @@ include: "rules/infer_trees.smk"
 # configuration file. It also checks that vcfs have been filtered before merged
 rule all:
     input:
-        expand(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.filtered.vcf.gz',
-        chromosome=chromosomes, file=allfiles),
-        expand('Tsinfer/trees/{chromosome}.trees', chromosome=chromosomes) # tree inference
+        expand('../../Tsinfer/trees/{chromosome}.trees', chromosome=chromosomes)
+        # tree inference

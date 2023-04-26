@@ -1,12 +1,20 @@
-vcfdir = "/home/jana/Documents/1Projects/HoneybeeDemo/Data"
-chromosomes = [f'Chr{n}' for n in range(1, 3)]
+#vcfdir = "vcfDir"
+#chromosomes = [f'Chr{n}' for n in range(1, 3)]
 
-splitFiles = list(set([f.strip("vcf.gz").split("_")[1] for f in os.listdir(f'{vcfdir}/RawVCF') if (f.endswith("vcf.gz") and f.startswith("Chr"))]))
-combinedFiles = list(set([f.strip("vcf.gz").split("_")[1] for f in os.listdir(f'{vcfdir}/RawVCF') if (f.endswith("vcf.gz") and f.startswith("Combine"))]))
+# FILE NAMES MUST BE:
+#    SPLITFILES = CHR{N}_ORIGIN.VCF.GZ
+#    COMBINEDFILES = COMBINE_ORIGIN.VCF.GZ
+splitFiles = list(set([f.strip("vcf.gz").split("_")[1]
+    for f in os.listdir(f'{vcfdir}/RawVCF')
+        if (f.endswith("vcf.gz") and f.startswith("Chr"))]))
+combinedFiles = list(set([f.strip("vcf.gz").split("_")[1]
+    for f in os.listdir(f'{vcfdir}/RawVCF')
+        if (f.endswith("vcf.gz") and f.startswith("Combine"))]))
 
-rule all:
-    input:
-        expand(f'{vcfdir}/{{chromosome}}/MergeList.yaml', chromosome = chromosomes)
+#rule all:
+#    input:
+#        expand(f'{vcfdir}/{{chromosome}}/MergeList.yaml',
+#            chromosome = chromosomes)
 
 if len(splitFiles) > 0:
     rule move_vcf:
@@ -18,21 +26,18 @@ if len(splitFiles) > 0:
             """
             echo {input}
             cp {input} {output}
-bcftools index {output}
+            bcftools index {output}
             """
-
 
 if len(combinedFiles) > 0:
     rule split_and_move_vcfs:
         input:
             f'{vcfdir}/RawVCF/Combined_{{suffixTwo}}.vcf.gz'
         output:
-            [f'{vcfdir}' + x for x in expand('/{{chromosome}}/{{chromosome}}_{{suffixTwo}}.vcf.gz', chromosome = chromosomes, suffixTwo = combinedFiles)]
+            [f'{vcfdir}' + x
+                for x in expand('/{{chromosome}}/{{chromosome}}_{{suffixTwo}}.vcf.gz',
+                    chromosome = chromosomes, suffixTwo = combinedFiles)]
 
-    #    conda:
-    #        'envs/vcfEdit.yaml'
-        # log:
-        #     logs:'{chromosome}_split.log'
         shell:
             """
             str='{wildcards.chromosome}'
@@ -42,16 +47,28 @@ if len(combinedFiles) > 0:
             bcftools index {output}
             """
 
+# looks terrible but it is now running by chromosome
 rule create_vcf_input:
     input:
-        splitOutput=expand(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{suffixOne}}.vcf.gz', chromosome = chromosomes, suffixOne = splitFiles) if len(splitFiles) > 0 else [],
-        combinedOutput=expand(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{suffixTwo}}.vcf.gz', chromosome = chromosomes, suffixTwo = combinedFiles) if len(combinedFiles) > 0 else []
+        splitOutput=
+            [f'{vcfdir}' + x
+                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixOne}.vcf.gz',
+                    suffixOne = splitFiles)] if len(splitFiles) != 0 else [],
+        combinedOutput=
+            [f'{vcfdir}' + x
+                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixTwo}.vcf.gz',
+                suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
     output:
-        [f'{vcfdir}' + x for x in expand('/{{chromosome}}/MergeList.yaml', chromosome = chromosomes)]
+        [f'{vcfdir}' + x for x in expand('/{{chromosome}}/MergeList.yaml',
+            chromosome = chromosomes)]
     run:
         import yaml
-        chrDict = {wildcards.chromosome: [input.splitOutput, input.combinedOutput]}
-        chrYaml = yaml.dump(chrDict)
-        outfile = str(output[0]        f = open(outfile, "w")
-        f.write(chrYaml)
+
+        name = str(wildcards.chromosome)
+        filelst = [str(f) for f in input.splitOutput] + [str(f) for f in input.combinedOutput]
+
+        chrDict = {name: filelst}
+        outfile = str(output[0])
+        f = open(outfile, 'w+')
+        yaml.dump(chrDict, f, allow_unicode=False, default_flow_style=False)
         f.close()
