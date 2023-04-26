@@ -1,57 +1,8 @@
-from os import listdir
-from pathlib import Path
-configfile: "../config/tsinfer.yaml"
-
-def list_full_paths(directory):
-    return [os.path.join(directory, file) for file in os.listdir(directory)]
-
-
-rule all:
-    input:
-        expand("Tsinfer/Chr{chromosome}_ancestral.vcf.gz", chromosome = range(1, config['noChromosomes'] + 1))
-
-
-vcfDir = config['vcfDir']
-workdir: config['workdir']
-if not os.path.exists("Tsinfer"):
-    os.makedirs("Tsinfer")
-if not os.path.exists("Tsinfer/tmp"):
-    os.makedirs("Tsinfer/tmp")
-
-VCFs =[x for x in list_full_paths(vcfDir) if x.endswith(".vcf.gz")]
-noVCFs = len(VCFs)
-#if noVCFs == config['noChromosomes']:
-    #print("Your VCFs are split.")
-#
-#if (noVCFs != config['noChromosomes']) and noVCFs != 1:
-    #print("Check you VCFs.")
-
-if noVCFs == 1:
-    #print("Splitting VCFs.")
-    rule split_vcfs: #Input VCFs need to be compressed and indexes
-        input:
-            vcf=VCFs[0]
-        output:
-            vcf=[vcfDir + x for x in expand("Chr{{chromosome}}.vcf.gz")]
-        params:
-            vcfDir=vcfDir
-        #envmodules:
-        #    config['bcftoolsModule']
-        shell:
-            """
-            bcftools view -r {wildcards.chromosome} -O z {input} > {output.vcf}
-            bcftools index {output.vcf}
-            """
-
 rule get_af:
-    input:
-        vcfDir + "Chr{chromosome}.vcf.gz"
-    output:
-         "Tsinfer/tmp/Info{chromosome}.INFO"
+    input: f'{vcfdir}/{{chromosome}}.vcf.gz'
+    output: temp('Info{chromosome}.INFO')
     params:
-        prefix="Tsinfer/tmp/Info{chromosome}"
-    #envmodules:
-    #    config['bcftoolsModule']
+        prefix='Info{chromosome}'
     shell:
         """
         bcftools +fill-tags {input} -Oz -o {input} -- -t AN,AC,AF
@@ -62,7 +13,7 @@ rule get_major:
     input:
         rules.get_af.output
     output:
-        "Tsinfer/tmp/Major{chromosome}.txt"
+        temp('Major{chromosome}.txt')
     shell:
         """
         awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
@@ -72,8 +23,7 @@ rule combine_major_ancestral:
     input:
         ancestral=config['ancestralAllele'],
         major=rules.get_major.output
-    output:
-        "Tsinfer/tmp/AncestralMajor{chromosome}.txt"
+    output: temp('AncestralMajor{chromosome}.txt')
     shell:
         """
         join -a1 -t ","  -j 1 -o 1.1,1.2,2.2 <(sort -k1,1 {input.major}) <(sort -k1,1 {input.ancestral}) > tmpMA
@@ -82,27 +32,24 @@ rule combine_major_ancestral:
 
 rule decompress:
     input:
-        vcf = vcfDir + "Chr{chromosome}.vcf.gz",
+        vcf = f'{vcfdir}/{{chromosome}}.vcf.gz',
         major=rules.combine_major_ancestral.output
-    output:
-        vcfDir + "Chr{chromosome}.vcf"
+    output: temp(f'{vcfdir}/{{chromosome}}.vcf')
     shell:
         """
         gunzip {input.vcf}
         """
 
-
 rule extract_vcf_pos:
     input:
         rules.decompress.output
-    output:
-        "Tsinfer/tmp/VcfPos{chromosome}.txt"
+    output: temp('VcfPos{chromosome}.txt')
     #conda:
     #    config['tsinferEnv']
     #envmodules:
     #    config['bcftoolsModule']
     params:
-        vcfDir=vcfDir
+        vcfDir=config['vcfDir']
     shell:
         """
         bcftools query -f '%CHROM %POS\n' {input} > tmp
@@ -112,9 +59,10 @@ rule extract_vcf_pos:
 rule match_ancestral_vcf:
     input:
         vcfPos=rules.extract_vcf_pos.output, # This has more lines,
-        ancestralMajor=rules.combine_major_ancestral.output # The ancestral file has to have chr_pos and AA, split with a tab
-    output:
-        "Tsinfer/tmp/AncestralVcfMatch{chromosome}.txt" # THis files needs to contain all the variants from the vcf (blank space)
+        ancestralMajor=rules.combine_major_ancestral.output
+        # The ancestral file has to have chr_pos and AA, split with a tab
+    output: temp('AncestralVcfMatch{chromosome}.txt')
+        # THis files needs to contain all the variants from the vcf (blank space)
     shell:
         """
         for line in $(cat {input.vcfPos});
@@ -128,12 +76,11 @@ rule change_infoAA_vcf:
     input:
         vcf=rules.decompress.output,
         ancestralAllele=rules.match_ancestral_vcf.output
-    output:
-        "Tsinfer/Chr{chromosome}_ancestral.vcf"
+    output: temp(f'{vcfdir}/{{chromosome}}_ancestral.vcf')
     shell:
         """
         HEADERNUM=$(( $(grep "##" {input.vcf} | wc -l) + 1 ))
-        INFOLINE=$(( $(grep -Fn "INFO" {input.vcf} | cut --delimiter=":" --fields=1  | head -n1) ))
+        INFOLINE=$(( $(grep -Fn "INFO" {input.vcf} | cut -d ":" -f 1  | head -n1) ))
         awk -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $2; next}}}} FNR<=HEADER{{{{print}}}}; \
         FNR==INFO{{{{printf "##INFO=<ID=AA,Number=1,Type=String,Description=Ancestral Allele>\\n"}}}}; \
         FNR>HEADER{{{{$8="AA="a[FNR-HEADER]; print}}}}' OFS="\t" {input.ancestralAllele} {input.vcf} > {output}
@@ -142,8 +89,7 @@ rule change_infoAA_vcf:
 rule compress_vcf:
     input:
         rules.change_infoAA_vcf.output
-    output:
-        "Tsinfer/Chr{chromosome}_ancestral.vcf.gz"
+    output: 'Tsinfer/{chromosome}_ancestral.vcf.gz'
     shell:
         """
         bgzip {input}
