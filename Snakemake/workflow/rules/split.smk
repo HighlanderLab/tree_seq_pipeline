@@ -1,5 +1,5 @@
-vcfdir = "vcfDir"
-chromosomes = [f'Chr{n}' for n in range(1, 3)]
+#vcfdir = "vcfDir"
+#chromosomes = [f'Chr{n}' for n in range(1, 3)]
 
 # FILE NAMES MUST BE:
 #    SPLITFILES = CHR{N}_ORIGIN.VCF.GZ
@@ -11,10 +11,10 @@ combinedFiles = list(set([f.strip("vcf.gz").split("_")[1]
     for f in os.listdir(f'{vcfdir}/RawVCF')
         if (f.endswith("vcf.gz") and f.startswith("Combine"))]))
 
-rule all:
-    input:
-        expand(f'{vcfdir}/{{chromosome}}/MergeList.yaml',
-            chromosome = chromosomes)
+#rule all:
+#    input:
+#        expand(f'{vcfdir}/{{chromosome}}/MergeList.yaml',
+#            chromosome = chromosomes)
 
 if len(splitFiles) > 0:
     rule move_vcf:

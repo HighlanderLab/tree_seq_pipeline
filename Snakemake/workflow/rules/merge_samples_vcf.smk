@@ -1,6 +1,6 @@
 import yaml
-vcfdir = "vcfDir"
-chromosomes = [f'Chr{n}' for n in range(1, 3)]
+#vcfdir = "vcfDir"
+#chromosomes = [f'Chr{n}' for n in range(1, 3)]
 
 mergeList = f'{vcfdir}/Chr1/MergeList.yaml'
 with open(mergeList) as f:
@@ -10,8 +10,8 @@ files=[f for f in files2merge.values()][0]
 nfiles2merge = len(files)
 names = [f.strip('.vcf.gz').split('/')[-1].split('_')[-1] for f in files]
 
-rule all:
- input: expand(f'{vcfdir}/{{chromosome}}_final.vcf.gz', chromosome=chromosomes)
+# rule all:
+#  input: expand(f'{vcfdir}/{{chromosome}}_final.vcf.gz', chromosome=chromosomes)
 
 if nfiles2merge != 1:
     print(f'{nfiles2merge} files to merge')
