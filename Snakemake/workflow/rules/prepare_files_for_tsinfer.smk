@@ -1,5 +1,5 @@
 rule get_af:
-    input: f'{vcfdir}/{{chromosome}}.vcf.gz'
+    input: f'{vcfdir}/{{chromosome}}_final.vcf.gz'
     output: temp('Info{chromosome}.INFO')
     params:
         prefix='Info{chromosome}'
@@ -32,7 +32,7 @@ rule combine_major_ancestral:
 
 rule decompress:
     input:
-        vcf = f'{vcfdir}/{{chromosome}}.vcf.gz',
+        vcf = f'{vcfdir}/{{chromosome}}_final.vcf.gz',
         major=rules.combine_major_ancestral.output
     output: temp(f'{vcfdir}/{{chromosome}}.vcf')
     shell:
@@ -89,7 +89,7 @@ rule change_infoAA_vcf:
 rule compress_vcf:
     input:
         rules.change_infoAA_vcf.output
-    output: 'Tsinfer/{chromosome}_ancestral.vcf.gz'
+    output: '../Project/Tsinfer/{chromosome}_ancestral.vcf.gz'
     shell:
         """
         bgzip {input}

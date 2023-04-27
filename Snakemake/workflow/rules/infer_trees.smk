@@ -1,4 +1,4 @@
-
+import re
 
 # ---------------------------------------------------------------------------- #
 #                                TREE                                          #
@@ -6,14 +6,14 @@
 
 rule prepare_sample_file:
     input:
-        vcf="Tsinfer/{chromosome}_ancestral.vcf.gz",
+        vcf="../Project/Tsinfer/{chromosome}_ancestral.vcf.gz",
         meta=config['meta']
     conda:
         "tsinfer"
     output:
-        "Tsinfer/samples/{chromosome}.samples"
+        "../Project/Tsinfer/samples/{chromosome}.samples"
     params:
-        chrLength= lambda wildcards:  config['chromosome_length'][int(wildcards.chromosome.split("_")[1])],
+        chrLength= lambda wildcards:  config['chromosome_length'][int(re.findall(r'\d+', wildcards.chromosome)[0])],
         ploidy=config['ploidy']
     shell:
         "python ../scripts/PrepareTsinferSampleFile.py "
@@ -21,9 +21,9 @@ rule prepare_sample_file:
 
 rule infer:
     input:
-        "Tsinfer/samples/{chromosome}.samples"
+        "../Project/Tsinfer/samples/{chromosome}.samples"
     conda:  "tsinfer"
     output:
-        "Tsinfer/trees/{chromosome}.trees"
+        "../Project/Tsinfer/trees/{chromosome}.trees"
     shell:
         "python ../scripts/InferTrees.py {input} {output}"
