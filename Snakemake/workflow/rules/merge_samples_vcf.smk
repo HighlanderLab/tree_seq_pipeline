@@ -2,26 +2,19 @@ import yaml
 #vcfdir = "vcfDir"
 #chromosomes = [f'Chr{n}' for n in range(1, 3)]
 
-mergeList = f'{vcfdir}/Chr1/MergeList.yaml'
-with open(mergeList) as f:
-    files2merge = yaml.safe_load(f)
-
-files=[f for f in files2merge.values()][0]
-nfiles2merge = len(files)
-names = [f.strip('.vcf.gz').split('/')[-1].split('_')[-1] for f in files]
-
-# rule all:
-#  input: expand(f'{vcfdir}/{{chromosome}}_final.vcf.gz', chromosome=chromosomes)
-
-if nfiles2merge != 1:
-    print(f'{nfiles2merge} files to merge')
+if len(allFiles) != 1:
     rule get_samples:
         input:
-            files=f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{name}}.vcf.gz'
-        output: temp(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{name}}.txt')
+            [f'{vcfdir}' + x
+                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixOne}.vcf.gz',
+                    suffixOne = splitFiles)] if len(splitFiles) != 0 else [],
+            [f'{vcfdir}' + x
+                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixTwo}.vcf.gz',
+                    suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
+        output: temp(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.txt')
         shell:
             """
-            bcftools query -l {input.files} > {output}
+            bcftools query -l {input} > {output}
             """
 
 #     # Executes per chromosome! Takes all .txt files at once, compare and remove
@@ -29,12 +22,12 @@ if nfiles2merge != 1:
     rule compare:
         input:
             [f'{vcfdir}' + x
-                for x in expand('/{{chromosome}}/{{chromosome}}_{name}.txt',
-                    name=names)]
+                for x in expand('/{{chromosome}}/{{chromosome}}_{file}.txt',
+                    file=allFiles)]
         output:
             temp([f'{vcfdir}' + x for x in
-                expand('/{{chromosome}}/{{chromosome}}_{name}.filtered',
-                    name=names)])
+                expand('/{{chromosome}}/{{chromosome}}_{file}.filtered',
+                    file=allFiles)])
 # #         log: expand('logs/{{chromosome}}_{file}.log', file=allfiles)
         run:
             from itertools import combinations
@@ -55,9 +48,9 @@ if nfiles2merge != 1:
 # #     # and filters the vcfs based on the new filtered samples list. index the output.
     rule filter:
         input:
-            vcf = f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{name}}.vcf.gz',
-            ids = f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{name}}.filtered'
-        output: f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{name}}.filtered.vcf.gz'
+            vcf = f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.vcf.gz',
+            ids = f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.filtered'
+        output: f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.filtered.vcf.gz'
 #         conda:
 #             'envs/vcfEdit.yaml'
 #         log: 'logs/{chromosome}_{file}.log'
@@ -71,7 +64,7 @@ if nfiles2merge != 1:
 # #     # Merges all vcfs and indexes them.
 # #     # Outputs the final merged vcf for each chromosome directly in the vcfDir.
     rule merge:
-        input: [f'{vcfdir}' + x for x in expand('/{{chromosome}}/{{chromosome}}_{name}.filtered.vcf.gz', name=names)]
+        input: [f'{vcfdir}' + x for x in expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz', file=allFiles)]
         output: f'{vcfdir}/{{chromosome}}_final.vcf.gz'
 #         conda:
 #             'env/vcfEdit.yaml'
@@ -86,14 +79,12 @@ else:
     rule rename:
         input:
             [f'{vcfdir}' + x
-                for x in expand('/{{chromosome}}/MergeList.yaml',
-                    chromosome = chromosomes)]
-        output: f'{vcfdir}/{{chromosome}}_final.vcf.gz'
-        run:
-            with open(mergeList) as f:
-                dict = yaml.safe_load(f)
-
-            dict_values = [f for f in files2merge.values()]
-            file = [item for sublist in dict_values for item in sublist]
-
-            shell("mv {file} {output}")
+                for x in expand('/{{chromosome}}/{{chromosome}}_{file}.vcf.gz',
+                    suffixOne = splitFiles)] if len(splitFiles) != 0 else [],
+            [f'{vcfdir}' + x
+                for x in expand('/{{chromosome}}/{{chromosome}}_{file}.vcf.gz',
+                    suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
+        output:
+            f'{vcfdir}/{{chromosome}}_final.vcf.gz'
+        shell:
+            "mv {file} {output}"

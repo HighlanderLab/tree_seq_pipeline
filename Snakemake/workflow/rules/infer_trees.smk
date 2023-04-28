@@ -6,7 +6,7 @@ import re
 
 rule prepare_sample_file:
     input:
-        vcf="../Project/Tsinfer/{chromosome}_ancestral.vcf.gz",
+        vcf=f'{vcfdir}/{{chromosome}}_ancestral.vcf',
         meta=config['meta']
     conda:
         "tsinfer"
@@ -16,7 +16,7 @@ rule prepare_sample_file:
         chrLength= lambda wildcards:  config['chromosome_length'][int(re.findall(r'\d+', wildcards.chromosome)[0])],
         ploidy=config['ploidy']
     shell:
-        "python ../scripts/PrepareTsinferSampleFile.py "
+        "python scripts/PrepareTsinferSampleFile.py "
         "{input.vcf} {input.meta} {output} {params.ploidy} {params.chrLength}"
 
 rule infer:
@@ -26,4 +26,4 @@ rule infer:
     output:
         "../Project/Tsinfer/trees/{chromosome}.trees"
     shell:
-        "python ../scripts/InferTrees.py {input} {output}"
+        "python scripts/InferTrees.py {input} {output}"

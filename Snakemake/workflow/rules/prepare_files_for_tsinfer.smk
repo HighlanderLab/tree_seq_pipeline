@@ -1,6 +1,10 @@
+
+
 rule get_af:
-    input: f'{vcfdir}/{{chromosome}}_final.vcf.gz'
-    output: temp('Info{chromosome}.INFO')
+    input:
+        f'{vcfdir}/{{chromosome}}_final.vcf.gz'
+    output:
+        temp('Info{chromosome}.INFO')
     params:
         prefix='Info{chromosome}'
     shell:
@@ -34,7 +38,7 @@ rule decompress:
     input:
         vcf = f'{vcfdir}/{{chromosome}}_final.vcf.gz',
         major=rules.combine_major_ancestral.output
-    output: temp(f'{vcfdir}/{{chromosome}}.vcf')
+    output: temp(f'{vcfdir}/{{chromosome}}_final.vcf')
     shell:
         """
         gunzip {input.vcf}
@@ -43,7 +47,8 @@ rule decompress:
 rule extract_vcf_pos:
     input:
         rules.decompress.output
-    output: temp('VcfPos{chromosome}.txt')
+    output:
+        temp('VcfPos{chromosome}.txt')
     #conda:
     #    config['tsinferEnv']
     #envmodules:
@@ -89,7 +94,7 @@ rule change_infoAA_vcf:
 rule compress_vcf:
     input:
         rules.change_infoAA_vcf.output
-    output: '../Project/Tsinfer/{chromosome}_ancestral.vcf.gz'
+    output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
     shell:
         """
         bgzip {input}

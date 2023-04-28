@@ -3,13 +3,14 @@
 
 # FILE NAMES MUST BE:
 #    SPLITFILES = CHR{N}_ORIGIN.VCF.GZ
-#    COMBINEDFILES = COMBINE_ORIGIN.VCF.GZ
+#    COMBINEDFILES = COMBINED_ORIGIN.VCF.GZ
 splitFiles = list(set([f.strip("vcf.gz").split("_")[1]
     for f in os.listdir(f'{vcfdir}/RawVCF')
         if (f.endswith("vcf.gz") and f.startswith("Chr"))]))
 combinedFiles = list(set([f.strip("vcf.gz").split("_")[1]
     for f in os.listdir(f'{vcfdir}/RawVCF')
-        if (f.endswith("vcf.gz") and f.startswith("Combine"))]))
+        if (f.endswith("vcf.gz") and f.startswith("Combined"))]))
+allFiles = splitFiles + combinedFiles
 
 #rule all:
 #    input:
@@ -48,27 +49,27 @@ if len(combinedFiles) > 0:
             """
 
 # looks terrible but it is now running by chromosome
-rule create_vcf_input:
-    input:
-        splitOutput=
-            [f'{vcfdir}' + x
-                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixOne}.vcf.gz',
-                    suffixOne = splitFiles)] if len(splitFiles) != 0 else [],
-        combinedOutput=
-            [f'{vcfdir}' + x
-                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixTwo}.vcf.gz',
-                suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
-    output:
-        [f'{vcfdir}' + x for x in expand('/{{chromosome}}/MergeList.yaml',
-            chromosome = chromosomes)]
-    run:
-        import yaml
-
-        name = str(wildcards.chromosome)
-        filelst = [str(f) for f in input.splitOutput] + [str(f) for f in input.combinedOutput]
-
-        chrDict = {name: filelst}
-        outfile = str(output[0])
-        f = open(outfile, 'w+')
-        yaml.dump(chrDict, f, allow_unicode=False, default_flow_style=False)
-        f.close()
+# rule create_vcf_input:
+#     input:
+#         splitOutput=
+#             [f'{vcfdir}' + x
+#                 for x in expand('/{{chromosome}}/{{chromosome}}_{suffixOne}.vcf.gz',
+#                     suffixOne = splitFiles)] if len(splitFiles) != 0 else [],
+#         combinedOutput=
+#             [f'{vcfdir}' + x
+#                 for x in expand('/{{chromosome}}/{{chromosome}}_{suffixTwo}.vcf.gz',
+#                 suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
+#     output:
+#         [f'{vcfdir}' + x for x in expand('/{{chromosome}}/MergeList.yaml',
+#             chromosome = chromosomes)]
+#     run:
+#         import yaml
+#
+#         name = str(wildcards.chromosome)
+#         filelst = [str(f) for f in input.splitOutput] + [str(f) for f in input.combinedOutput]
+#
+#         chrDict = {name: filelst}
+#         outfile = str(output[0])
+#         f = open(outfile, 'w+')
+#         yaml.dump(chrDict, f, allow_unicode=False, default_flow_style=False)
+#         f.close()
