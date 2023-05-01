@@ -54,5 +54,5 @@ include: "rules/infer_trees.smk"
 # configuration file. It also checks that vcfs have been filtered before merged
 rule all:
     input:
-        expand('../../Tsinfer/trees/{chromosome}.trees', chromosome=chromosomes)
+        expand('../Project/Tsinfer/trees/{chromosome}.trees', chromosome=chromosomes)
         # tree inference
