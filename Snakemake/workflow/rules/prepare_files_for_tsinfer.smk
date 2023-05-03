@@ -4,7 +4,8 @@ rule get_af:
     input:
         f'{vcfdir}/{{chromosome}}_final.vcf.gz'
     output:
-        temp('Info{chromosome}.INFO')
+        info=temp('Info{chromosome}.INFO'),
+        log=temp('Info{chromosome}.log')
     params:
         prefix='Info{chromosome}'
     shell:
@@ -15,7 +16,7 @@ rule get_af:
 
 rule get_major:
     input:
-        rules.get_af.output
+        rules.get_af.output.info
     output:
         temp('Major{chromosome}.txt')
     shell:
@@ -32,6 +33,7 @@ rule combine_major_ancestral:
         """
         join -a1 -t ","  -j 1 -o 1.1,1.2,2.2 <(sort -k1,1 {input.major}) <(sort -k1,1 {input.ancestral}) > tmpMA
         awk -F, '{{if ($3=="") {{print $1,$2}} else {{print $1,$3}}}}' tmpMA > {output}
+        rm tmpMA
         """
 
 rule decompress:
@@ -59,6 +61,7 @@ rule extract_vcf_pos:
         """
         bcftools query -f '%CHROM %POS\n' {input} > tmp
         awk '{{print $1"_"$2}}' tmp > {output}
+        rm tmp
         """
 
 rule match_ancestral_vcf:

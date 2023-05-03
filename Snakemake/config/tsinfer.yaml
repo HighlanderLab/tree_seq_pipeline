@@ -1,0 +1,13 @@
+workdir: "/home/jana/github/tree_seq_Jana/Snakemake/Project"
+species: "Apis mellifera"
+ploidy: "1"
+noChromosomes: 2
+vcfDir: "/home/jana/Documents/1Projects/HoneybeeDemo/Data"
+#combinedVCFs: null
+merge: "yes"
+bcftoolsModule: "igmm/apps/bcftools/1.9"
+ancestralAllele: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/AncestralAlleleVcf.txt"
+meta: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/SampleMetaData.csv"
+chromosome_length:
+  1 : 100000
+  2 : 100000
