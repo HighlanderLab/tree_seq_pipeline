@@ -16,6 +16,7 @@ report: "reports/tsinfer.rst"
 ##### setup singularity #####
 # Can we set conda env here???
 
+
 ##### Define some variables #####
 # all files should be in the vcfDir/RawVCF folder
 # files that need spliting are named: Combined_something.vcf.gz
@@ -33,13 +34,6 @@ vcfdir=config['vcfDir'] # from config file, the path to vcf
 
 chromosomes = [f'Chr{n}' for n in range(1, config['noChromosomes'] + 1)]
 # set a list of 'Chr' + chr# combinations to be used as wildcards
-
-#allfiles = [f.split('.')[0].split('_')[1] for f in listdir(f'{vcfdir}/{chromosomes[0]}')
-#VCFs = [f for f in listdir(f'{vcfdir}/RawVCF') if f.endswith('vcf.gz')]
-#VCFNames = [f.strip("vcf.gz") for f in VCFs]
-
-#VCFs = [f for f in listdir(f'{vcfdir}')
-#if isfile(join(f'{vcfdir}', f)) and f.endswith('vcf.gz')]
 
 ##### load rules #####
 include: "rules/split.smk"
