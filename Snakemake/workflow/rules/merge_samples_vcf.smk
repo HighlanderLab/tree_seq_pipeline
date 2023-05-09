@@ -96,7 +96,7 @@ if len(allFiles) != 1:
 #         log: 'logs/{chromosome}_merged.log'
         shell:
             """
-            bcftools merge -m all {input} -O z -o {output}
+            bcftools merge {input} -O z -o {output}
             bcftools index {output}
             """
 
