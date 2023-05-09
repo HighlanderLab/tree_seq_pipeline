@@ -15,10 +15,10 @@ rule phase:
         str='{wildcards.chromosome}'
         chr=$(echo ${{str:4}})
         shapeit4 --input {input.vcf} \
-                 --map {input.map} \
-                 --region ${{chr}} \
-                 --output {output} \
-                 --sequencing \
-                 --thread 5
+                         --map {input.map} \
+                         --region ${{chr}} \
+                         --output {output} \
+                         --sequencing \
+                         --thread 10
         bcftools index {output}
         """
