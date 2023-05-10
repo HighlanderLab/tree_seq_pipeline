@@ -60,7 +60,7 @@ def add_sites(vcf, samples, ploidy):
             if any([not phased for _, _, phased in variant.genotypes]):
                 raise ValueError("Unphased genotypes for variant at position", pos)
 
-        alleles = [variant.REF] + variant.ALT
+        alleles = [variant.REF] + [v for v in variant.ALT]
         # ignores non-bialllelic sites
         if len(alleles) > 2:
             continue
