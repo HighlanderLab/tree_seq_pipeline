@@ -1,0 +1,16 @@
+Project:
+  #vcfDir:                THIS CAN BE SOMEWHERE ELSE BUT KEEP STRUCTURE
+    # to_split.vcf.gz
+    # Chr_final.vcf.gz
+    # Chr_final.vcf.gz.csi
+    #[Chr{n} fo n in noChromosomes]: #raw.vcf.gz
+    #combined: #to_split.vcf.gz (after split)
+  MapsDir: #genetic.map
+  AncestralAllele: #ancestral.txt
+  Tsinfer:
+    #chr_ancestral.vcf.gz
+    #chr_ancestral.vcf.gz.csi
+    files: #metadata.txt
+    trees: #Chr.trees
+    samples: #Chr.samples
+    stats:
