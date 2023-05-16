@@ -7,7 +7,7 @@ import tsinfer
 import pandas as pd
 import json
 import numpy as np
-import sys
+import tqdm as tqdm
 import os
 
 # chromosome = snakemake.wildcards['chromosome']
@@ -45,7 +45,13 @@ def add_sites(vcf, samples, ploidy):
     alleles to put the ancestral allele first, if it is available.
     """
     pos = 0
+    progressbar = tqdm.tqdm(
+                            total=sample_data.sequence_length,
+                            desc="Read VCF",
+                            unit='bp'
+                            )
     for variant in vcf:  # Loop over variants, each assumed at a unique site
+        progressbar.update(variant.POS - pos)
         if pos == variant.POS:
             raise ValueError("Duplicate positions for variant at position", pos)
         else:
@@ -53,7 +59,12 @@ def add_sites(vcf, samples, ploidy):
         if ploidy > 1:
             if any([not phased for _, _, phased in variant.genotypes]):
                 raise ValueError("Unphased genotypes for variant at position", pos)
-        alleles = [variant.REF] + variant.ALT
+
+        alleles = [variant.REF] + [v for v in variant.ALT]
+        # ignores non-bialllelic sites
+        if len(alleles) > 2:
+            continue
+
         ancestral = variant.INFO.get("AA", variant.REF)
 
         try:

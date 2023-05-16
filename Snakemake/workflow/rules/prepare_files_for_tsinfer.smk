@@ -31,7 +31,7 @@ rule combine_major_ancestral:
     output: temp('AncestralMajor{chromosome}.txt')
     shell:
         """
-        join -a1 -t ","  -j 1 -o 1.1,1.2,2.2 <(sort -k1,1 {input.major}) <(sort -k1,1 {input.ancestral}) > tmpMA
+        join -a1 -t ","  -j 1 -o 1.1,1.2,2.2 <(sort -t"," -k1,1 --version-sort {input.major}) <(sort -t"," -k1,1 --version-sort {input.ancestral}) > tmpMA
         awk -F, '{{if ($3=="") {{print $1,$2}} else {{print $1,$3}}}}' tmpMA > {output}
         rm tmpMA
         """
