@@ -21,44 +21,69 @@ if len(allFiles) != 1:
 #     # duplicates, and write a new temporary .txt for each one.
     rule compare:
         input:
-            [f'{vcfdir}' + x
+            samples = [f'{vcfdir}' + x
                 for x in expand('/{{chromosome}}/{{chromosome}}_{file}.txt',
+                    file=allFiles)],
+            vcfs = [f'{vcfdir}' + x
+                for x in expand('/{{chromosome}}/{{chromosome}}_{file}.vcf.gz',
                     file=allFiles)]
         output:
             temp([f'{vcfdir}' + x for x in
-                expand('/{{chromosome}}/{{chromosome}}_{file}.filtered',
+                expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz',
                     file=allFiles)])
 # #         log: expand('logs/{{chromosome}}_{file}.log', file=allfiles)
         run:
             from itertools import combinations
+            vcflist_input=input.vcfs
+            vcflist_output=output
             samplelist=[]
-            for ifile in input:
+            track=[]
+
+            for ifile in input.samples:
                 with open(ifile, 'r') as f:
                     samplelist.append(f.read().splitlines())
 
-            for a, b in combinations(samplelist, 2):
-                [b.remove(element) for element in a if element in b]
 
-            for i, ofile in enumerate(output):
-                with open(ofile, 'w') as f:
-                    [f.write(f'{line}\n') for line in samplelist[i]]
-                    f.close()
+            # Take sublist in pairs (return index [0] and sublist [1]) and compare
+            for a, b in combinations(enumerate(samplelist), 2):
+                    # if there are overlapping entries, remove duplicates
+                    if not set(a[1]).isdisjoint(b[1]) == True:
+                        [b[1].remove(element) for element in a[1] if element in b[1]]
+                        # keeps track of the sublists that changed using index
+                        track.append(b[0])
+
+            # filter files if sample list has changed, otherwise only rename
+            for i in range(len(samplelist)):
+                vcf=vcflist_input[i]
+                ovcf=vcflist_output[i]
+                samples=samplelist[i]
+                if i in set(track):
+                    shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf} \
+                            bcftoools index {ovcf}')
+                else
+                    shell('bcftool view {vcf} -O z -o {ovcf} \
+                            bcftools index {ovcf}')
+
+            # for i, ofile in enumerate(output):
+            #     with open(ofile, 'w') as f:
+            #         [f.write(f'{line}\n') for line in samplelist[i]]
+            #         f.close()
 #
 # #     # Executes for all chromosomes all files at once. Takes .txt and .vcf as input
 # #     # and filters the vcfs based on the new filtered samples list. index the output.
-    rule filter:
-        input:
-            vcf = f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.vcf.gz',
-            ids = f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.filtered'
-        output: f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.filtered.vcf.gz'
-#         conda:
-#             'envs/vcfEdit.yaml'
-#         log: 'logs/{chromosome}_{file}.log'
-        shell:
-            """
-            bcftools view -S {input.ids} --force-samples {input.vcf} -O z -o {output}
-            bcftools index {output}
-            """
+#     rule filter:
+#         input:
+#             vcf = f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.vcf.gz',
+#             ids = f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.filtered'
+#         output: f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.filtered.vcf.gz'
+# #         conda:
+# #             'envs/vcfEdit.yaml'
+# #         log: 'logs/{chromosome}_{file}.log'
+#         shell:
+#             """
+#             bcftools view -S {input.ids} --force-samples {input.vcf} -O z -o {output}
+#             bcftools index {output}
+#             """
 #
 # #     # Again takes all files for each chromosome at once.
 # #     # Merges all vcfs and indexes them.
@@ -71,7 +96,7 @@ if len(allFiles) != 1:
 #         log: 'logs/{chromosome}_merged.log'
         shell:
             """
-            bcftools merge -m all {input} -O z -o {output}
+            bcftools merge {input} -O z -o {output}
             bcftools index {output}
             """
 
@@ -87,4 +112,7 @@ else:
         output:
             f'{vcfdir}/{{chromosome}}_final.vcf.gz'
         shell:
-            "mv {file} {output}"
+            """
+            bcftools view {file} -O z -o {output}
+            bcftools index {output}
+            """
