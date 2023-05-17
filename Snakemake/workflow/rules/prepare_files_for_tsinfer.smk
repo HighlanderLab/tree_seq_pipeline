@@ -89,7 +89,7 @@ rule match_ancestral_vcf:
 
         for line in $(cat {input.vcfPos});
         do
-            if grep -wq "${line}" aa_tmp >> {output}; then
+            if grep -w "${line}" aa_tmp >> {output}; then
                 continue
             else
                 grep -w "${line}" {input.major} >> {output}
