@@ -58,11 +58,11 @@ if len(allFiles) != 1:
                 ovcf=vcflist_output[i]
                 samples=samplelist[i]
                 if i in set(track):
-                    shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf} \
-                            bcftoools index {ovcf}')
+                    shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf}')
+                    shell('bcftoools index {ovcf}')
                 else
-                    shell('bcftool view {vcf} -O z -o {ovcf} \
-                            bcftools index {ovcf}')
+                    shell('bcftool view {vcf} -O z -o {ovcf}')
+                    shell('bcftools index {ovcf}')
 
             # for i, ofile in enumerate(output):
             #     with open(ofile, 'w') as f:
