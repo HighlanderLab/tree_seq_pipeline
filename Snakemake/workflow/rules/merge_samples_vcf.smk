@@ -57,13 +57,14 @@ if len(allFiles) != 1:
                 vcf=vcflist_input[i]
                 ovcf=vcflist_output[i]
                 samples=samplelist[i]
-                if i in set(track):
+                if (i in set(track)) and (len(samples) != 0):
                     shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf} \
                             bcftoools index {ovcf}')
+                elif len(samples) == 0:
+                    shell('touch {ovcf}.ignore')
                 else
                     shell('bcftool view {vcf} -O z -o {ovcf} \
                             bcftools index {ovcf}')
-
             # for i, ofile in enumerate(output):
             #     with open(ofile, 'w') as f:
             #         [f.write(f'{line}\n') for line in samplelist[i]]
