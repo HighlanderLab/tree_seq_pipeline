@@ -40,7 +40,7 @@ rule get_major:
 rule decompress:
     input:
         vcf = f'{vcfdir}/{{chromosome}}_final.vcf.gz',
-        major=rules.combine_major_ancestral.output
+        major=rules.get_major.output
     output: temp(f'{vcfdir}/{{chromosome}}_final.vcf')
     shell:
         """

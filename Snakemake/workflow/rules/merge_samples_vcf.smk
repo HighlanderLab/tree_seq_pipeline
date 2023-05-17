@@ -55,13 +55,17 @@ if len(allFiles) != 1:
             # filter files if sample list has changed, otherwise only rename
             for i in range(len(samplelist)):
                 vcf=vcflist_input[i]
+                print("VCFLIST")
+                print(vcf)
+                print("SAMPLES")
+                print(samples)
                 ovcf=vcflist_output[i]
                 samples=samplelist[i]
                 if i in set(track):
                     shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf} \
                             bcftoools index {ovcf}')
-                else
-                    shell('bcftool view {vcf} -O z -o {ovcf} \
+                else:
+                    shell('bcftools view {vcf} -O z -o {ovcf} \
                             bcftools index {ovcf}')
 
             # for i, ofile in enumerate(output):
