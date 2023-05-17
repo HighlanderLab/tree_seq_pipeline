@@ -24,17 +24,18 @@ rule get_major:
         awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
         """
 
-rule combine_major_ancestral:
-    input:
-        ancestral=config['ancestralAllele'],
-        major=rules.get_major.output
-    output: temp('AncestralMajor{chromosome}.txt')
-    shell:
-        """
-        join -a1 -t ","  -j 1 -o 1.1,1.2,2.2 <(sort -t"," -k1,1 --version-sort {input.major}) <(sort -t"," -k1,1 --version-sort {input.ancestral}) > tmpMA
-        awk -F, '{{if ($3=="") {{print $1,$2}} else {{print $1,$3}}}}' tmpMA > {output}
-        rm tmpMA
-        """
+# I think we should skip this - depending on the samples it can get very complicated
+# rule combine_major_ancestral:
+#     input:
+#         ancestral=config['ancestralAllele'],
+#         major=rules.get_major.output
+#     output: temp('AncestralMajor{chromosome}.txt')
+#     shell:
+#         """
+#         join -a1 -t ","  -j 1 -o 1.1,1.2,2.2 <(sort -t"," -k1,1 --version-sort {input.major}) <(sort -t"," -k1,1 --version-sort {input.ancestral}) > tmpMA
+#         awk -F, '{{if ($3=="") {{print $1,$2}} else {{print $1,$3}}}}' tmpMA > {output}
+#         rm tmpMA
+#         """
 
 rule decompress:
     input:
@@ -64,23 +65,41 @@ rule extract_vcf_pos:
         rm tmp
         """
 
+# I changed here so the rule now takes as input
+#   (1) positions in the vcf
+#   (2) ancestral allele
+#   (3) major allele
 rule match_ancestral_vcf:
     input:
         vcfPos=rules.extract_vcf_pos.output, # This has more lines,
-        ancestralMajor=rules.combine_major_ancestral.output
+        ancestral=config['ancestralAllele'],
+        major=rules.get_major.output,
+#        ancestralMajor=rules.combine_major_ancestral.output
         # The ancestral file has to have chr_pos and AA, split with a tab
     output: temp('AncestralVcfMatch{chromosome}.txt')
         # THis files needs to contain all the variants from the vcf (blank space)
     shell:
+    # take only the ancestrals referent to the current chr
+    # read the position file (1) line by line;
+    # test if the position existis in the ancestral file (2),
+    # if TRUE print the line from file (2),
+    # else print the line from file (3)
         """
+        grep "{wildcards.chromosome}_" {input.ancestral} > aa_tmp
+
         for line in $(cat {input.vcfPos});
         do
-          grep $line {input.ancestralMajor} || echo "";
-        done > tmp
-        awk -F"," '{{print $1"\t"$2}}' tmp > {output}
+            if grep -w "${line}" aa_tmp >> {output}; then
+                continue
+            else
+                grep -w "${line}" {input.major} >> {output}
+            fi
+        done
+#        awk -F"," '{{print $1"\t"$2}}' tmp > {output}
         """
 
 rule change_infoAA_vcf:
+# changed OFS for the pos/anc file to "," instead of "\t"
     input:
         vcf=rules.decompress.output,
         ancestralAllele=rules.match_ancestral_vcf.output
@@ -91,7 +110,7 @@ rule change_infoAA_vcf:
         INFOLINE=$(( $(grep -Fn "INFO" {input.vcf} | cut -d ":" -f 1  | head -n1) ))
         awk -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $2; next}}}} FNR<=HEADER{{{{print}}}}; \
         FNR==INFO{{{{printf "##INFO=<ID=AA,Number=1,Type=String,Description=Ancestral Allele>\\n"}}}}; \
-        FNR>HEADER{{{{$8="AA="a[FNR-HEADER]; print}}}}' OFS="\t" {input.ancestralAllele} {input.vcf} > {output}
+        FNR>HEADER{{{{$8="AA="a[FNR-HEADER]; print}}}}' OFS="," {input.ancestralAllele} {input.vcf} > {output}
         """
 
 rule compress_vcf:
