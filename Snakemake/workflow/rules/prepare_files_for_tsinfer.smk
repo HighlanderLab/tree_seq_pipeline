@@ -96,7 +96,6 @@ rule match_ancestral_vcf:
                 grep -w "${line}" {input.major} >> {tmp}
             fi
         done
-        cut -d',' -f 2 tmp > {output}
         """
 
 rule change_infoAA_vcf:
@@ -111,7 +110,7 @@ rule change_infoAA_vcf:
         """
         HEADERNUM=$(( $(bcftools view -h {input.vcf} | wc -l) - 1 ))
         INFOLINE=$(( $(bcftools view -h {input.vcf} | grep -Fn "INFO" | head -1 | cut -d':' -f 1) ))
-        awk -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $1; next}}}} FNR<=HEADER{{{{print}}}}; \
+        awk -OFS="," -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $2; next}}}} FNR<=HEADER{{{{print}}}}; \
         FNR==INFO{{{{printf "##INFO=<ID=AA,Number=1,Type=String,Description=Ancestral Allele>\\n"}}}}; \
         FNR>HEADER{{{{$8="AA="a[FNR-HEADER]; print}}}}' OFS="\t" {input.ancestralAllele} {input.vcf} > {output}
         """
