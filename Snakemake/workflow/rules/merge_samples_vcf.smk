@@ -54,11 +54,11 @@ if len(allFiles) != 1:
                 samples=samplelist[i]
                 if (i in set(track)) and (len(samples) != 0):
                     shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf}')
-                    shell('bcftoools index {ovcf}')
+                    shell('bcftools index {ovcf}')
 
                 elif len(samples) == 0:
                     shell('touch {ovcf}.ignore')
-                else
+                else:
                     shell('bcftools view {vcf} -O z -o {ovcf}')
                     shell('bcftools index {ovcf}')
             # for i, ofile in enumerate(output):
@@ -86,10 +86,11 @@ if len(allFiles) != 1:
 # #     # Merges all vcfs and indexes them.
 # #     # Outputs the final merged vcf for each chromosome directly in the vcfDir.
     rule merge:
-        input: [f'{vcfdir}' + x for x in expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz', file=allFiles)]
+        input:
+            [f'{vcfdir}' + x for x in expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz', file=allFiles)]
         output:
             vcf=f'{vcfdir}/{{chromosome}}_final.vcf.gz',
-            index=f'{vcfdir}/{{chromosome}}_final.vcf.gz.csi')
+            index=f'{vcfdir}/{{chromosome}}_final.vcf.gz.csi'
 #         conda:
 #             'env/vcfEdit.yaml'
 #         log: 'logs/{chromosome}_merged.log'
