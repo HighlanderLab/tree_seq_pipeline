@@ -73,11 +73,13 @@ rule match_ancestral_vcf:
     input:
         vcfPos=rules.extract_vcf_pos.output, # This has more lines,
         ancestral=config['ancestralAllele'],
-        major=rules.get_major.output,
+        major=rules.get_major.output
 #        ancestralMajor=rules.combine_major_ancestral.output
         # The ancestral file has to have chr_pos and AA, split with a tab
     output: temp('AncestralVcfMatch{chromosome}.txt')
         # THis files needs to contain all the variants from the vcf (blank space)
+    params:
+        chrNum=lambda wc: wc.get("chromosome")[3:]
     shell:
     # take only the ancestrals referent to the current chr
     # read the position file (1) line by line;
@@ -85,14 +87,14 @@ rule match_ancestral_vcf:
     # if TRUE print the line from file (2),
     # else print the line from file (3)
         """
-        grep "{wildcards.chromosome}_" {input.ancestral} > aa_tmp
+        grep "{params.chrNum}_" {input.ancestral} > aa_tmp
 
         for line in $(cat {input.vcfPos});
         do
-            if grep -w "${line}" aa_tmp >> {output}; then
+            if grep -w "${{line}}" aa_tmp >> {output}; then
                 continue
             else
-                grep -w "${line}" {input.major} >> {output}
+                grep -w "${{line}}" {input.major} >> {output}
             fi
         done
 #        awk -F"," '{{print $1"\t"$2}}' tmp > {output}
@@ -103,14 +105,14 @@ rule change_infoAA_vcf:
     input:
         vcf=rules.decompress.output,
         ancestralAllele=rules.match_ancestral_vcf.output
-    output: temp(f'{vcfdir}/{{chromosome}}_ancestral.vcf')
+    output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
     shell:
         """
         HEADERNUM=$(( $(grep "##" {input.vcf} | wc -l) + 1 ))
         INFOLINE=$(( $(grep -Fn "INFO" {input.vcf} | cut -d ":" -f 1  | head -n1) ))
-        awk -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $2; next}}}} FNR<=HEADER{{{{print}}}}; \
+        awk -OFS="," -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $2; next}}}} FNR<=HEADER{{{{print}}}}; \
         FNR==INFO{{{{printf "##INFO=<ID=AA,Number=1,Type=String,Description=Ancestral Allele>\\n"}}}}; \
-        FNR>HEADER{{{{$8="AA="a[FNR-HEADER]; print}}}}' OFS="," {input.ancestralAllele} {input.vcf} > {output}
+        FNR>HEADER{{{{$8="AA="a[FNR-HEADER]; print}}}}' OFS="\t" {input.ancestralAllele} {input.vcf} > {output}
         """
 
 rule compress_vcf:

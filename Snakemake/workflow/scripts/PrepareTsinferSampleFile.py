@@ -46,7 +46,7 @@ def add_sites(vcf, samples, ploidy):
     """
     pos = 0
     progressbar = tqdm.tqdm(
-                            total=sample_data.sequence_length,
+                            total=samples.sequence_length,
                             desc="Read VCF",
                             unit='bp'
                             )
@@ -66,18 +66,18 @@ def add_sites(vcf, samples, ploidy):
             continue
 
         ancestral = variant.INFO.get("AA", variant.REF)
-
-        try:
-            ancestral_allele = alleles.index(ancestral[0])
-        except:
-            ancestral_allele = MISSING_DATA
+        #
+        # try:
+        #     ancestral_allele = alleles.index(ancestral[0])
+        # except:
+        #     ancestral_allele = MISSING_DATA
 
 
         genotypes = [g for row in variant.genotypes for g in row[0:ploidy]]
         samples.add_site(position=pos,
                              genotypes=genotypes,
                              alleles=alleles,
-                             ancestral_allele=ancestral_allele)
+                             ancestral_allele=alleles.index(ancestral[0]))
 
 
 def add_populations(vcf, samples, metaData):

@@ -5,12 +5,7 @@ import yaml
 if len(allFiles) != 1:
     rule get_samples:
         input:
-            [f'{vcfdir}' + x
-                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixOne}.vcf.gz',
-                    suffixOne = splitFiles)] if len(splitFiles) != 0 else [],
-            [f'{vcfdir}' + x
-                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixTwo}.vcf.gz',
-                    suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
+            f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.vcf.gz'
         output: temp(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.txt')
         shell:
             """
@@ -43,7 +38,6 @@ if len(allFiles) != 1:
                 with open(ifile, 'r') as f:
                     samplelist.append(f.read().splitlines())
 
-
             # Take sublist in pairs (return index [0] and sublist [1]) and compare
             for a, b in combinations(enumerate(samplelist), 2):
                     # if there are overlapping entries, remove duplicates
@@ -55,18 +49,15 @@ if len(allFiles) != 1:
             # filter files if sample list has changed, otherwise only rename
             for i in range(len(samplelist)):
                 vcf=vcflist_input[i]
-                print("VCFLIST")
-                print(vcf)
-                print("SAMPLES")
-                print(samples)
+
                 ovcf=vcflist_output[i]
                 samples=samplelist[i]
                 if i in set(track):
-                    shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf} \
-                            bcftoools index {ovcf}')
+                    shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf}')
+                    shell('bcftoools index {ovcf}')
                 else:
-                    shell('bcftools view {vcf} -O z -o {ovcf} \
-                            bcftools index {ovcf}')
+                    shell('bcftools view {vcf} -O z -o {ovcf}')
+                    shell('bcftools index {ovcf}')
 
             # for i, ofile in enumerate(output):
             #     with open(ofile, 'w') as f:
@@ -94,14 +85,16 @@ if len(allFiles) != 1:
 # #     # Outputs the final merged vcf for each chromosome directly in the vcfDir.
     rule merge:
         input: [f'{vcfdir}' + x for x in expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz', file=allFiles)]
-        output: f'{vcfdir}/{{chromosome}}_final.vcf.gz'
+        output:
+            vcf=f'{vcfdir}/{{chromosome}}_final.vcf.gz',
+            index=f'{vcfdir}/{{chromosome}}_final.vcf.gz.csi')
 #         conda:
 #             'env/vcfEdit.yaml'
 #         log: 'logs/{chromosome}_merged.log'
         shell:
             """
-            bcftools merge {input} -O z -o {output}
-            bcftools index {output}
+            bcftools merge {input} -O z -o {output.vcf}
+            bcftools index {output.vcf}
             """
 
 else:
@@ -117,6 +110,6 @@ else:
             f'{vcfdir}/{{chromosome}}_final.vcf.gz'
         shell:
             """
-            bcftools view {file} -O z -o {output}
+            bcftools view {input} -O z -o {output} #GABRIELA: SHOULD THIS BE INPUT????
             bcftools index {output}
             """
