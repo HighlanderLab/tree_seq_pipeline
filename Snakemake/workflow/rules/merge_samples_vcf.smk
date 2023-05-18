@@ -55,6 +55,7 @@ if len(allFiles) != 1:
                 if i in set(track):
                     shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf}')
                     shell('bcftoools index {ovcf}')
+
                 else:
                     shell('bcftools view {vcf} -O z -o {ovcf}')
                     shell('bcftools index {ovcf}')
