@@ -86,6 +86,7 @@ rule match_ancestral_vcf:
     # test if the position existis in the ancestral file (2),
     # if TRUE print the line from file (2),
     # else print the line from file (3)
+    # at the end remove POS column
         """
         grep "{params.chrNum}_" {input.ancestral} > aa_tmp
 
@@ -97,19 +98,21 @@ rule match_ancestral_vcf:
                 grep -w "${{line}}" {input.major} >> {output}
             fi
         done
-#        awk -F"," '{{print $1"\t"$2}}' tmp > {output}
         """
 
 rule change_infoAA_vcf:
-# changed OFS for the pos/anc file to "," instead of "\t"
+# this INFOLINE=$(( $(grep -Fn "INFO" {input.vcf} | cut -d ":" -f 1  | head -n1) ))
+# takes forever! quicker having bcftools to print the header and then grep INFO
+# same here HEADERNUM=$(( $(grep "##" {input.vcf} | wc -l) + 1 ))
     input:
         vcf=rules.decompress.output,
         ancestralAllele=rules.match_ancestral_vcf.output
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
     shell:
         """
-        HEADERNUM=$(( $(grep "##" {input.vcf} | wc -l) + 1 ))
-        INFOLINE=$(( $(grep -Fn "INFO" {input.vcf} | cut -d ":" -f 1  | head -n1) ))
+
+        HEADERNUM=$(( $(bcftools view -h {input.vcf} | wc -l) - 1 ))
+        INFOLINE=$(( $(bcftools view -h {input.vcf} | grep -Fn "INFO" | head -1 | cut -d':' -f 1) ))
         awk -OFS="," -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $2; next}}}} FNR<=HEADER{{{{print}}}}; \
         FNR==INFO{{{{printf "##INFO=<ID=AA,Number=1,Type=String,Description=Ancestral Allele>\\n"}}}}; \
         FNR>HEADER{{{{$8="AA="a[FNR-HEADER]; print}}}}' OFS="\t" {input.ancestralAllele} {input.vcf} > {output}
