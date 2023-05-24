@@ -10,8 +10,11 @@ rule phase:
 #    conda:
 #        'env/shapeit.yaml'
     log: 'logs/{chromosome}_phased.log'
+    params:
+        bcftools=config['bcftoolsModule']
     shell:
         """
+        module load {params.bcftools}
         str='{wildcards.chromosome}'
         chr=$(echo ${{str:4}})
         shapeit4 --input {input.vcf} \

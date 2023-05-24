@@ -7,8 +7,11 @@ if len(allFiles) != 1:
         input:
             f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.vcf.gz'
         output: temp(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.txt')
+        params:
+            bcftools=config['bcftoolsModule']
         shell:
             """
+            module load {params.bcftools}
             bcftools query -l {input} > {output}
             """
 
@@ -27,6 +30,8 @@ if len(allFiles) != 1:
                 expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz',
                     file=allFiles)])
 # #         log: expand('logs/{{chromosome}}_{file}.log', file=allfiles)
+        params:
+            bcftools=config['bcftoolsModule']
         run:
             from itertools import combinations
             vcflist_input=input.vcfs
@@ -52,6 +57,7 @@ if len(allFiles) != 1:
 
                 ovcf=vcflist_output[i]
                 samples=samplelist[i]
+                shell('module load {params.bcftools}')
                 if (i in set(track)) and (len(samples) != 0):
                     shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf}')
                     shell('bcftools index {ovcf}')
@@ -94,8 +100,11 @@ if len(allFiles) != 1:
 #         conda:
 #             'env/vcfEdit.yaml'
 #         log: 'logs/{chromosome}_merged.log'
+        params:
+            bcftools=config['bcftoolsModule']
         shell:
             """
+            module load {params.bcftools}
             bcftools merge {input} -O z -o {output.vcf}
             bcftools index {output.vcf}
             """
@@ -111,8 +120,11 @@ else:
                     suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
         output:
             f'{vcfdir}/{{chromosome}}_final.vcf.gz'
+        params:
+            bcftools=config['bcftoolsModule']
         shell:
             """
+            module load {params.bcftools}
             bcftools view {input} -O z -o {output} #GABRIELA: SHOULD THIS BE INPUT????
             bcftools index {output}
             """

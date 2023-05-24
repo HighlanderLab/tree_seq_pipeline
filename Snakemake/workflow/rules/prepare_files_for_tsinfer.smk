@@ -7,9 +7,13 @@ rule get_af:
         info=temp('Info{chromosome}.INFO'),
         log=temp('Info{chromosome}.log')
     params:
-        prefix='Info{chromosome}'
+        prefix='Info{chromosome}',
+        bcftools=config['bcftoolsModule'],
+        vcftools=config['vcftoolsModule']
     shell:
         """
+        module load {params.bcftools}
+        module load {params.vcftools}
         bcftools +fill-tags {input} -Oz -o {input} -- -t AN,AC,AF
         vcftools --gzvcf {input} --out {params.prefix} --get-INFO AC --get-INFO AF
         """
@@ -23,19 +27,6 @@ rule get_major:
         """
         awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
         """
-
-# I think we should skip this - depending on the samples it can get very complicated
-# rule combine_major_ancestral:
-#     input:
-#         ancestral=config['ancestralAllele'],
-#         major=rules.get_major.output
-#     output: temp('AncestralMajor{chromosome}.txt')
-#     shell:
-#         """
-#         join -a1 -t ","  -j 1 -o 1.1,1.2,2.2 <(sort -t"," -k1,1 --version-sort {input.major}) <(sort -t"," -k1,1 --version-sort {input.ancestral}) > tmpMA
-#         awk -F, '{{if ($3=="") {{print $1,$2}} else {{print $1,$3}}}}' tmpMA > {output}
-#         rm tmpMA
-#         """
 
 rule decompress:
     input:
@@ -57,9 +48,11 @@ rule extract_vcf_pos:
     #envmodules:
     #    config['bcftoolsModule']
     params:
-        vcfDir=config['vcfDir']
+        vcfDir=config['vcfDir'],
+        bcftools=config['bcftoolsModule']
     shell:
         """
+        module load {params.bcftools}
         bcftools query -f '%CHROM %POS\n' {input} > tmp
         awk '{{print $1"_"$2}}' tmp > {output}
         rm tmp
@@ -110,9 +103,11 @@ rule change_infoAA_vcf:
         vcf=rules.decompress.output,
         ancestralAllele=rules.match_ancestral_vcf.output
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
+    params:
+        bcftools=config['bcftoolsModule']
     shell:
         """
-
+        module load {params.bcftools}
         HEADERNUM="$(( $(bcftools view -h {input.vcf} | wc -l) - 1 ))"
         INFOLINE=$(( $(bcftools view -h {input.vcf} | awk '/INFO/{{print NR}}' | head -n 1) ))
         awk -v OFS="\t" -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $2; next}}}} FNR<=HEADER{{{{print}}}}; \
@@ -124,8 +119,11 @@ rule compress_vcf:
     input:
         rules.change_infoAA_vcf.output
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
+    params:
+        bcftools=config['bcftoolsModule']
     shell:
         """
+        module load {params.bcftools}
         bgzip {input}
         bcftools index {output}
         """

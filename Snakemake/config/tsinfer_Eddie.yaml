@@ -6,6 +6,7 @@ vcfDir: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data"
 #combinedVCFs: null
 merge: "yes"
 bcftoolsModule: "igmm/apps/bcftools/1.9"
+vcftoolsModule: "igmm/apps/vcftools/0.1.13"
 ancestralAllele: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/AncestralAlleleVcf.txt"
 meta: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/SampleMetaData.csv"
 chromosome_length:
