@@ -32,7 +32,6 @@ if len(allFiles) != 1:
                 expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz',
                     file=allFiles)])
 # #         log: expand('logs/{{chromosome}}_{file}.log', file=allfiles)
-        conda: "HLab_tsinfer"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
         run:
