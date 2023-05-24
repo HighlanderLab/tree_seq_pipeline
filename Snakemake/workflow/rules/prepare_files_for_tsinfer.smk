@@ -11,6 +11,9 @@ rule get_af:
     envmodules:
         config['bcftoolsModule'],
         config['vcftoolsModule']
+    conda: "HLab_tsinfer"
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
     shell:
         """
         bcftools +fill-tags {input} -Oz -o {input} -- -t AN,AC,AF
@@ -50,6 +53,9 @@ rule extract_vcf_pos:
         vcfDir=config['vcfDir']
     envmodules:
         config['bcftoolsModule']
+    conda: "HLab_tsinfer"
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
     shell:
         """
         bcftools query -f '%CHROM %POS\n' {input} > tmp
@@ -104,6 +110,9 @@ rule change_infoAA_vcf:
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
     envmodules:
         config['bcftoolsModule']
+    conda: "HLab_tsinfer"
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
     shell:
         """
         HEADERNUM="$(( $(bcftools view -h {input.vcf} | wc -l) - 1 ))"
@@ -119,6 +128,9 @@ rule compress_vcf:
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
     envmodules:
         config['bcftoolsModule']
+    conda: "HLab_tsinfer"
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
     shell:
         """
         bgzip {input}

@@ -9,6 +9,9 @@ if len(allFiles) != 1:
         output: temp(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.txt')
         envmodules:
             config['bcftoolsModule']
+        conda: "HLab_tsinfer"
+        threads: 1
+        resources: cpus=1, mem_mb=4000, time_min=5
         shell:
             """
             bcftools query -l {input} > {output}
@@ -29,8 +32,9 @@ if len(allFiles) != 1:
                 expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz',
                     file=allFiles)])
 # #         log: expand('logs/{{chromosome}}_{file}.log', file=allfiles)
-        envmodules:
-            config['bcftoolsModule']
+        conda: "HLab_tsinfer"
+        threads: 1
+        resources: cpus=1, mem_mb=4000, time_min=5
         run:
             from itertools import combinations
             vcflist_input=input.vcfs
@@ -100,6 +104,9 @@ if len(allFiles) != 1:
 #         log: 'logs/{chromosome}_merged.log'
         envmodules:
             config['bcftoolsModule']
+        conda: "HLab_tsinfer"
+        threads: 1
+        resources: cpus=1, mem_mb=4000, time_min=5
         shell:
             """
             bcftools merge {input} -O z -o {output.vcf}
@@ -119,6 +126,9 @@ else:
             f'{vcfdir}/{{chromosome}}_final.vcf.gz'
         envmodules:
             config['bcftoolsModule']
+        conda: "HLab_tsinfer"
+        threads: 1
+        resources: cpus=1, mem_mb=4000, time_min=5
         shell:
             """
             bcftools view {input} -O z -o {output} #GABRIELA: SHOULD THIS BE INPUT????
