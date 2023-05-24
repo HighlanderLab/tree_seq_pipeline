@@ -10,7 +10,7 @@ from os.path import isfile, join
 
 
 ##### setup report #####
-configfile: '../config/tsinfer.yaml'
+configfile: '../config/tsinfer_Eddie.yaml'
 report: "reports/tsinfer.rst"
 
 ##### setup singularity #####

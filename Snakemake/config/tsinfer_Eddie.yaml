@@ -1,0 +1,13 @@
+workdir: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/tree_seq_pipeline/Snakemake/Project"
+species: "Apis mellifera"
+ploidy: "1"
+noChromosomes: 2
+vcfDir: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data"
+#combinedVCFs: null
+merge: "yes"
+bcftoolsModule: "igmm/apps/bcftools/1.9"
+ancestralAllele: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/AncestralAlleleVcf.txt"
+meta: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/SampleMetaData.csv"
+chromosome_length:
+  1 : 100000
+  2 : 100000
