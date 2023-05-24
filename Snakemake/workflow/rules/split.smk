@@ -23,8 +23,8 @@ if len(splitFiles) > 0:
             f'{vcfdir}/RawVCF/{{chromosome}}_{{suffixOne}}.vcf.gz'
         output:
             f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{suffixOne}}.vcf.gz'
-        envmodules:
-            config['bcftoolsModule']
+        # envmodules:
+        #     config['bcftoolsModule']
         conda: "HLab_tsinfer"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
@@ -46,8 +46,8 @@ if len(combinedFiles) > 0:
         conda: "HLab_tsinfer"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
-        envmodules:
-            config['bcftoolsModule']
+        # envmodules:
+        #     config['bcftoolsModule']
         shell:
             """
             str='{wildcards.chromosome}'

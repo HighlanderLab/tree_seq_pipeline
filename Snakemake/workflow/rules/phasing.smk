@@ -10,8 +10,8 @@ rule phase:
 #    conda:
 #        'env/shapeit.yaml'
     log: 'logs/{chromosome}_phased.log'
-    envmodules:
-        config['bcftoolsModule']
+    # envmodules:
+    #     config['bcftoolsModule']
     conda: "HLab_tsinfer"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5

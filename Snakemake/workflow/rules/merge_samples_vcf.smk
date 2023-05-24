@@ -102,8 +102,8 @@ if len(allFiles) != 1:
 #         conda:
 #             'env/vcfEdit.yaml'
 #         log: 'logs/{chromosome}_merged.log'
-        envmodules:
-            config['bcftoolsModule']
+        # envmodules:
+        #     config['bcftoolsModule']
         conda: "HLab_tsinfer"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
@@ -124,8 +124,8 @@ else:
                     suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
         output:
             f'{vcfdir}/{{chromosome}}_final.vcf.gz'
-        envmodules:
-            config['bcftoolsModule']
+        # envmodules:
+        #     config['bcftoolsModule']
         conda: "HLab_tsinfer"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
