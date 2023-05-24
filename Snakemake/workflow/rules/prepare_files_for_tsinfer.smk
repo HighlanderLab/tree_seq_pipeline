@@ -7,13 +7,12 @@ rule get_af:
         info=temp('Info{chromosome}.INFO'),
         log=temp('Info{chromosome}.log')
     params:
-        prefix='Info{chromosome}',
-        bcftools=config['bcftoolsModule'],
-        vcftools=config['vcftoolsModule']
+        prefix='Info{chromosome}'
+    envmodules:
+        config['bcftoolsModule'],
+        config['vcftoolsModule']
     shell:
         """
-        module load {params.bcftools}
-        module load {params.vcftools}
         bcftools +fill-tags {input} -Oz -o {input} -- -t AN,AC,AF
         vcftools --gzvcf {input} --out {params.prefix} --get-INFO AC --get-INFO AF
         """
@@ -48,11 +47,11 @@ rule extract_vcf_pos:
     #envmodules:
     #    config['bcftoolsModule']
     params:
-        vcfDir=config['vcfDir'],
-        bcftools=config['bcftoolsModule']
+        vcfDir=config['vcfDir']
+    envmodules:
+        config['bcftoolsModule']
     shell:
         """
-        module load {params.bcftools}
         bcftools query -f '%CHROM %POS\n' {input} > tmp
         awk '{{print $1"_"$2}}' tmp > {output}
         rm tmp
@@ -103,11 +102,10 @@ rule change_infoAA_vcf:
         vcf=rules.decompress.output,
         ancestralAllele=rules.match_ancestral_vcf.output
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
-    params:
-        bcftools=config['bcftoolsModule']
+    envmodules:
+        config['bcftoolsModule']
     shell:
         """
-        module load {params.bcftools}
         HEADERNUM="$(( $(bcftools view -h {input.vcf} | wc -l) - 1 ))"
         INFOLINE=$(( $(bcftools view -h {input.vcf} | awk '/INFO/{{print NR}}' | head -n 1) ))
         awk -v OFS="\t" -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $2; next}}}} FNR<=HEADER{{{{print}}}}; \
@@ -119,11 +117,10 @@ rule compress_vcf:
     input:
         rules.change_infoAA_vcf.output
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
-    params:
-        bcftools=config['bcftoolsModule']
+    envmodules:
+        config['bcftoolsModule']
     shell:
         """
-        module load {params.bcftools}
         bgzip {input}
         bcftools index {output}
         """
