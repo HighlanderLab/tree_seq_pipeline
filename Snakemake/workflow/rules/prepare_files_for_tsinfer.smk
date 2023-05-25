@@ -11,7 +11,7 @@ rule get_af:
     # envmodules:
     #     config['bcftoolsModule'],
     #     config['vcftoolsModule']
-    conda: "HLab_tsinfer"
+    conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     shell:
@@ -53,7 +53,7 @@ rule extract_vcf_pos:
         vcfDir=config['vcfDir']
     # envmodules:
     #     config['bcftoolsModule']
-    conda: "HLab_tsinfer"
+    conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     shell:
@@ -110,7 +110,7 @@ rule change_infoAA_vcf:
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
     # envmodules:
     #     config['bcftoolsModule']
-    conda: "HLab_tsinfer"
+    conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     shell:
@@ -128,7 +128,7 @@ rule compress_vcf:
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
     # envmodules:
     #     config['bcftoolsModule']
-    conda: "HLab_tsinfer"
+    conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     shell:

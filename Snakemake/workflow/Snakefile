@@ -4,8 +4,8 @@ from os import listdir
 from pathlib import Path
 from os.path import isfile, join
 
-shell.prefix(config['bcftools'])
-shell.prefix(config['vcftools'])
+# shell.prefix(config['bcftools'])
+# shell.prefix(config['vcftools'])
 ##### set minimum snakemake version #####
 #min_version("6.1")
 

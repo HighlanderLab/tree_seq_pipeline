@@ -7,9 +7,9 @@ if len(allFiles) != 1:
         input:
             f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.vcf.gz'
         output: temp(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.txt')
-        envmodules:
-            config['bcftoolsModule']
-        conda: "HLab_tsinfer"
+        # envmodules:
+        #     config['bcftoolsModule']
+        conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
         shell:
@@ -103,7 +103,7 @@ if len(allFiles) != 1:
 #         log: 'logs/{chromosome}_merged.log'
         # envmodules:
         #     config['bcftoolsModule']
-        conda: "HLab_tsinfer"
+        conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
         shell:
@@ -125,7 +125,7 @@ else:
             f'{vcfdir}/{{chromosome}}_final.vcf.gz'
         # envmodules:
         #     config['bcftoolsModule']
-        conda: "HLab_tsinfer"
+        conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
         shell:

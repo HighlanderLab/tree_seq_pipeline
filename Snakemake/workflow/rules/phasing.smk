@@ -14,7 +14,7 @@ rule phase:
     log: 'logs/{chromosome}_phased.log'
     # envmodules:
     #     config['bcftoolsModule']
-    conda: "HLab_tsinfer"
+    conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     shell:
