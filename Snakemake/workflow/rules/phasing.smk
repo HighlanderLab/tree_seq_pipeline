@@ -1,6 +1,8 @@
 # Takes the final vcf and the recombination map as inputs and run shapeit4.
 # using a specific environment file so installs shapeit4 if needed.
 # Outputs the phased vcf.gz with index for all chromosomes.
+
+# I amd jsut testing github
 rule phase:
     input:
         vcf = rules.compress_vcf.output,
