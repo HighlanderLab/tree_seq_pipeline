@@ -1,5 +1,6 @@
 from itertools import combinations
 import os
+import sys
 
 args = sys.argv
 samples = sys.argv[1]
