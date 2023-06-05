@@ -32,43 +32,11 @@ if len(allFiles) != 1:
                 expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz',
                     file=allFiles)])
 # #         log: expand('logs/{{chromosome}}_{file}.log', file=allfiles)
+        conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
-        run:
-            from itertools import combinations
-            import os
-            vcflist_input=input.vcfs
-            vcflist_output=output
-            samplelist=[]
-            track=[]
-
-#            os.system("module load igmm/apps/bcftools/1.9")
-            for ifile in input.samples:
-                with open(ifile, 'r') as f:
-                    samplelist.append(f.read().splitlines())
-
-            # Take sublist in pairs (return index [0] and sublist [1]) and compare
-            for a, b in combinations(enumerate(samplelist), 2):
-                    # if there are overlapping entries, remove duplicates
-                    if not set(a[1]).isdisjoint(b[1]) == True:
-                        [b[1].remove(element) for element in a[1] if element in b[1]]
-                        # keeps track of the sublists that changed using index
-                        track.append(b[0])
-
-            # filter files if sample list has changed, otherwise only rename
-            for i in range(len(samplelist)):
-                vcf=vcflist_input[i]
-
-                ovcf=vcflist_output[i]
-                samples=samplelist[i]
-                if (i in set(track)) and (len(samples) != 0):
-                    shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf}')
-                    shell('bcftools index {ovcf}')
-
-                elif len(samples) == 0:
-                    shell('touch {ovcf}.ignore')
-                else:
-                    shell('bcftools index {ovcf}')
+        shell:
+            "python scripts/CompareVCFs.py"
             # for i, ofile in enumerate(output):
             #     with open(ofile, 'w') as f:
             #         [f.write(f'{line}\n') for line in samplelist[i]]
