@@ -36,11 +36,13 @@ if len(allFiles) != 1:
         resources: cpus=1, mem_mb=4000, time_min=5
         run:
             from itertools import combinations
+            import os
             vcflist_input=input.vcfs
             vcflist_output=output
             samplelist=[]
             track=[]
 
+#            os.system("module load igmm/apps/bcftools/1.9")
             for ifile in input.samples:
                 with open(ifile, 'r') as f:
                     samplelist.append(f.read().splitlines())
@@ -66,7 +68,6 @@ if len(allFiles) != 1:
                 elif len(samples) == 0:
                     shell('touch {ovcf}.ignore')
                 else:
-                    shell('bcftools view {vcf} -O z -o {ovcf}')
                     shell('bcftools index {ovcf}')
             # for i, ofile in enumerate(output):
             #     with open(ofile, 'w') as f:
