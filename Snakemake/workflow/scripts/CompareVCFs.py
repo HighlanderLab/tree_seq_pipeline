@@ -3,14 +3,17 @@ import os
 import sys
 
 args = sys.argv
-samples = sys.argv[1]
-vcflist_input = args[2]
-vcflist_output = args[3]
+argsList = args[1:]
+print(len(argsList))
+part = int(len(argsList) / 3)
+inputSamples = argsList[0:part]
+vcflist_input = argsList[part:(part*2)]
+vcflist_output = argsList[(part*2):(part*3)]
+print(vcflist_input)
 samplelist=[]
 track=[]
 
-#            os.system("module load igmm/apps/bcftools/1.9")
-for ifile in samples:
+for ifile in inputSamples:
     with open(ifile, 'r') as f:
         samplelist.append(f.read().splitlines())
 
@@ -29,10 +32,11 @@ for i in range(len(samplelist)):
     ovcf=vcflist_output[i]
     samples=samplelist[i]
     if (i in set(track)) and (len(samples) != 0):
-        shell('bcftools view -S {samples} --force-samples {vcf} -O z -o {ovcf}')
-        shell('bcftools index {ovcf}')
+        os.system('bcftools view -S {samples} --force-samples ' + vcf + ' -O z -o ' + ovcf)
+        os.system('bcftools index ' + ovcf)
 
     elif len(samples) == 0:
-        shell('touch {ovcf}.ignore')
+        os.system('touch ' + ovcf + '.ignore')
     else:
-        shell('bcftools index {ovcf}')
+        os.system('bcftools view ' + vcf + ' -O z -o ' + ovcf)
+        os.system('bcftools index ' + ovcf)

@@ -36,7 +36,9 @@ if len(allFiles) != 1:
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
         shell:
-            "python scripts/CompareVCFs.py {input.samples} {input.vcfs} {output}"
+            """
+            python scripts/CompareVCFs.py {input.samples}  {input.vcfs}  {output}
+	    """
             # for i, ofile in enumerate(output):
             #     with open(ofile, 'w') as f:
             #         [f.write(f'{line}\n') for line in samplelist[i]]

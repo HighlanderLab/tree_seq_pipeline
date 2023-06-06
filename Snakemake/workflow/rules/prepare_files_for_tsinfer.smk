@@ -4,8 +4,8 @@ rule get_af:
     input:
         f'{vcfdir}/{{chromosome}}_final.vcf.gz'
     output:
-        info=temp('Info{chromosome}.INFO'),
-        log=temp('Info{chromosome}.log')
+        info=('Info{chromosome}.INFO'),
+        log=('Info{chromosome}.log')
     params:
         prefix='Info{chromosome}'
     # envmodules:
