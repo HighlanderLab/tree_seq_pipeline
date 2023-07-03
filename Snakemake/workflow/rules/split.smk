@@ -23,6 +23,11 @@ if len(splitFiles) > 0:
             f'{vcfdir}/RawVCF/{{chromosome}}_{{suffixOne}}.vcf.gz'
         output:
             f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{suffixOne}}.vcf.gz'
+        # envmodules:
+        #     config['bcftoolsModule']
+        conda: "bcftools"
+        threads: 1
+        resources: cpus=1, mem_mb=4000, time_min=5
         shell:
             """
             echo {input}
@@ -38,7 +43,11 @@ if len(combinedFiles) > 0:
             [f'{vcfdir}' + x
                 for x in expand('/{{chromosome}}/{{chromosome}}_{{suffixTwo}}.vcf.gz',
                     chromosome = chromosomes, suffixTwo = combinedFiles)]
-
+        conda: "bcftools"
+        threads: 1
+        resources: cpus=1, mem_mb=4000, time_min=5
+        # envmodules:
+        #     config['bcftoolsModule']
         shell:
             """
             str='{wildcards.chromosome}'

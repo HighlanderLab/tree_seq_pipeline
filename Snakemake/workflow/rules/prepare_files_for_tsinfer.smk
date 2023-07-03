@@ -4,10 +4,16 @@ rule get_af:
     input:
         f'{vcfdir}/{{chromosome}}_final.vcf.gz'
     output:
-        info=temp('Info{chromosome}.INFO'),
-        log=temp('Info{chromosome}.log')
+        info=('Info{chromosome}.INFO'),
+        log=('Info{chromosome}.log')
     params:
         prefix='Info{chromosome}'
+    # envmodules:
+    #     config['bcftoolsModule'],
+    #     config['vcftoolsModule']
+    conda: "bcftools"
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
     shell:
         """
         bcftools +fill-tags {input} -Oz -o {input} -- -t AN,AC,AF
@@ -23,19 +29,6 @@ rule get_major:
         """
         awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
         """
-
-# I think we should skip this - depending on the samples it can get very complicated
-# rule combine_major_ancestral:
-#     input:
-#         ancestral=config['ancestralAllele'],
-#         major=rules.get_major.output
-#     output: temp('AncestralMajor{chromosome}.txt')
-#     shell:
-#         """
-#         join -a1 -t ","  -j 1 -o 1.1,1.2,2.2 <(sort -t"," -k1,1 --version-sort {input.major}) <(sort -t"," -k1,1 --version-sort {input.ancestral}) > tmpMA
-#         awk -F, '{{if ($3=="") {{print $1,$2}} else {{print $1,$3}}}}' tmpMA > {output}
-#         rm tmpMA
-#         """
 
 rule decompress:
     input:
@@ -58,6 +51,11 @@ rule extract_vcf_pos:
     #    config['bcftoolsModule']
     params:
         vcfDir=config['vcfDir']
+    # envmodules:
+    #     config['bcftoolsModule']
+    conda: "bcftools"
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
     shell:
         """
         bcftools query -f '%CHROM %POS\n' {input} > tmp
@@ -110,9 +108,13 @@ rule change_infoAA_vcf:
         vcf=rules.decompress.output,
         ancestralAllele=rules.match_ancestral_vcf.output
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
+    # envmodules:
+    #     config['bcftoolsModule']
+    conda: "bcftools"
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
     shell:
         """
-
         HEADERNUM="$(( $(bcftools view -h {input.vcf} | wc -l) - 1 ))"
         INFOLINE=$(( $(bcftools view -h {input.vcf} | awk '/INFO/{{print NR}}' | head -n 1) ))
         awk -v OFS="\t" -v HEADER=$HEADERNUM -v INFO=$INFOLINE 'NR==FNR{{{{a[FNR] = $2; next}}}} FNR<=HEADER{{{{print}}}}; \
@@ -124,6 +126,11 @@ rule compress_vcf:
     input:
         rules.change_infoAA_vcf.output
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
+    # envmodules:
+    #     config['bcftoolsModule']
+    conda: "bcftools"
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
     shell:
         """
         bgzip {input}

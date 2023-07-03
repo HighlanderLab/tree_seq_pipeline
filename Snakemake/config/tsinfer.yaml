@@ -6,6 +6,7 @@ vcfDir: "/home/jana/Documents/1Projects/HoneybeeDemo/Data"
 #combinedVCFs: null
 merge: "yes"
 bcftoolsModule: "igmm/apps/bcftools/1.9"
+vcftoolsModule: "igmm/apps/vcftools/0.1.13"
 ancestralAllele: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/AncestralAlleleVcf.txt"
 meta: "/home/jana/Documents/1Projects/HoneybeeDemo/Data/SampleMetaData.csv"
 chromosome_length:

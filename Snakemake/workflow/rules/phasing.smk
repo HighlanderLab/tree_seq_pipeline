@@ -1,6 +1,8 @@
 # Takes the final vcf and the recombination map as inputs and run shapeit4.
 # using a specific environment file so installs shapeit4 if needed.
 # Outputs the phased vcf.gz with index for all chromosomes.
+
+# I amd jsut testing github
 rule phase:
     input:
         vcf = rules.compress_vcf.output,
@@ -10,6 +12,11 @@ rule phase:
 #    conda:
 #        'env/shapeit.yaml'
     log: 'logs/{chromosome}_phased.log'
+    # envmodules:
+    #     config['bcftoolsModule']
+    conda: "bcftools"
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
     shell:
         """
         str='{wildcards.chromosome}'
