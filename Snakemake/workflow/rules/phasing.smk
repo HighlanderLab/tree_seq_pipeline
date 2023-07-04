@@ -4,10 +4,10 @@ if config['ploidy'] == 1:
         output: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
         log: 'logs/rename_phased_{chromosome}.log'
         shell:
-        """
-        bcftools view {input} -O z -o {output}
-        bcftools index {output}
-        """
+            """
+            bcftools view {input} -O z -o {output}
+            bcftools index {output}
+            """
 
 else:
     rule phase:

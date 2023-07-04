@@ -16,7 +16,7 @@ if len(splitFiles) > 0:
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
-        log: 'logs/move_vcf_{chromosome}.log'
+        log: 'logs/move_vcf_{chromosome}_{suffixOne}.log'
         shell:
             """
             echo {input}

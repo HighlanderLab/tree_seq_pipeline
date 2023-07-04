@@ -6,7 +6,7 @@ rule get_af:
     output:
         info=temp(f'{vcfdir}/Info{{chromosome}}.INFO')
     params:
-        prefix='Info{chromosome}'
+        prefix=f'{vcfdir}/Info{{chromosome}}'
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
@@ -15,6 +15,11 @@ rule get_af:
         """
         bcftools +fill-tags {input} -Oz -o {input} -- -t AN,AC,AF
         vcftools --gzvcf {input} --out {params.prefix} --get-INFO AC --get-INFO AF
+	
+	LOGFILE={params.prefix}.log
+	if test -f "$LOGFILE"; then
+	    rm $LOGFILE
+	fi
         """
 
 rule get_major:

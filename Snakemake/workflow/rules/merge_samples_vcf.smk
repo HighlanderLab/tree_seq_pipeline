@@ -27,7 +27,7 @@ if len(allFiles) != 1:
             temp([f'{vcfdir}' + x for x in
                 expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz',
                     file=allFiles)])
-        log: expand('logs/compare_{{chromosome}}_{{file}}.log')
+#        log: 'logs/compare_{chromosome}_{file}.log'
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
