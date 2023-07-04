@@ -1,9 +1,5 @@
 import re
 
-# ---------------------------------------------------------------------------- #
-#                                TREE                                          #
-# ---------------------------------------------------------------------------- #
-
 rule prepare_sample_file:
     input:
         vcf=f'{vcfdir}/{{chromosome}}_ancestral.vcf',
@@ -16,6 +12,7 @@ rule prepare_sample_file:
     conda: "HLab_tsinfer"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
+    log: 'logs/prepare_sample_file_{chromosome}.log'
     shell:
         "python scripts/PrepareTsinferSampleFile.py "
         "{input.vcf} {input.meta} {output} {params.ploidy} {params.chrLength}"
@@ -26,6 +23,7 @@ rule infer:
     conda: "HLab_tsinfer"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
+    log: 'logs/infer_{chromosome}.log'
     output:
         "../Project/Tsinfer/trees/{chromosome}.trees"
     shell:
