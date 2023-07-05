@@ -4,20 +4,22 @@ rule get_af:
     input:
         f'{vcfdir}/{{chromosome}}_final.vcf.gz'
     output:
-        info=('Info{chromosome}.INFO'),
-        log=('Info{chromosome}.log')
+        info=temp(f'{vcfdir}/Info{{chromosome}}.INFO')
     params:
-        prefix='Info{chromosome}'
-    # envmodules:
-    #     config['bcftoolsModule'],
-    #     config['vcftoolsModule']
+        prefix=f'{vcfdir}/Info{{chromosome}}'
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
+    log: 'logs/get_af_{chromosome}.log'
     shell:
         """
         bcftools +fill-tags {input} -Oz -o {input} -- -t AN,AC,AF
         vcftools --gzvcf {input} --out {params.prefix} --get-INFO AC --get-INFO AF
+	
+	LOGFILE={params.prefix}.log
+	if test -f "$LOGFILE"; then
+	    rm $LOGFILE
+	fi
         """
 
 rule get_major:
@@ -25,6 +27,9 @@ rule get_major:
         rules.get_af.output.info
     output:
         temp('Major{chromosome}.txt')
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
+    log: 'logs/get_major_{chromosome}.log'
     shell:
         """
         awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
@@ -35,6 +40,9 @@ rule decompress:
         vcf = f'{vcfdir}/{{chromosome}}_final.vcf.gz',
         major=rules.get_major.output
     output: temp(f'{vcfdir}/{{chromosome}}_final.vcf')
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
+    log: 'logs/decompress_{chromosome}.log'
     shell:
         """
         gunzip {input.vcf}
@@ -45,17 +53,12 @@ rule extract_vcf_pos:
         rules.decompress.output
     output:
         temp('VcfPos{chromosome}.txt')
-    #conda:
-    #    config['tsinferEnv']
-    #envmodules:
-    #    config['bcftoolsModule']
     params:
         vcfDir=config['vcfDir']
-    # envmodules:
-    #     config['bcftoolsModule']
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
+    log: 'logs/extract_vcf_pos_{chromosome}.log'
     shell:
         """
         bcftools query -f '%CHROM %POS\n' {input} > tmp
@@ -63,28 +66,18 @@ rule extract_vcf_pos:
         rm tmp
         """
 
-# I changed here so the rule now takes as input
-#   (1) positions in the vcf
-#   (2) ancestral allele
-#   (3) major allele
 rule match_ancestral_vcf:
     input:
-        vcfPos=rules.extract_vcf_pos.output, # This has more lines,
+        vcfPos=rules.extract_vcf_pos.output,
         ancestral=config['ancestralAllele'],
         major=rules.get_major.output
-#        ancestralMajor=rules.combine_major_ancestral.output
-        # The ancestral file has to have chr_pos and AA, split with a tab
     output: temp('AncestralVcfMatch{chromosome}.txt')
-        # THis files needs to contain all the variants from the vcf (blank space)
     params:
         chrNum=lambda wc: wc.get("chromosome")[3:]
+    threads: 1
+    resources: cpus=1, mem_mb=4000, time_min=5
+    log: 'logs/match_ancestral_vcf_{chromosome}.log'
     shell:
-    # take only the ancestrals referent to the current chr
-    # read the position file (1) line by line;
-    # test if the position existis in the ancestral file (2),
-    # if TRUE print the line from file (2),
-    # else print the line from file (3)
-    # at the end remove POS column
         """
         grep "{params.chrNum}_" {input.ancestral} > aa_tmp
 
@@ -101,18 +94,14 @@ rule match_ancestral_vcf:
         """
 
 rule change_infoAA_vcf:
-# this INFOLINE=$(( $(grep -Fn "INFO" {input.vcf} | cut -d ":" -f 1  | head -n1) ))
-# takes forever! quicker having bcftools to print the header and then grep INFO
-# same here HEADERNUM=$(( $(grep "##" {input.vcf} | wc -l) + 1 ))
     input:
         vcf=rules.decompress.output,
         ancestralAllele=rules.match_ancestral_vcf.output
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
-    # envmodules:
-    #     config['bcftoolsModule']
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
+    log: 'logs/change_infoAA_vcf_{chromosome}.log'
     shell:
         """
         HEADERNUM="$(( $(bcftools view -h {input.vcf} | wc -l) - 1 ))"
@@ -126,11 +115,10 @@ rule compress_vcf:
     input:
         rules.change_infoAA_vcf.output
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
-    # envmodules:
-    #     config['bcftoolsModule']
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
+    log: 'logs/compress_{chromosome}.log'
     shell:
         """
         bgzip {input}

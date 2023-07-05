@@ -1,31 +1,33 @@
-# Takes the final vcf and the recombination map as inputs and run shapeit4.
-# using a specific environment file so installs shapeit4 if needed.
-# Outputs the phased vcf.gz with index for all chromosomes.
+if config['ploidy'] == 1:
+    rule rename_phased:
+        input: rules.compress_vcf.output
+        output: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
+        log: 'logs/rename_phased_{chromosome}.log'
+        shell:
+            """
+            bcftools view {input} -O z -o {output}
+            bcftools index {output}
+            """
 
-# I amd jsut testing github
-rule phase:
-    input:
-        vcf = rules.compress_vcf.output,
-        map = '../mapsDir/{chromosome}.gmap'
+else:
+    rule phase:
+        input:
+            vcf = rules.compress_vcf.output,
+            map = '../mapsDir/{chromosome}.gmap'
 
-    output: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
-#    conda:
-#        'env/shapeit.yaml'
-    log: 'logs/{chromosome}_phased.log'
-    # envmodules:
-    #     config['bcftoolsModule']
-    conda: "bcftools"
-    threads: 1
-    resources: cpus=1, mem_mb=4000, time_min=5
-    shell:
-        """
-        str='{wildcards.chromosome}'
-        chr=$(echo ${{str:4}})
-        shapeit4 --input {input.vcf} \
-                         --map {input.map} \
-                         --region ${{chr}} \
-                         --output {output} \
-                         --sequencing \
-                         --thread 10
-        bcftools index {output}
-        """
+        output: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
+        log: 'logs/phase_{chromosome}.log'
+        threads: 1
+        resources: cpus=1, mem_mb=4000, time_min=5
+        shell:
+            """
+            str='{wildcards.chromosome}'
+            chr=$(echo ${{str:4}})
+            shapeit4 --input {input.vcf} \
+                             --map {input.map} \
+                             --region ${{chr}} \
+                             --output {output} \
+                             --sequencing \
+                             --thread 10
+            bcftools index {output}
+            """
