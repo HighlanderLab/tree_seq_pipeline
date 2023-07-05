@@ -4,8 +4,10 @@ How to run it on Eddie
 1. (If not done yet) Configure conda by
    Adding the environment directory:
    `conda config --add envs_dir /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs`
+
    And adding the pkg directory:
    `conda config --add pkgs_dirs /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pkg`
+
    Make sure you `~/.condarc` contains the following lines:
    ```
    envs_dirs:
@@ -13,7 +15,7 @@ How to run it on Eddie
     pkgs_dirs:
     - /exports/<COLLEGE>/eddie/<SCHOOL>/groups/<GROUP NAME>/anaconda/pkgs
    ```
-2. Add drmaa path to your `~/.bash_profile` or equivalent:
+3. Add drmaa path to your `~/.bash_profile` or equivalent:
    `export DRMAA_LIBRARY_PATH=/exports/applications/gridengine/ge-8.6.5/lib/lx-amd64/libdrmaa.so`
 
 On Eddie do
