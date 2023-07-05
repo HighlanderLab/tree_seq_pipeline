@@ -1,5 +1,61 @@
 README Snakemake Tree sequence pipeline
 
+How to run it on Eddie
+1. (If not done yet) Configure conda by
+   Adding the environment directory:
+   `conda config --add envs_dir /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs`
+   And adding the pkg directory:
+   `conda config --add pkgs_dirs /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pkg`
+   Make sure you `~/.condarc` contains the following lines:
+   ```
+   envs_dirs:
+    - /exports/<COLLEGE>/eddie/<SCHOOL>/groups/<GROUP NAME>/anaconda/envs
+    pkgs_dirs:
+    - /exports/<COLLEGE>/eddie/<SCHOOL>/groups/<GROUP NAME>/anaconda/pkgs
+   ```
+2. Add drmaa path to your `~/.bash_profile` or equivalent:
+   `export DRMAA_LIBRARY_PATH=/exports/applications/gridengine/ge-8.6.5/lib/lx-amd64/libdrmaa.so`
+
+On Eddie do
+```
+# Initiate an interactive login
+qlogin -l h_vmem=32G
+
+# load anaconda and activate snakemake environment
+module load anaconda/5.3.1
+conda deactivate # there should be no (env) in your prompt!
+conda activate HLab_sanekmake
+
+# Go to your workspace
+cd path/to/your/workspace
+
+# clone this
+git clone https://github.com/HighlanderLab/tree_seq_pipeline.git
+cd tree_seq_pipeline
+
+# edit Snakemake/config/tsinfer_Eddie.yaml according to your work
+# - change workdir to a location in your workspace
+# - change vcfDir to the folder where your vcfs are stored
+# - change meta to the folder where your metafile is stored
+# - change ancestralAllele to the folder where your ancetralfile is stored
+
+# pipeline is executed from the workflow folder
+cd Snakemake/workflow
+
+# for interactive use
+snakemake -j 1 --use-conda -n # for a dry run
+snakemake -j 1 --use-conda # real run
+snakemake -j 1 --use-conda -F # force run
+
+# to submit to cluster use
+# N = number of chromosomes (so they run in parallel)
+snakemake -j N --use-conda --drmaa " -l h_vmem=32G" --jobscript jobscript.sh &
+snakemake -j N --use-conda --drmaa " -l h_vmem=32G" --jobscript jobscript.sh -F &
+
+# the commands listed here are only an example.
+# the --drmaa flag takes the same inputs as qsub, in that way, other options can be use in addition to -l h_vmem.
+```
+
 1. Split snakemake file
 INPUT: You can start with files that are already split or files that are still combined (meaning, all genome in one VCF). We do require the files to be named a certain way.
 * files that are already split = Chr{N}_{whatever}.vcf.gz
