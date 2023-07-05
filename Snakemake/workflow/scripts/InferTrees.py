@@ -22,11 +22,11 @@ outputFile = args[2]
 #######################################################################
 
 # Do the inference on the 10 SNPs
-samples = tsinfer.load(sampleFile)
+sampleFile = tsinfer.load(sampleFile)
 
 ancestors = tsinfer.generate_ancestors(
     sampleFile,
-    num_threds=threads,
+    num_threads=threads,
     progress_monitor=True,
 ).truncate_ancestors(
     lower_time_bound=lwertime,
