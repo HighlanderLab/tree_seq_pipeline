@@ -1,0 +1,5 @@
+use-conda: true
+cluster-config: "cluster.json"
+jobscript: "jobscript.sh"
+rerun-incomplete: true
+cores: 99 # how many jobs you want to submit to your cluster queue
