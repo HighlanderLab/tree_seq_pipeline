@@ -1,0 +1,69 @@
+{
+  "__default__":
+  {
+    "clusterSpec": "-P roslin_HighlanderLab -cwd",
+    "jobName": "{rule}",
+    "time": "02:00:00",
+    "mem": 1024,
+    "cpus": 1
+  },
+  "split_and_move_vcfs":
+  {
+    "mem": 6000,
+  },
+  "get_samples":
+  {
+    "mem": 6000,
+  },
+  "merge":
+  {
+    "time": "10:00:00",
+    "mem": 6000
+  },
+  "get_af":
+  {
+    "time": "05:00:00",
+    "mem" : 15000
+  },
+  "get_major":
+  {
+    "time": "05:00:00",
+    "mem" : 15000
+  },
+  "extract_vcf_pos":
+  {
+    "time": "05:00:00",
+    "mem" : 15000
+  },
+  "match_ancestral_vcf":
+  {
+    "time": "05:00:00",
+    "mem" : 15000
+  },
+  "change_infoAA_vcf":
+  {
+    "time": "05:00:00",
+    "mem" : 20000
+  },
+  "phase":
+  {
+    "clusterSpec": "-P roslin_HighlanderLab -cwd -pe sharedmem 25"
+    "time": "336:00:00",
+    "mem" : 50000,
+    "cpus": 25
+  },
+  "prepare_sample_file":
+  {
+    "clusterSpec": "-P roslin_HighlanderLab -cwd -pe sharedmem 10"
+    "time": "250:00:00",
+    "mem" : 35000,
+    "cpus": 10,
+  },
+  "infer":
+  {
+    "clusterSpec": "-P roslin_HighlanderLab -cwd -pe sharedmem 10"
+    "time": "250:00:00",
+    "mem" : 35000,
+    "cpus": 20,
+  }
+}
