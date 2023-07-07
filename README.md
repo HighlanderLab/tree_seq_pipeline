@@ -1,6 +1,6 @@
-README Snakemake Tree sequence pipeline
+# README Snakemake Tree sequence pipeline
 
-How to run it on Eddie
+# How to run this pipeline on Eddie
 1. (If not done yet) Configure conda by
    Adding the environment directory:
    `conda config --add envs_dir /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs`
@@ -58,7 +58,20 @@ snakemake -j N --use-conda --drmaa " -l h_vmem=32G" --jobscript jobscript.sh -F 
 # the --drmaa flag takes the same inputs as qsub, in that way, other options can be use in addition to -l h_vmem.
 ```
 
-Description of rules and workflow
+# Test data:
+Test data is provided at:
+`/exports/cmvm/eddie/eb/groups/HighlanderLab/share/Snakemake/Data`
+
+The folder contains:
+* Ancstral allele file -- AncestralAlleleVcf.txt
+* a RawVCf folder
+  - here are examples of `combined` and `split` files
+
+To use this data to test the pipeline copy the folder into your Eddie working space.
+Modify the `Snakemake/config/tsinfer_Eddie.yaml` file so the `vcfDir` points to the `Data/RawVCf`.
+To run, follow instructions above.
+
+# Description of rules and workflow
 
 1. Split snakemake file
 INPUT: You can start with files that are already split or files that are still combined (meaning, all genome in one VCF). We do require the files to be named a certain way.
@@ -117,7 +130,7 @@ INPUT: One phased VCF file per chromosome with ancestral information AND the fil
 
 RULES:
 * `rule prepare_samples_file`: Takes the vcf file, the meta file, the chromosome length from config['chrLength'] and ploidy from config['ploidy']. If the ploidy is 1, it does not check for the phasing of the samples. If ploidy is 2, it requires the VCF to be phased (| in the genotype field instead of /)
-* `rule infer`: takes the samples file prepared in the previous step to infer one tree sequence per chromosome. 
+* `rule infer`: takes the samples file prepared in the previous step to infer one tree sequence per chromosome.
 
 OUTPUT: The output is one tree sequence for each chromosome in the ../Project/Tsinfer/trees directory.
 
@@ -130,4 +143,3 @@ We chose to work with conda environments. Currently, we are using the following 
 An alternative to using the conda environment is to load envmodules through (only for Eddie modules)
 # envmodules:
     #     config['bcftoolsModule']
-
