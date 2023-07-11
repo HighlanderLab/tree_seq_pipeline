@@ -1,8 +1,9 @@
 README Snakemake Tree sequence pipeline
 
-How to run it on Eddie
+# How to run it on Eddie
 1. (If not done yet) Configure conda by
-   Adding the environment directory:
+   Adding the environment directory (read more about it here, also check for updates: https://www.wiki.ed.ac.uk/display/ResearchServices/Anaconda):
+   `module load anaconda`
    `conda config --add envs_dir /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs`
 
    And adding the pkg directory:
@@ -57,8 +58,10 @@ snakemake -j N --use-conda --drmaa " -l h_vmem=32G" --jobscript jobscript.sh -F 
 # the commands listed here are only an example.
 # the --drmaa flag takes the same inputs as qsub, in that way, other options can be use in addition to -l h_vmem.
 ```
-
-Description of rules and workflow
+# Important notes
+- you can run snakemake in interactive mode or through submitting to the cluster (both need to be performed through the login node for now). When submitting, the jobs still get submit one after the other (according to dependencies), hence the process needs to stay open. You can use either `screen` (https://www.wiki.ed.ac.uk/display/ResearchServices/Bioinformatics#Bioinformatics-Loginnode) or & (not tested yet).
+  
+# Description of rules and workflow
 
 1. Split snakemake file
 INPUT: You can start with files that are already split or files that are still combined (meaning, all genome in one VCF). We do require the files to be named a certain way.
