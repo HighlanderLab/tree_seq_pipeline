@@ -7,9 +7,10 @@ if config['ancestralAllele'] == None:
             alignedFocal=config['alignedFocal'],
             vcf=config['rawVcf']
         output:
-            info="AncestralAllele/RawVcfInfo.INFO"
+            info="../Project/AncestralAllele/RawVcfInfo.INFO",
+            log=temp("../Project/AncestralAllele/RawVcfInfo.log")
         params:
-            prefix="AncestralAllele/RawVcfInfo"
+            prefix="../Project/AncestralAllele/RawVcfInfo"
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=64000, time_min=300
@@ -20,9 +21,9 @@ if config['ancestralAllele'] == None:
 
     rule extract_snps_from_info:
         input:
-            "AncestralAllele/RawVcfInfo.INFO"
+            "../Project/AncestralAllele/RawVcfInfo.INFO"
         output:
-            "AncestralAllele/RawVcfInfo_SNPs.INFO"
+            "../Project/AncestralAllele/RawVcfInfo_SNPs.INFO"
         threads: 1
         resources: cpus=1, mem_mb=32000, time_min=60
         log: 'logs/ExtractSnpsFromInfo.log'
@@ -39,7 +40,7 @@ if config['ancestralAllele'] == None:
         input:
             rules.extract_snps_from_info.output
         output:
-            "AncestralAllele/RawVcfFullPos.txt"
+            "../Project/AncestralAllele/RawVcfFullPos.txt"
         threads: 1
         resources: cpus=1, mem_mb=32000, time_min=60
         log: 'logs/ExtractPosAlignedAllelesFromVcf.log'
@@ -53,7 +54,7 @@ if config['ancestralAllele'] == None:
             alignedFocal=config['alignedFocal'],
             vcfPos=rules.extract_pos_aligned_alleles_from_vcf.output
         output:
-            "AncestralAllele/AlignedSnps_focal_SortedRawVcf.txt"
+            "../Project/AncestralAllele/AlignedSnps_focal_SortedRawVcf.txt"
         threads: 1
         resources: cpus=1, mem_mb=32000, time_min=120
         log: 'logs/ExtractVcfAllelesFromAligned.log'
@@ -68,15 +69,15 @@ if config['ancestralAllele'] == None:
             vcfAlleles=rules.extract_snps_from_info.output
         conda: "tsinfer"
         output:
-            expand("AncestralAllele/Estsfs/EstSfs_Dict{{chunk}}.csv")
+            expand("../Project/AncestralAllele/Estsfs/EstSfs_Dict{{chunk}}.csv")
         wildcard_constraints:
             chunk="\d+"
         params:
-            outDir="AncestralAllele/Estsfs",
+            outDir="../Project/AncestralAllele/Estsfs",
             noCycle=config['noEstSfsChunks']
         threads: config['noEstSfsChunks']
         resources: cpus=1, mem_mb=64000, time_min=360
-        log: 'logs/CreateEstsfsDicts{chunk}.log'
+        log: 'logs/CreateEstsfsDicts.log'
         shell:
             "python scripts/CreateInputForEstsfs_fromWGAbed_Cactus.py {wildcards.chunk} {params.noCycle} {input.alignedAlleles} {input.vcfAlleles} {params.outDir}"
             #CreateInputForEstsfs_Loop.sh This is qsub
@@ -85,17 +86,17 @@ if config['ancestralAllele'] == None:
         input:
             rules.create_estsfs_dicts.output
         output:
-            "AncestralAllele/Estsfs/EstSfs_Dict{chunk}E.csv"
+            "../Project/AncestralAllele/Estsfs/EstSfs_Dict{chunk}E.csv"
         params:
             chunk=config['noEstSfsChunks']
         wildcard_constraints:
             chunk="\d+"
         threads: config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
-        log: 'logs/EditEstsfsDicts{chunk}.log'
+        log: 'logs/EditEstsfsDicts.log'
         shell:
             """
-            cut -f2,3,4,5 {input} |  grep -v "()" > tmp1
+          	cut -f2,3,4,5 {input} |  grep -v "()" > tmp1
             sed -i "s/ //g" tmp1
             # Set the correct separators for the file
             awk -F "\t" '{{print $1"\t"$2" "$3" "$4}}' tmp1 > tmp2
@@ -107,9 +108,9 @@ if config['ancestralAllele'] == None:
 
     rule combine_estsfs_dicts:
         input:
-            expand("AncestralAllele/Estsfs/EstSfs_Dict{chunk}E.csv", chunk = range(config['noEstSfsChunks']))
+            expand("../Project/AncestralAllele/Estsfs/EstSfs_Dict{chunk}E.csv", chunk = range(config['noEstSfsChunks']))
         output:
-            "AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
+            "../Project/AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
         wildcard_constraints:
             chunk="\d+"
         threads: 1
@@ -120,12 +121,12 @@ if config['ancestralAllele'] == None:
 
     rule run_estsfs:
         input:
-            dict="AncestralAllele/Estsfs/EstSfs_Dict_Total.csv",
+            dict="../Project/AncestralAllele/Estsfs/EstSfs_Dict_Total.csv",
             config=config['estsfsConfig'],
             seed=config['estsfsSeed']
         output:
-            text="AncestralAllele/Estsfs/outputEtsfs.txt",
-            pvalue="AncestralAllele/Estsfs/output-pvalues.txt"
+            text="../Project/AncestralAllele/Estsfs/outputEtsfs.txt",
+            pvalue="../Project/AncestralAllele/Estsfs/output-pvalues.txt"
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=64000, time_min=2880
         log: 'logs/RunEstsfs.log'
@@ -136,9 +137,9 @@ if config['ancestralAllele'] == None:
 
     rule extract_major:
         input:
-            "AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
+            "../Project/AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
         output:
-            temp("AncestralAllele/MajorAllele.txt")
+            temp("../Project/AncestralAllele/MajorAllele.txt")
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/ExtractMajor.log'
@@ -147,9 +148,9 @@ if config['ancestralAllele'] == None:
 
     rule extract_minor:
         input:
-            "AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
+            "../Project/AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
         output:
-            temp("AncestralAllele/MinorAllele.txt")
+            temp("../Project/AncestralAllele/MinorAllele.txt")
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/ExtractMinor.log'
@@ -158,9 +159,9 @@ if config['ancestralAllele'] == None:
 
     rule extract_major_outgroup:
         input:
-            "AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
+            "../Project/AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
         output:
-            temp("AncestralAllele/MajorOutgroup.txt")
+            temp("../Project/AncestralAllele/MajorOutgroup.txt")
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/ExtractMajorOutgroup.log'
@@ -169,9 +170,9 @@ if config['ancestralAllele'] == None:
 
     rule extract_estsfs_prob:
         input:
-            "AncestralAllele/Estsfs/output-pvalues.txt"
+            "../Project/AncestralAllele/Estsfs/output-pvalues.txt"
         output:
-            temp("AncestralAllele/AncestralProb.txt")
+            temp("../Project/AncestralAllele/AncestralProb.txt")
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/ExtractEstsfsProb.log'
@@ -180,12 +181,12 @@ if config['ancestralAllele'] == None:
 
     rule determine_ancestral:
         input:
-            ancProb="AncestralAllele/AncestralProb.txt",
-            major="AncestralAllele/MajorAllele.txt",
-            minor="AncestralAllele/MinorAllele.txt",
-            majorOut="AncestralAllele/MajorOutgroup.txt"
+            ancProb="../Project/AncestralAllele/AncestralProb.txt",
+            major="../Project/AncestralAllele/MajorAllele.txt",
+            minor="../Project/AncestralAllele/MinorAllele.txt",
+            majorOut="../Project/AncestralAllele/MajorOutgroup.txt"
         output:
-            "AncestralAllele/AncestralAllele_Vcf.txt"
+            "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/DetermineAncestral.log'
@@ -198,7 +199,7 @@ if config['ancestralAllele'] == None:
 else:
     rule move_and_rename_aa:
         input: config['ancestralAllele']
-        output: "AncestralAllele/AncestralAllele_Vcf.txt"
+        output: "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/MoveAndRenameAA.log'
