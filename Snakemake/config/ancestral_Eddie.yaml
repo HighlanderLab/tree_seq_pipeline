@@ -1,5 +1,7 @@
-rawVcf: "/home/jana/EddieDir/Honeybees/GenomicData/Amel_HapMap/testRenamed.vcf.gz"
-alignedFocal: "/home/jana/EddieDir/Honeybees/MultipleGenomeAlignment/Focal_aligned/testAligned.txt"
+rawVcf: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/RawVCF/Chr1_renamed.vcf.gz"
+alignedFocal: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/testAligned.txt"
 noEstSfsChunks: 3
-estsfsConfig: "/home/jana/EddieDir/Honeybees/AncestralAllele/Cactus/Harpur/config-kimura_3o.txt"
-estsfsSeed: "/home/jana/EddieDir/Honeybees/AncestralAllele/Cactus/Harpur/seedfile.txt"
+estsfsConfig: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/config-kimura_3o.txt"
+estsfsSeed: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/seedfile.txt"
+
+

@@ -1,5 +1,3 @@
-
-
 rule get_af:
     input:
         f'{vcfdir}/{{chromosome}}_final.vcf.gz'
@@ -69,7 +67,7 @@ rule extract_vcf_pos:
 rule match_ancestral_vcf:
     input:
         vcfPos=rules.extract_vcf_pos.output,
-        ancestral=config['ancestralAllele'],
+        ancestral="AncestralAllele/AncestralAllele_Vcf.txt",
         major=rules.get_major.output
     output: temp('AncestralVcfMatch{chromosome}.txt')
     params:

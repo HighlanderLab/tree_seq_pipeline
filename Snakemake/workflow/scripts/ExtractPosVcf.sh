@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 vcf=$1
 alignedPos=$2
 output=$3

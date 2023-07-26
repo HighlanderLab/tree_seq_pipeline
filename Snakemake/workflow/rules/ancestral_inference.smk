@@ -7,8 +7,7 @@ if config['ancestralAllele'] == None:
             alignedFocal=config['alignedFocal'],
             vcf=config['rawVcf']
         output:
-            info="AncestralAllele/RawVcfInfo.INFO",
-            log=temp("AncestralAllele/RawVcfInfo.log")
+            info="AncestralAllele/RawVcfInfo.INFO"
         params:
             prefix="AncestralAllele/RawVcfInfo"
         conda: "bcftools"
@@ -77,7 +76,7 @@ if config['ancestralAllele'] == None:
             noCycle=config['noEstSfsChunks']
         threads: config['noEstSfsChunks']
         resources: cpus=1, mem_mb=64000, time_min=360
-        log: 'logs/CreateEstsfsDicts.log'
+        log: 'logs/CreateEstsfsDicts{chunk}.log'
         shell:
             "python scripts/CreateInputForEstsfs_fromWGAbed_Cactus.py {wildcards.chunk} {params.noCycle} {input.alignedAlleles} {input.vcfAlleles} {params.outDir}"
             #CreateInputForEstsfs_Loop.sh This is qsub
@@ -93,10 +92,10 @@ if config['ancestralAllele'] == None:
             chunk="\d+"
         threads: config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
-        log: 'logs/EditEstsfsDicts.log'
+        log: 'logs/EditEstsfsDicts{chunk}.log'
         shell:
             """
-          	cut -f2,3,4,5 {input} |  grep -v "()" > tmp1
+            cut -f2,3,4,5 {input} |  grep -v "()" > tmp1
             sed -i "s/ //g" tmp1
             # Set the correct separators for the file
             awk -F "\t" '{{print $1"\t"$2" "$3" "$4}}' tmp1 > tmp2
@@ -139,7 +138,7 @@ if config['ancestralAllele'] == None:
         input:
             "AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
         output:
-            temp()"AncestralAllele/MajorAllele.txt")
+            temp("AncestralAllele/MajorAllele.txt")
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/ExtractMajor.log'
@@ -150,7 +149,7 @@ if config['ancestralAllele'] == None:
         input:
             "AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
         output:
-            temp()"AncestralAllele/MinorAllele.txt")
+            temp("AncestralAllele/MinorAllele.txt")
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/ExtractMinor.log'
@@ -161,7 +160,7 @@ if config['ancestralAllele'] == None:
         input:
             "AncestralAllele/Estsfs/EstSfs_Dict_Total.csv"
         output:
-            temp()"AncestralAllele/MajorOutgroup.txt")
+            temp("AncestralAllele/MajorOutgroup.txt")
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/ExtractMajorOutgroup.log'
