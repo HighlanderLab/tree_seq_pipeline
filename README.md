@@ -60,7 +60,19 @@ snakemake -j N --use-conda --drmaa " -l h_vmem=32G" --jobscript jobscript.sh -F 
 ```
 # Important notes
 - you can run snakemake in interactive mode or through submitting to the cluster (both need to be performed through the login node for now). When submitting, the jobs still get submit one after the other (according to dependencies), hence the process needs to stay open. You can use either `screen` (https://www.wiki.ed.ac.uk/display/ResearchServices/Bioinformatics#Bioinformatics-Loginnode) or & (not tested yet).
-  
+
+# Description of the config file
+The config file to be used on Eddie in the tsinfer_Eddie.yaml file, the same file is specified in the Snakefile. In here, you need to specify:
+- workdir: the path to your working directory, which needs to be a folder named "Project" inside your github directory
+- species: which species are you working with
+- ploidy: ploidy of the organism
+- noChromosomes: the number of chromosomes (we might want to change this to names)
+- vcfDir: the path to the VCF files. Within this directory, you need to have a folder "RawVCF" with **all** raw VCF files. Additionaly, the pipeline will create one folder per chromosome in this folder to store processed data.
+- bcftoolsModule and vcftoolsModule: the module names on Eddie - they two are not used at the moment but could be used via envmodules command
+- ancestralAllele: path to the file with ancestral allele information (for the format, see below)
+- meta: path to the meta file (for the format, see below)
+- chromosome_length: a list with chromosome length in base pairs for each chromosome (must be numerical chromosome names for now)
+
 # Description of rules and workflow
 
 1. Split snakemake file
@@ -120,7 +132,7 @@ INPUT: One phased VCF file per chromosome with ancestral information AND the fil
 
 RULES:
 * `rule prepare_samples_file`: Takes the vcf file, the meta file, the chromosome length from config['chrLength'] and ploidy from config['ploidy']. If the ploidy is 1, it does not check for the phasing of the samples. If ploidy is 2, it requires the VCF to be phased (| in the genotype field instead of /)
-* `rule infer`: takes the samples file prepared in the previous step to infer one tree sequence per chromosome. 
+* `rule infer`: takes the samples file prepared in the previous step to infer one tree sequence per chromosome.
 
 OUTPUT: The output is one tree sequence for each chromosome in the ../Project/Tsinfer/trees directory.
 
@@ -133,4 +145,3 @@ We chose to work with conda environments. Currently, we are using the following 
 An alternative to using the conda environment is to load envmodules through (only for Eddie modules)
 # envmodules:
     #     config['bcftoolsModule']
-

@@ -1,0 +1,5 @@
+rawVcf: "/home/jana/EddieDir/Honeybees/GenomicData/Amel_HapMap/testRenamed.vcf.gz"
+alignedFocal: "/home/jana/EddieDir/Honeybees/MultipleGenomeAlignment/Focal_aligned/testAligned.txt"
+noEstSfsChunks: 3
+estsfsConfig: "/home/jana/EddieDir/Honeybees/AncestralAllele/Cactus/Harpur/config-kimura_3o.txt"
+estsfsSeed: "/home/jana/EddieDir/Honeybees/AncestralAllele/Cactus/Harpur/seedfile.txt"
