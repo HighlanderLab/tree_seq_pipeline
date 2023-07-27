@@ -77,7 +77,7 @@ if config['ancestralAllele'] == None:
             noCycle=config['noEstSfsChunks']
         threads: config['noEstSfsChunks']
         resources: cpus=1, mem_mb=64000, time_min=360
-        log: 'logs/CreateEstsfsDicts.log'
+        log: 'logs/CreateEstsfsDicts{chunk}.log'
         shell:
             "python scripts/CreateInputForEstsfs_fromWGAbed_Cactus.py {wildcards.chunk} {params.noCycle} {input.alignedAlleles} {input.vcfAlleles} {params.outDir}"
             #CreateInputForEstsfs_Loop.sh This is qsub
@@ -93,7 +93,7 @@ if config['ancestralAllele'] == None:
             chunk="\d+"
         threads: config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
-        log: 'logs/EditEstsfsDicts.log'
+        log: 'logs/EditEstsfsDicts{chunk}.log'
         shell:
             """
           	cut -f2,3,4,5 {input} |  grep -v "()" > tmp1
@@ -186,14 +186,15 @@ if config['ancestralAllele'] == None:
             minor="../Project/AncestralAllele/MinorAllele.txt",
             majorOut="../Project/AncestralAllele/MajorOutgroup.txt"
         output:
-            "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
+            aa="../Project/AncestralAllele/AncestralAllele_Vcf.txt",
+	    prob="../Project/AncestralAllele/ProbMajorMinorOutgroup.txt"
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/DetermineAncestral.log'
         shell:
             """
-            paste {input.ancProb} {input.major} {input.minor} {input.majorOut} > AncestralAllele/ProbMajorMinorOutgroup.txt
-            awk '{{ if(($1 >= 0.5)) {{print $2}} else if (($1 < 0.5)) {{print $3}} else {{print $4}} }}' AncestralAllele/ProbMajorMinorOutgroup.txt > {output}
+            paste {input.ancProb} {input.major} {input.minor} {input.majorOut} > {output.prob}
+            awk '{{ if(($1 >= 0.5)) {{print $2}} else if (($1 < 0.5)) {{print $3}} else {{print $4}} }}' {output.prob} > {output.aa}
             #rm ProbMajorMinorOutgroup.txt
             """
 else:
