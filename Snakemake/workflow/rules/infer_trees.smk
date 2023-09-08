@@ -2,7 +2,8 @@ import re
 
 rule prepare_sample_file:
     input:
-        vcf=f'{vcfdir}/{{chromosome}}_ancestral.vcf',
+        vcf=f'{vcfdir}/{{chromosome}}_phased.vcf'
+        #f'{vcfdir}/{{chromosome}}_ancestral.vcf',
         meta=config['meta']
     output:
         "../Project/Tsinfer/samples/{chromosome}.samples"

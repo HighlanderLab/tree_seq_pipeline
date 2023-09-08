@@ -17,7 +17,7 @@ else:
 
         output: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
         log: 'logs/phase_{chromosome}.log'
-        threads: 1
+        threads: 20
         resources: cpus=1, mem_mb=4000, time_min=5
         shell:
             """
@@ -28,6 +28,6 @@ else:
                              --region ${{chr}} \
                              --output {output} \
                              --sequencing \
-                             --thread 10
+                             --thread 20
             bcftools index {output}
             """
