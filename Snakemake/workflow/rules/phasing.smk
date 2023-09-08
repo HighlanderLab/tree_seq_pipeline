@@ -19,6 +19,7 @@ else:
         log: 'logs/phase_{chromosome}.log'
         threads: 20
         resources: cpus=1, mem_mb=4000, time_min=5
+        conda: 'shapeit4am'
         shell:
             """
             str='{wildcards.chromosome}'
