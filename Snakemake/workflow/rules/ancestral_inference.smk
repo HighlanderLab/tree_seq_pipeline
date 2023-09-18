@@ -67,7 +67,7 @@ if config['ancestralAllele'] == None:
         input:
             alignedAlleles=rules.extract_vcf_alleles_from_aligned.output,
             vcfAlleles=rules.extract_snps_from_info.output
-        conda: "tsinfer"
+        conda: "HLab_tsinfer"
         output:
             expand("../Project/AncestralAllele/Estsfs/EstSfs_Dict{{chunk}}.csv")
         wildcard_constraints:
@@ -96,7 +96,8 @@ if config['ancestralAllele'] == None:
         log: 'logs/EditEstsfsDicts{chunk}.log'
         shell:
             """
-          	cut -f2,3,4,5 {input} |  grep -v "()" > tmp1
+            cut -f2,3,4,5 {input} | grep -v "()" > tmp1
+            echo $PWD
             sed -i "s/ //g" tmp1
             # Set the correct separators for the file
             awk -F "\t" '{{print $1"\t"$2" "$3" "$4}}' tmp1 > tmp2
