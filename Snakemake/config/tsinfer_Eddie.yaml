@@ -3,11 +3,9 @@ species: "Apis mellifera"
 ploidy: "1"
 noChromosomes: 2
 vcfDir: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data"
-#combinedVCFs: null
-merge: "yes"
-bcftoolsModule: "igmm/apps/bcftools/1.9"
-vcftoolsModule: "igmm/apps/vcftools/0.1.13"
-ancestralAllele: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/AncestralAlleleVcf.txt"
+bcftoolsModule: "igmm/apps/bcftools/1.9" # Currently not used but can be used with envmodules
+vcftoolsModule: "igmm/apps/vcftools/0.1.13" # Currently not used but can be used with envmodules
+ancestralAllele: null #"/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/AncestralAlleleVcf.txt"
 meta: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/SampleMetaData.csv"
 chromosome_length:
   1 : 100000
