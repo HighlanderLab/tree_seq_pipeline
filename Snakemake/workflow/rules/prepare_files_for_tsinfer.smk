@@ -1,10 +1,10 @@
 
 
 rule get_af:
-    input:
-        f'{vcfdir}/{{chromosome}}_final.vcf.gz'
+    input: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
     output:
-        info=temp(f'{vcfdir}/Info{{chromosome}}.INFO')
+        #new_file = temp(f'{vcfdir}/{{chromosome}}_phased_info_test.vcf.gz'), 
+        info = temp(f'{vcfdir}/Info{{chromosome}}.INFO')
     params:
         prefix=f'{vcfdir}/Info{{chromosome}}'
     conda: "bcftools"
@@ -23,10 +23,8 @@ rule get_af:
         """
 
 rule get_major:
-    input:
-        rules.get_af.output.info
-    output:
-        temp('Major{chromosome}.txt')
+    input: rules.get_af.output.info
+    output: temp('Major{chromosome}.txt')
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     log: 'logs/get_major_{chromosome}.log'
@@ -37,9 +35,9 @@ rule get_major:
 
 rule decompress:
     input:
-        vcf = f'{vcfdir}/{{chromosome}}_final.vcf.gz',
-        major=rules.get_major.output
-    output: temp(f'{vcfdir}/{{chromosome}}_final.vcf')
+        vcf = f'{vcfdir}/{{chromosome}}_phased.vcf.gz',
+        major = rules.get_major.output
+    output: f'{vcfdir}/{{chromosome}}_phased.vcf' # this is removing both the .gz and the decompressed file 
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     log: 'logs/decompress_{chromosome}.log'
@@ -52,46 +50,54 @@ rule extract_vcf_pos:
     input:
         rules.decompress.output
     output:
-        temp('VcfPos{chromosome}.txt')
+        file = temp('VcfPos{chromosome}.txt'),
+        sites = temp('{chromosome}_sites.list')
     params:
-        vcfDir=config['vcfDir']
+        vcfDir = config['vcfDir'],   
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     log: 'logs/extract_vcf_pos_{chromosome}.log'
     shell:
         """
-        bcftools query -f '%CHROM %POS\n' {input} > tmp
-        awk '{{print $1"_"$2}}' tmp > {output}
-        rm tmp
+        bcftools query -f '%CHROM %POS\n' {input} > {output.sites}
+        awk '{{print $1"_"$2}}' {output.sites} > {output.file}
         """
+    # why not just take the first col of the table above??
+    # cut -d',' -f 1 {rules.get_major.output}
 
 rule match_ancestral_vcf:
     input:
-        vcfPos=rules.extract_vcf_pos.output,
-        ancestral=config['ancestralAllele'],
-        major=rules.get_major.output
-    output: temp('AncestralVcfMatch{chromosome}.txt')
+        vcfPos = rules.extract_vcf_pos.output.file,
+        ancestral = config['ancestralAllele'],
+        major = rules.get_major.output
+    output: 
+        file = temp('AncestralVcfMatch{chromosome}.txt'),
     params:
-        chrNum=lambda wc: wc.get("chromosome")[3:]
+        chrNum = lambda wc: wc.get("chromosome")[3:],
+        ancestral_sites = '{chromosome}.aa'
     threads: 1
-    resources: cpus=1, mem_mb=4000, time_min=5
+    resources: cpus=1, mem_mb=150000, time_min=5
     log: 'logs/match_ancestral_vcf_{chromosome}.log'
     shell:
         """
-        grep "{params.chrNum}_" {input.ancestral} > aa_tmp
+        grep "{params.chrNum}_" {input.ancestral} | grep -xv 'ambigous' > {params.ancestral_sites}
+        echo done
 
         for line in $(cat {input.vcfPos});
         do
-            if grep -w "${{line}}" aa_tmp >> {output}; then
+            if grep -w "${{line}}" {params.ancestral_sites} >> {output.file}; then
+                echo line in aa
                 continue
             else
-                grep -w "${{line}}" {input.major} >> {output}
+                grep -w "${{line}}" {input.major} >> {output.file}
+                echo line in major
             fi
         done
-	awk -F "," '{{print $1" "$2}}' {output} > tmp && mv tmp {output}
-	rm aa_tmp
+        rm {params.ancestral_sites}
+        awk -F "," '{{print $1" "$2}}' {output} > {wildcards.chromosome}.tmp && mv {wildcards.chromosome}.tmp {output}
         """
+#sed -i 's/,/ /g' {output.file}
 
 rule change_infoAA_vcf:
     input:
@@ -100,7 +106,7 @@ rule change_infoAA_vcf:
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
     conda: "bcftools"
     threads: 1
-    resources: cpus=1, mem_mb=4000, time_min=5
+    resources: cpus=1, mem_mb=100000, time_min=5
     log: 'logs/change_infoAA_vcf_{chromosome}.log'
     shell:
         """
@@ -112,15 +118,22 @@ rule change_infoAA_vcf:
         """
 
 rule compress_vcf:
-    input:
-        rules.change_infoAA_vcf.output
-    output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
+    input: 
+        vcf_aa = rules.change_infoAA_vcf.output,
+        vcf_phased = rules.decompress.output
+    output: 
+        vcf_aa = f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz',
+        vcf_phased = f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
     conda: "bcftools"
     threads: 1
-    resources: cpus=1, mem_mb=4000, time_min=5
+    resources: cpus=1, mem_mb=64000, time_min=5
     log: 'logs/compress_{chromosome}.log'
     shell:
         """
-        bgzip {input}
-        bcftools index {output}
+        bgzip {input.vcf_aa}
+        bcftools index {output.vcf_aa}
+
+        bgzip {input.vcf_phased}
+        bcftool index {output.vcf_phased}
         """
+# keeping the phased files w/o ancestral alleles 

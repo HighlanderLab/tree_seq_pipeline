@@ -1,14 +1,31 @@
 #!/usr/bin/env python
 # coding: utf-8
+import os
+import pip
 import sys
+import json
+import subprocess
+import numpy as np
+import pandas as pd
+import pkg_resources
+
 print(sys.executable)
+
+required = {'cyvcf2', 'tsinfer', 'tqdm'}
+installed = {pkg.key for pkg in pkg_resources.working_set}
+missing = required - installed
+
+if missing:
+# try:
+#     import tqdm as tqdm
+#     print("module 'tqdm' is installed")
+# except ModuleNotFoundError:
+    print(f"modules {missing} not installed")
+    pip.main(['install', *missing])
+
 import cyvcf2
 import tsinfer
-import pandas as pd
-import json
-import numpy as np
 import tqdm as tqdm
-import os
 
 # chromosome = snakemake.wildcards['chromosome']
 # vcfFile = snakemake.input[0]
@@ -37,7 +54,11 @@ def add_individuals(vcf, samples, populations, metaData, ploidy):
     :param metaData: meta data file with ID, Pop, Subpop, and time
     """
     for name, population in zip(vcf.samples, populations):
-        samples.add_individual(ploidy=ploidy, metadata={"name": name}, population=population,time=list(metaData.Time[metaData.ID == name])[0])
+        samples.add_individual(ploidy=ploidy, 
+                               metadata={"name": name}, 
+                               population=population,
+                               #time=list(metaData.Time[metaData.ID == name])[0]
+                               )
 
 def add_sites(vcf, samples, ploidy):
     """
@@ -45,11 +66,7 @@ def add_sites(vcf, samples, ploidy):
     alleles to put the ancestral allele first, if it is available.
     """
     pos = 0
-    progressbar = tqdm.tqdm(
-                            total=samples.sequence_length,
-                            desc="Read VCF",
-                            unit='bp'
-                            )
+    progressbar = tqdm.tqdm(total=samples.sequence_length, desc="Read VCF", unit='bp')
     for variant in vcf:  # Loop over variants, each assumed at a unique site
         progressbar.update(variant.POS - pos)
         if pos == variant.POS:
@@ -60,18 +77,31 @@ def add_sites(vcf, samples, ploidy):
             if any([not phased for _, _, phased in variant.genotypes]):
                 raise ValueError("Unphased genotypes for variant at position", pos)
 
-        alleles = [variant.REF] + [v for v in variant.ALT]
+        alleles = [variant.REF]
+        #ALT = []
+        for string in variant.ALT:
+             alleles = alleles + [letter for letter in string]
+             #ALT = ALT + [letter for letter in string]
+
+        print(alleles)
         # ignores non-bialllelic sites
         if len(alleles) > 2:
+            print('Ignoring non-biallelic site')
             continue
 
         ancestral = variant.INFO.get("AA", variant.REF)
-        #
-        # try:
-        #     ancestral_allele = alleles.index(ancestral[0])
-        # except:
-        #     ancestral_allele = MISSING_DATA
-
+        print(f'alleles: {alleles} | ancestal: {[*ancestral]}')
+        
+        try:
+           ancestral_allele = alleles.index(ancestral[0])
+        except:
+           if len([*ancestral]) > 1:
+            print('Ambigous ancestral - assigning as missing')
+            ancestral_allele = tsinfer.MISSING_DATA
+            #continue
+           else:
+            print('Ignoring ancestral not in alleles list')
+            continue
 
         genotypes = [g for row in variant.genotypes for g in row[0:ploidy]]
         samples.add_site(position=pos,
@@ -107,7 +137,7 @@ vcfD = cyvcf2.VCF(vcfFile, strict_gt=True)
 # Create samples for haploid data
 with tsinfer.SampleData(path=sampleFile,
                         sequence_length=chrLength,
-                        num_flush_threads=10, max_file_size=2**30) as samples:
+                        num_flush_threads=20, max_file_size=2**30) as samples:
    populations = add_populations(vcf = vcfD, samples = samples, metaData = metaFile)
    print("populations determined")
    add_individuals(vcf = vcfD, samples = samples, populations = populations, metaData = metaFile, ploidy = ploidy)

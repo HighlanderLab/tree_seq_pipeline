@@ -1,14 +1,14 @@
-workdir: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/1kbull_phased/ts_africa"
+PROJECT: "africa"
+workdir: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/tree_seq_pipeline/Snakemake/{PROJECT}"
 species: "Bos taurus"
 ploidy: "2"
 noChromosomes: 29
-vcfDir: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/1kbull_phased/vcfs_afr/"
+vcfDir: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/tree_sequence/cattle"
+genmap: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/resources/ma2015_shapeit_ARS-UCD1.2"
 #combinedVCFs: null
 merge: "yes"
-bcftoolsModule: "igmm/apps/bcftools/1.9"
-vcftoolsModule: "igmm/apps/vcftools/0.1.13"
-ancestralAllele: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/resources/ma2015_shapeit_ARS-UCD1.2"
-meta: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/1kbull_phased/vcfs_afr/metadata_afr.csv"
+ancestralAllele: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/resources/ancestral_alleles/cattle_ancestral.txt"
+meta: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/tree_sequence/cattle/files/metadata_afr.txt"
 chromosome_length:
   1 : 158534110
   2 : 136231102

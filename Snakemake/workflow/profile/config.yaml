@@ -1,5 +1,12 @@
+restart-times: 0
 use-conda: true
-cluster-config: "cluster.json"
 jobscript: "jobscript.sh"
+cluster-config: "cluster.json"
+jobname: "{rule}.{jobid}"
+drmaa: " -P roslin_HighlanderLab -cwd -l h_vmem={cluster.mem} -l h_rt={cluster.mem} -pe sharedmem {cluster.threads}"
 rerun-incomplete: true
+rerun-triggers: mtime
 cores: 99 # how many jobs you want to submit to your cluster queue
+local-cores: 1
+keep-going: false
+
