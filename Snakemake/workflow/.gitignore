@@ -1,1 +1,10 @@
-../Project/*
+# exclude everything
+../*
+
+# exception to the rule
+!../config
+!../workflow 
+#../Project/*
+
+# exclude logs folder
+logs/*
