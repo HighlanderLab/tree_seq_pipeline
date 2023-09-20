@@ -1,10 +1,11 @@
-# exclude everything
-../*
-
-# exception to the rule
-!../config
-!../workflow 
-#../Project/*
-
-# exclude logs folder
+# exclude logs folder and other process files
 logs/*
+scripts/__pycache__
+.snakemake
+
+# exclude project folder
+../Project/*
+../*
+# except
+../workflow/*
+../config/*
