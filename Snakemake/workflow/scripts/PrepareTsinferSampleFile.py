@@ -89,18 +89,19 @@ def add_sites(vcf, samples, ploidy):
             print('Ignoring non-biallelic site')
             continue
 
+        # if len([*ancestral]) > 1:
+        #     print('Ambigous ancestral - assigning as missing')
+        #     ancestral_allele = tsinfer.MISSING_DATA
+        #     #continue
+
         ancestral = variant.INFO.get("AA", variant.REF)
         print(f'alleles: {alleles} | ancestal: {[*ancestral]}')
         
         try:
            ancestral_allele = alleles.index(ancestral[0])
         except:
-           if len([*ancestral]) > 1:
-            print('Ambigous ancestral - assigning as missing')
+            print('Ancestral not in alleles list, assigning as missing')
             ancestral_allele = tsinfer.MISSING_DATA
-            #continue
-           else:
-            print('Ignoring ancestral not in alleles list')
             continue
 
         genotypes = [g for row in variant.genotypes for g in row[0:ploidy]]
