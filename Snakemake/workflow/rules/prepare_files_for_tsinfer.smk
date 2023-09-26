@@ -1,5 +1,3 @@
-
-
 rule get_af:
     input: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
     output:
@@ -50,8 +48,7 @@ rule extract_vcf_pos:
     input: rules.get_major.output
         #rules.decompress.output
     output:
-        file = temp('VcfPos{chromosome}.txt'),
-        #sites = temp('{chromosome}_sites.list')
+        file = temp('VcfPos{chromosome}.txt')
     params:
         vcfDir = config['vcfDir'],   
     conda: "bcftools"
@@ -69,11 +66,10 @@ rule extract_vcf_pos:
 
 rule match_ancestral_vcf:
     input:
-        vcfPos = rules.extract_vcf_pos.output.file,
-        ancestral = config['ancestralAllele'],
-        major = rules.get_major.output
-    output: 
-        file = temp('AncestralVcfMatch{chromosome}.txt'),
+        vcfPos=rules.extract_vcf_pos.output,
+        ancestral="AncestralAllele/AncestralAllele_Vcf.txt",
+        major=rules.get_major.output
+    output: temp('AncestralVcfMatch{chromosome}.txt')
     params:
         chrNum = lambda wc: wc.get("chromosome")[3:],
         ancestral_sites = '{chromosome}.aa'
