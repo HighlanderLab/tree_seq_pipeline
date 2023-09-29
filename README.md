@@ -1,6 +1,7 @@
-README Snakemake Tree sequence pipeline
+# README Snakemake Tree sequence pipeline
 
-# How to run it on Eddie
+
+# How to run this pipeline on Eddie
 1. (If not done yet) Configure conda by
    Adding the environment directory (read more about it here, also check for updates: https://www.wiki.ed.ac.uk/display/ResearchServices/Anaconda):
    `module load anaconda`
@@ -58,6 +59,20 @@ snakemake -j N --use-conda --drmaa " -l h_vmem=32G" --jobscript jobscript.sh -F 
 # the commands listed here are only an example.
 # the --drmaa flag takes the same inputs as qsub, in that way, other options can be use in addition to -l h_vmem.
 ```
+
+# Test data:
+Test data is provided at:
+`/exports/cmvm/eddie/eb/groups/HighlanderLab/share/Snakemake/Data`
+
+The folder contains:
+* Ancstral allele file -- AncestralAlleleVcf.txt
+* a RawVCf folder
+  - here are examples of `combined` and `split` files
+
+To use this data to test the pipeline copy the folder into your Eddie working space.
+Modify the `Snakemake/config/tsinfer_Eddie.yaml` file so the `vcfDir` points to the `Data/RawVCf`.
+To run, follow instructions above.
+
 # Important notes
 - you can run snakemake in interactive mode or through submitting to the cluster (both need to be performed through the login node for now). When submitting, the jobs still get submit one after the other (according to dependencies), hence the process needs to stay open. You can use either `screen` (https://www.wiki.ed.ac.uk/display/ResearchServices/Bioinformatics#Bioinformatics-Loginnode) or & (not tested yet).
 
@@ -72,6 +87,7 @@ The config file to be used on Eddie in the tsinfer_Eddie.yaml file, the same fil
 - ancestralAllele: path to the file with ancestral allele information (for the format, see below)
 - meta: path to the meta file (for the format, see below)
 - chromosome_length: a list with chromosome length in base pairs for each chromosome (must be numerical chromosome names for now)
+
 
 # Description of rules and workflow
 

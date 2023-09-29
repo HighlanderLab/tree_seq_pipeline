@@ -1,0 +1,47 @@
+{
+ "__default__": 
+ {
+   "mem": "64G",
+   "threads": "5",
+   "time": "10:00:00"
+ },
+ "rename":
+ {
+  "mem": "150G",
+  "threads": "3",
+  "time": "10:00:00"
+ },
+ "phase":
+  {
+    "mem": "150G",
+    "threads": "20",
+    "time": "336:00:00"
+  },
+  "get_major":
+  {
+    "mem": "250G",
+    "threads": "1"
+  },
+  "match_ancestral_vcf":
+  {
+    "mem": "550G",
+    "threads": "1"
+  },
+  "change_infoAA_vcf":
+  {
+    "mem": "550G",
+    "threads": "1"
+  },
+  "prepare_sample_file":
+  {
+    "mem": "350",
+    "threads": "20",
+    "time": "336:00:00"
+  },
+  "infer":
+  {
+    "mem": "350",
+    "threads": "20",
+    "time": "336:00:00"
+  }
+}

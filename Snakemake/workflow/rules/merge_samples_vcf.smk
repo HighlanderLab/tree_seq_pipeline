@@ -56,10 +56,10 @@ else:
     rule rename:
         input:
             [f'{vcfdir}' + x
-                for x in expand('/{{chromosome}}/{{chromosome}}_{file}.vcf.gz',
+                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixOne}.vcf.gz',
                     suffixOne = splitFiles)] if len(splitFiles) != 0 else [],
             [f'{vcfdir}' + x
-                for x in expand('/{{chromosome}}/{{chromosome}}_{file}.vcf.gz',
+                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixTwo}.vcf.gz',
                     suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
         output:
             f'{vcfdir}/{{chromosome}}_final.vcf.gz'
