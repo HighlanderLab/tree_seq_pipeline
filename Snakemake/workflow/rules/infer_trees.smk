@@ -1,8 +1,14 @@
 import re
 
+if multiallelic:
+    vcf_4_inference = f'{vcfdir}/{{chromosome}}_allbi.vcf.gz'
+else:
+    vcf_4_inference = f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz'
+
 rule prepare_sample_file:
     input:
-        vcf=f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz',
+        vcf=vcf_4_inference,
+        #f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz',
         meta=config['meta']
     output:
         f"../{Project}/Tsinfer/samples/{{chromosome}}.samples"

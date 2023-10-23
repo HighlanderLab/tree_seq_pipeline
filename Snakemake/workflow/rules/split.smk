@@ -1,11 +1,14 @@
 
 splitFiles = list(set([f.strip("vcf.gz").split("_")[1]
     for f in os.listdir(f'{vcfdir}/RawVCF')
-        if (f.endswith("vcf.gz") and f.startswith("Chr"))]))
+        if (f.endswith("vcf.gz") and (f.startswith("Chr") | f.startswith("chr")) )]))
 combinedFiles = list(set([f.strip("vcf.gz").split("_")[1]
     for f in os.listdir(f'{vcfdir}/RawVCF')
         if (f.endswith("vcf.gz") and f.startswith("Combined"))]))
 allFiles = splitFiles + combinedFiles
+
+#print(splitFiles)
+#print(combinedFiles)
 
 if len(splitFiles) > 0:
     rule move_vcf:

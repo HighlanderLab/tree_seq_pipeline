@@ -24,7 +24,7 @@ rule get_af:
 
 rule get_major:
     input: rules.get_af.output.info
-    output: temp('Major{chromosome}.txt')
+    output: temp(f'{vcfdir}/Major{{chromosome}}.txt')
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     log: 'logs/get_major_{chromosome}.log'
@@ -50,7 +50,7 @@ rule extract_vcf_pos:
     input: rules.get_major.output
         #rules.decompress.output
     output:
-        file = temp('VcfPos{chromosome}.txt'),
+        file = temp(f'{vcfdir}/VcfPos{{chromosome}}.txt'),
         #sites = temp('{chromosome}_sites.list')
     params:
         vcfDir = config['vcfDir'],   
@@ -73,16 +73,17 @@ rule match_ancestral_vcf:
         ancestral = config['ancestralAllele'],
         major = rules.get_major.output
     output: 
-        file = temp('AncestralVcfMatch{chromosome}.txt'),
+        file = temp(f'{vcfdir}/AncestralVcfMatch{{chromosome}}.txt'),
     params:
         chrNum = lambda wc: wc.get("chromosome")[3:],
-        ancestral_sites = '{chromosome}.aa'
+        ancestral_sites = f'{vcfdir}/{{chromosome}}.aa',
+        tmp_file = f'{vcfdir}/{{chromosome}}.tmp',
     threads: 1
     resources: cpus=1, mem_mb=150000, time_min=5
     log: 'logs/match_ancestral_vcf_{chromosome}.log'
     shell:
         """
-        grep "{params.chrNum}_" {input.ancestral} | grep -xv 'ambigous' > {params.ancestral_sites}
+        grep "{params.chrNum}_" {input.ancestral} | grep -xv 'ambiguous' > {params.ancestral_sites}
         echo done
 
         for line in $(cat {input.vcfPos});
@@ -96,7 +97,7 @@ rule match_ancestral_vcf:
             fi
         done
         rm {params.ancestral_sites}
-        awk -F "," '{{print $1" "$2}}' {output} > {wildcards.chromosome}.tmp && mv {wildcards.chromosome}.tmp {output}
+        awk -F "," '{{print $1" "$2}}' {output} > {params.tmp_file} && mv {params.tmp_file} {output}
         """
 #sed -i 's/,/ /g' {output.file}
 
