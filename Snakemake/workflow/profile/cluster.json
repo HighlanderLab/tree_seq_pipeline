@@ -13,8 +13,8 @@
  },
  "phase":
   {
-    "mem": "150G",
-    "threads": "20",
+    "mem": "350G",
+    "threads": "25",
     "time": "336:00:00"
   },
   "get_major":

@@ -11,7 +11,7 @@ from os.path import isfile, join
 
 
 ##### setup report #####
-configfile: '../config/tsinfer_cattle.yaml'
+configfile: '../config/africa_config.yaml'
 report: "reports/tsinfer.rst"
 
 ##### setup singularity #####
@@ -38,6 +38,9 @@ vcfdir=config['vcfDir'] # from config file, the path to vcf
 Project = config['PROJECT']
 mapdir = config['genmap']
 
+# if want to split multiallelic sites set to TRUE:
+multiallelic = False
+
 chromosomes = [f'chr{n}' for n in range(1, config['noChromosomes'] + 1)]
 # set a list of 'Chr' + chr# combinations to be used as wildcards
 
@@ -46,6 +49,7 @@ include: "rules/split.smk"
 include: "rules/merge_samples_vcf.smk"
 include: "rules/phasing.smk"
 include: "rules/prepare_files_for_tsinfer.smk"
+include: "rules/multiallelic.smk"
 include: "rules/infer_trees.smk"
 
 ##### target rules #####
