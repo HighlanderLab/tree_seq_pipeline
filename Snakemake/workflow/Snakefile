@@ -11,7 +11,12 @@ from os.path import isfile, join
 
 
 ##### setup report #####
+<<<<<<< HEAD
 configfile: '../config/africa_config.yaml'
+=======
+configfile: '../config/tsinfer_Eddie.yaml'
+configfile: '../config/ancestral_Eddie.yaml'
+>>>>>>> 27fdb4deb7416d7d35cf7bb91ea51acbeeb1a66a
 report: "reports/tsinfer.rst"
 
 ##### setup singularity #####
@@ -45,11 +50,12 @@ chromosomes = [f'chr{n}' for n in range(1, config['noChromosomes'] + 1)]
 # set a list of 'Chr' + chr# combinations to be used as wildcards
 
 ##### load rules #####
+include: "rules/ancestral_inference.smk"
 include: "rules/split.smk"
 include: "rules/merge_samples_vcf.smk"
 include: "rules/phasing.smk"
 include: "rules/prepare_files_for_tsinfer.smk"
-include: "rules/multiallelic.smk"
+#include: "rules/multiallelic.smk"
 include: "rules/infer_trees.smk"
 
 ##### target rules #####

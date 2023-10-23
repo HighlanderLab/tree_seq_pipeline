@@ -1,8 +1,10 @@
 # README Snakemake Tree sequence pipeline
 
+
 # How to run this pipeline on Eddie
 1. (If not done yet) Configure conda by
-   Adding the environment directory:
+   Adding the environment directory (read more about it here, also check for updates: https://www.wiki.ed.ac.uk/display/ResearchServices/Anaconda):
+   `module load anaconda`
    `conda config --add envs_dir /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs`
 
    And adding the pkg directory:
@@ -70,6 +72,22 @@ The folder contains:
 To use this data to test the pipeline copy the folder into your Eddie working space.
 Modify the `Snakemake/config/tsinfer_Eddie.yaml` file so the `vcfDir` points to the `Data/RawVCf`.
 To run, follow instructions above.
+
+# Important notes
+- you can run snakemake in interactive mode or through submitting to the cluster (both need to be performed through the login node for now). When submitting, the jobs still get submit one after the other (according to dependencies), hence the process needs to stay open. You can use either `screen` (https://www.wiki.ed.ac.uk/display/ResearchServices/Bioinformatics#Bioinformatics-Loginnode) or & (not tested yet).
+
+# Description of the config file
+The config file to be used on Eddie in the tsinfer_Eddie.yaml file, the same file is specified in the Snakefile. In here, you need to specify:
+- workdir: the path to your working directory, which needs to be a folder named "Project" inside your github directory
+- species: which species are you working with
+- ploidy: ploidy of the organism
+- noChromosomes: the number of chromosomes (we might want to change this to names)
+- vcfDir: the path to the VCF files. Within this directory, you need to have a folder "RawVCF" with **all** raw VCF files. Additionaly, the pipeline will create one folder per chromosome in this folder to store processed data.
+- bcftoolsModule and vcftoolsModule: the module names on Eddie - they two are not used at the moment but could be used via envmodules command
+- ancestralAllele: path to the file with ancestral allele information (for the format, see below)
+- meta: path to the meta file (for the format, see below)
+- chromosome_length: a list with chromosome length in base pairs for each chromosome (must be numerical chromosome names for now)
+
 
 # Description of rules and workflow
 
