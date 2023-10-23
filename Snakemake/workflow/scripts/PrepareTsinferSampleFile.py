@@ -120,10 +120,10 @@ def add_populations(vcf, samples, metaData):
     Return: A list of population indexes
     """
     pop_lookup = {}
-    metaPop = metaData[['Pop', 'SubPop']].drop_duplicates().dropna(axis = 0, how = 'all')
+    metaPop = metaData.iloc[:, 1:].drop_duplicates().dropna(axis = 0, how = 'all')
     sample_subpop = [list(metaData.SubPop[metaData.ID == x]) for x in vcf.samples]
-    for subpop, pop in zip(metaPop.SubPop, metaPop.Pop):
-        pop_lookup[subpop] = samples.add_population(metadata={"pop": pop, "subpop": subpop})
+    for subpop, pop, origin, lat, long in zip(metaPop.SubPop, metaPop.Pop, metaPop.Origin, metaPop.Lat, metaPop.Long):
+        pop_lookup[subpop] = samples.add_population(metadata={"pop": pop, "subpop": subpop, "country": origin, "coord": f'{lat}/{long}'})
     return [pop_lookup[subpop[0]] for subpop in sample_subpop]
 
 #######################################################################
