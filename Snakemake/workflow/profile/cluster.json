@@ -34,8 +34,8 @@
   },
   "prepare_sample_file":
   {
-    "mem": "350",
-    "threads": "20",
+    "mem": "350G",
+    "threads": "1",
     "time": "336:00:00"
   },
   "infer":
