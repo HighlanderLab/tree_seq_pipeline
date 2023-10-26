@@ -7,9 +7,6 @@ combinedFiles = list(set([f.strip("vcf.gz").split("_")[1]
         if (f.endswith("vcf.gz") and f.startswith("Combined"))]))
 allFiles = splitFiles + combinedFiles
 
-#print(splitFiles)
-#print(combinedFiles)
-
 if len(splitFiles) > 0:
     rule move_vcf:
         input:
