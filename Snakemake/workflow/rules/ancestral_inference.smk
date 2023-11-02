@@ -86,7 +86,9 @@ if config['ancestralAllele'] == None:
         input:
             rules.create_estsfs_dicts.output
         output:
-            "../Project/AncestralAllele/Estsfs/EstSfs_Dict{chunk}E.csv"
+            tmp1=temp("../Project/AncestralAllele/Estsfs/tmp1{chunk}.csv"),
+            tmp2=temp("../Project/AncestralAllele/Estsfs/tmp2{chunk}.csv"),
+            editedDict="../Project/AncestralAllele/Estsfs/EstSfs_Dict{chunk}E.csv"
         params:
             chunk=config['noEstSfsChunks']
         wildcard_constraints:
@@ -96,15 +98,14 @@ if config['ancestralAllele'] == None:
         log: 'logs/EditEstsfsDicts{chunk}.log'
         shell:
             """
-            cut -f2,3,4,5 {input} | grep -v "()" > tmp1
+            cut -f2,3,4,5 {input} | grep -v "()" > {output.tmp1}
             echo $PWD
-            sed -i "s/ //g" tmp1
+            sed -i "s/ //g" {output.tmp1}
             # Set the correct separators for the file
-            awk -F "\t" '{{print $1"\t"$2" "$3" "$4}}' tmp1 > tmp2
+            awk -F "\t" '{{print $1"\t"$2" "$3" "$4}}' {output.tmp1} > {output.tmp2}
             # Remove the parenthesis from the file
-            sed -i "s/(//g" tmp2
-            sed "s/)/ /g" tmp2 > {output}
-            rm tmp1 tmp2
+            sed -i "s/(//g" {output.tmp2}
+            sed "s/)/ /g" {output.tmp2} > {output.editedDict}
             """
 
     rule combine_estsfs_dicts:

@@ -34,14 +34,99 @@
   },
   "prepare_sample_file":
   {
-    "mem": "350",
+    "mem": "350G",
     "threads": "20",
     "time": "336:00:00"
   },
   "infer":
   {
-    "mem": "350",
+    "mem": "350G",
     "threads": "20",
     "time": "336:00:00"
+  },
+ "extract_aligned_alleles_from_vcf":
+ {
+  "mem": "32G",
+  "threads": "1",
+  "time": "03:00:00"
+ },
+ "extract_snps_from_info":
+  {
+    "mem": "32G",
+    "threads": "1",
+    "time": "03:00:00"
+  },
+  "extract_pos_aligned_alleles_from_vcf":
+  {
+    "mem": "32G",
+    "threads": "1",
+    "time": "03:00:00"
+  },
+  "extract_vcf_alleles_from_aligned":
+  {
+    "mem": "16G",
+    "threads": "1",
+    "time" : "03:00:00"
+  },
+  "create_estsfs_dicts":
+  {
+    "mem": "16G",
+    "threads": 1",
+    "time" : "05:00:00"
+  },
+  "edit_estsfs_dicts":
+  {
+    "mem": "16G",
+    "threads": "1",
+    "time": "01:00:00"
+  },
+  "combine_estsfs_dicts":
+  {
+    "mem": "16G",
+    "threads": "1",
+    "time": "02:00:00"
+  },
+  "run_estsfs":
+  {
+    "mem": "32G",
+    "threads": "1",
+    "time": "20:00:00"
+  },
+  "extract_major":
+  {
+    "mem": "16G",
+    "threads": "1",
+    "time": "02:00:00"
+  },
+  "extract_minor":
+  {
+    "mem": "16G",
+    "threads": "1",
+    "time": "02:00:00"
+  },
+  "extract_major_outgroup":
+  {
+    "mem": "16G",
+    "threads": "1",
+    "time": "02:00:00"
+  },
+  "extract_estsfs_prob":
+  {
+    "mem": "16G",
+    "threads": "1",
+    "time": "02:00:00"
+  },
+  "determine_ancestral":
+  {
+    "mem": "16G",
+    "threads": "1",
+    "time": "02:00:00"
+  },
+  "move_and_rename_aa":
+  {
+    "mem": "16G",
+    "threads": "1",
+    "time": "05:00:00"
   }
 }
+
