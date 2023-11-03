@@ -11,12 +11,7 @@ from os.path import isfile, join
 
 
 ##### setup report #####
-<<<<<<< HEAD
-configfile: '../config/africa_config.yaml'
-=======
 configfile: '../config/tsinfer_Eddie.yaml'
-configfile: '../config/ancestral_Eddie.yaml'
->>>>>>> 27fdb4deb7416d7d35cf7bb91ea51acbeeb1a66a
 report: "reports/tsinfer.rst"
 
 ##### setup singularity #####
