@@ -22,7 +22,7 @@ rule get_af:
 
 rule get_major:
     input: rules.get_af.output.info
-    output: temp('Major{chromosome}.txt')
+    output: temp(f'{vcfdir}/Major{{chromosome}}.txt')
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     log: 'logs/get_major_{chromosome}.log'
@@ -48,9 +48,8 @@ rule extract_vcf_pos:
     input: rules.get_major.output
         #rules.decompress.output
     output:
-        file = temp('VcfPos{chromosome}.txt')
-    params:
-        vcfDir = config['vcfDir'],   
+        file = temp(f'{vcfdir}/VcfPos{{chromosome}}.txt'),
+        #sites = temp('{chromosome}_sites.list')  
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
@@ -64,21 +63,27 @@ rule extract_vcf_pos:
     # bcftools query -f '%CHROM %POS\n' {input} > {output.sites}
     #     awk '{{print $1"_"$2}}' {output.sites} > {output.file}
 
+if config['ancestralAllele'] not null:
+    ancestral_file = config['ancestralAllele']
+else
+   ancestral_file = "AncestralAllele/AncestralAllele_Vcf.txt"
+
 rule match_ancestral_vcf:
     input:
-        vcfPos=rules.extract_vcf_pos.output,
-        ancestral="AncestralAllele/AncestralAllele_Vcf.txt",
-        major=rules.get_major.output
-    output: temp('AncestralVcfMatch{chromosome}.txt')
+        vcfPos = rules.extract_vcf_pos.output.file,
+        ancestral = ancestral_file
+        #ancestral = "AncestralAllele/AncestralAllele_Vcf.txt",
+        major = rules.get_major.output
+    output: 
+        file = temp(f'{vcfdir}/AncestralVcfMatch{{chromosome}}.txt'),
     params:
-        chrNum = lambda wc: wc.get("chromosome")[3:],
-        ancestral_sites = '{chromosome}.aa'
-    threads: 1
-    resources: cpus=1, mem_mb=150000, time_min=5
+        chrNum = lambda wc: wc.get('chromosome')[3:],
+        ancestral_sites = f'{vcfdir}/{{chromosome}}.aa',
+        tmp_file = f'{vcfdir}/{{chromosome}}.tmp',
     log: 'logs/match_ancestral_vcf_{chromosome}.log'
     shell:
         """
-        grep "{params.chrNum}_" {input.ancestral} | grep -xv 'ambigous' > {params.ancestral_sites}
+        grep "{params.chrNum}_" {input.ancestral} | grep -xv 'ambiguous' > {params.ancestral_sites}
         echo done
 
         for line in $(cat {input.vcfPos});
@@ -92,7 +97,7 @@ rule match_ancestral_vcf:
             fi
         done
         rm {params.ancestral_sites}
-        awk -F "," '{{print $1" "$2}}' {output} > {wildcards.chromosome}.tmp && mv {wildcards.chromosome}.tmp {output}
+        awk -F "," '{{print $1" "$2}}' {output} > {params.tmp_file} && mv {params.tmp_file} {output}
         """
 #sed -i 's/,/ /g' {output.file}
 
@@ -116,7 +121,9 @@ rule change_infoAA_vcf:
 
 rule compress_vcf:
     input: rules.change_infoAA_vcf.output,
-    output: f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz',
+    output: 
+        file = f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz',
+        idx = f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz.csi'
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=64000, time_min=5
@@ -124,6 +131,6 @@ rule compress_vcf:
     shell:
         """
         bgzip {input}
-        bcftools index {output}
+        bcftools index {output.file}
         """
 # keeping the phased files w/o ancestral alleles 

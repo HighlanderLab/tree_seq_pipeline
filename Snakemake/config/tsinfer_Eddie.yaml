@@ -1,8 +1,10 @@
+PROJECT: 'tutorial'
 workdir: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/tree_seq_pipeline/Snakemake/Project"
 species: "Apis mellifera"
 ploidy: "1"
 noChromosomes: 2
 vcfDir: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data"
+genmap: null
 bcftoolsModule: "igmm/apps/bcftools/1.9" # Currently not used but can be used with envmodules
 vcftoolsModule: "igmm/apps/vcftools/0.1.13" # Currently not used but can be used with envmodules
 ancestralAllele: null #"/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/AncestralAlleleVcf.txt"
