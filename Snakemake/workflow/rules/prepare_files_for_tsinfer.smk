@@ -1,41 +1,47 @@
-rule get_af:
-    input: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
-    output:
-        new_file = temp(f'{vcfdir}/{{chromosome}}_phased_info.vcf.gz'), 
-        info = temp(f'{vcfdir}/Info{{chromosome}}.INFO')
-    params:
-        prefix=f'{vcfdir}/Info{{chromosome}}'
-    conda: "bcftools"
-    threads: 1
-    resources: cpus=1, mem_mb=4000, time_min=5
-    log: 'logs/get_af_{chromosome}.log'
-    shell:
-        """
-        bcftools +fill-tags {input} -Oz -o {output.new_file} -- -t AN,AC,AF
-        vcftools --gzvcf {output.new_file} --out {params.prefix} --get-INFO AC --get-INFO AF
-	
-	LOGFILE={params.prefix}.log
-	if test -f "$LOGFILE"; then
-	    rm $LOGFILE
-	fi
-        """
+if config['ancestralAllele'] is not None:
+    ancestral_file = config['ancestralAllele']
 
-rule get_major:
-    input: rules.get_af.output.info
-    output: temp(f'{vcfdir}/Major{{chromosome}}.txt')
-    threads: 1
-    resources: cpus=1, mem_mb=4000, time_min=5
-    log: 'logs/get_major_{chromosome}.log'
-    shell:
-        """
-        awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
-        """
+    rule get_af:
+        input: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
+        output:
+            new_file = temp(f'{vcfdir}/{{chromosome}}_phased_info.vcf.gz'),
+            info = temp(f'{vcfdir}/Info{{chromosome}}.INFO')
+        params:
+            prefix=f'{vcfdir}/Info{{chromosome}}'
+        conda: "bcftools"
+        threads: 1
+        resources: cpus=1, mem_mb=4000, time_min=5
+        log: 'logs/get_af_{chromosome}.log'
+        shell:
+            """
+            bcftools +fill-tags {input} -Oz -o {output.new_file} -- -t AN,AC,AF
+            vcftools --gzvcf {output.new_file} --out {params.prefix} --get-INFO AC --get-INFO AF
+
+    	LOGFILE={params.prefix}.log
+    	if test -f "$LOGFILE"; then
+    	    rm $LOGFILE
+    	fi
+            """
+
+    rule get_major:
+        input: rules.get_af.output.info
+        output: temp(f'{vcfdir}/Major{{chromosome}}.txt')
+        threads: 1
+        resources: cpus=1, mem_mb=4000, time_min=5
+        log: 'logs/get_major_{chromosome}.log'
+        shell:
+            """
+            awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
+            """
+
+else:
+   ancestral_file = "AncestralAllele/AncestralAllele_Vcf.txt"
 
 rule decompress:
     input:
         vcf = rules.get_af.output.new_file,
         #major = rules.get_major.output
-    output: f'{vcfdir}/{{chromosome}}_phased_info.vcf' # this is removing both the .gz and the decompressed file 
+    output: f'{vcfdir}/{{chromosome}}_phased_info.vcf' # this is removing both the .gz and the decompressed file
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     log: 'logs/decompress_{chromosome}.log'
@@ -49,7 +55,7 @@ rule extract_vcf_pos:
         #rules.decompress.output
     output:
         file = temp(f'{vcfdir}/VcfPos{{chromosome}}.txt'),
-        #sites = temp('{chromosome}_sites.list')  
+        #sites = temp('{chromosome}_sites.list')
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
@@ -59,14 +65,11 @@ rule extract_vcf_pos:
         cut -d',' -f 1 {input} > {output}
         """
     # why not just take the first col of the MajorAlle table??
-    # # 
+    # #
     # bcftools query -f '%CHROM %POS\n' {input} > {output.sites}
     #     awk '{{print $1"_"$2}}' {output.sites} > {output.file}
 
-if config['ancestralAllele'] not null:
-    ancestral_file = config['ancestralAllele']
-else
-   ancestral_file = "AncestralAllele/AncestralAllele_Vcf.txt"
+
 
 rule match_ancestral_vcf:
     input:
@@ -74,7 +77,7 @@ rule match_ancestral_vcf:
         ancestral = ancestral_file
         #ancestral = "AncestralAllele/AncestralAllele_Vcf.txt",
         major = rules.get_major.output
-    output: 
+    output:
         file = temp(f'{vcfdir}/AncestralVcfMatch{{chromosome}}.txt'),
     params:
         chrNum = lambda wc: wc.get('chromosome')[3:],
@@ -121,7 +124,7 @@ rule change_infoAA_vcf:
 
 rule compress_vcf:
     input: rules.change_infoAA_vcf.output,
-    output: 
+    output:
         file = f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz',
         idx = f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz.csi'
     conda: "bcftools"
@@ -133,4 +136,4 @@ rule compress_vcf:
         bgzip {input}
         bcftools index {output.file}
         """
-# keeping the phased files w/o ancestral alleles 
+# keeping the phased files w/o ancestral alleles

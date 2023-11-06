@@ -82,6 +82,23 @@ if config['ancestralAllele'] == None:
             "python scripts/CreateInputForEstsfs_fromWGAbed_Cactus.py {wildcards.chunk} {params.noCycle} {input.alignedAlleles} {input.vcfAlleles} {params.outDir}"
             #CreateInputForEstsfs_Loop.sh This is qsub
 
+    rule extract_estsfs_pos:
+        input:
+            rules.create_estsfs_dicts.output
+        output:
+            "../Project/AncestralAllele/Estsfs/EstSfs_Pos{chunk}.csv"
+        params:
+            chunk=config['noEstSfsChunks']
+        wildcard_constraints:
+            chunk="\d+"
+        threads: config['noEstSfsChunks']
+        resources: cpus=1, mem_mb=16000, time_min=60
+        log: 'logs/ExtractEstsfsDicts{chunk}_Pos.log'
+        shell:
+            """
+            cut -f1 {input} > {output}
+            """
+
     rule edit_estsfs_dicts:
         input:
             rules.create_estsfs_dicts.output
@@ -95,7 +112,7 @@ if config['ancestralAllele'] == None:
             chunk="\d+"
         threads: config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
-        log: 'logs/EditEstsfsDicts{chunk}.log'
+        log: 'logs/Edit_estsfs_dicts{chunk}.log'
         shell:
             """
             cut -f2,3,4,5 {input} | grep -v "()" > {output.tmp1}
@@ -107,6 +124,19 @@ if config['ancestralAllele'] == None:
             sed -i "s/(//g" {output.tmp2}
             sed "s/)/ /g" {output.tmp2} > {output.editedDict}
             """
+
+    rule combine_estsfs_pos:
+        input:
+            expand("../Project/AncestralAllele/Estsfs/EstSfs_Pos{chunk}.csv", chunk = range(config['noEstSfsChunks']))
+        output:
+            "../Project/AncestralAllele/Estsfs/EstSfs_Pos_Total.csv"
+        wildcard_constraints:
+            chunk="\d+"
+        threads: 1
+        resources: cpus=1, mem_mb=16000, time_min=30
+        log: 'logs/Combine_estsfs_pos.log'
+        shell:
+            "cat {input} > {output}"
 
     rule combine_estsfs_dicts:
         input:
@@ -181,6 +211,7 @@ if config['ancestralAllele'] == None:
         shell:
             "tail -n +9 {input} | cut -f3 -d' ' > {output}"
 
+
     rule determine_ancestral:
         input:
             ancProb="../Project/AncestralAllele/AncestralProb.txt",
@@ -188,8 +219,8 @@ if config['ancestralAllele'] == None:
             minor="../Project/AncestralAllele/MinorAllele.txt",
             majorOut="../Project/AncestralAllele/MajorOutgroup.txt"
         output:
-            aa="../Project/AncestralAllele/AncestralAllele_Vcf.txt",
-	    prob="../Project/AncestralAllele/ProbMajorMinorOutgroup.txt"
+            aa="../Project/AncestralAllele/AncestralAllele_Vcf_noPos.txt",
+	        prob="../Project/AncestralAllele/ProbMajorMinorOutgroup.txt"
         threads: 1 #config['noEstSfsChunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/DetermineAncestral.log'
@@ -199,12 +230,21 @@ if config['ancestralAllele'] == None:
             awk '{{ if(($1 >= 0.5)) {{print $2}} else if (($1 < 0.5)) {{print $3}} else {{print $4}} }}' {output.prob} > {output.aa}
             #rm ProbMajorMinorOutgroup.txt
             """
-else:
-    rule move_and_rename_aa:
-        input: config['ancestralAllele']
-        output: "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
-        threads: 1 #config['noEstSfsChunks']
-        resources: cpus=1, mem_mb=16000, time_min=60
-        log: 'logs/MoveAndRenameAA.log'
+    rule combine_pos_ancestral:
+        input:
+            aa="../Project/AncestralAllele/AncestralAllele_Vcf_noPos.txt",
+            pos=rules.combine_estsfs_pos.output
+        output:
+            "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
         shell:
-            "mv {input} {output}"
+            "paste -d "," {input.pos} {input.aa} > {output}"
+# Comment this out because if this file does not exist, then the procedure in the prepare_files.smk is different
+# else:
+#     rule move_and_rename_aa:
+#         input: config['ancestralAllele']
+#         output: "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
+#         threads: 1 #config['noEstSfsChunks']
+#         resources: cpus=1, mem_mb=16000, time_min=60
+#         log: 'logs/MoveAndRenameAA.log'
+#         shell:
+#             "mv {input} {output}"
