@@ -1,12 +1,14 @@
-if config['ploidy'] == 1:
+if int(config['ploidy']) == 1:
     rule rename_phased:
         input: f'{vcfdir}/{{chromosome}}_final.vcf.gz'
-        output: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
+        output: 
+            file = f'{vcfdir}/{{chromosome}}_phased.vcf.gz',
+            idx = f'{vcfdir}/{{chromosome}}_phased.vcf.gz.csi'
         log: 'logs/rename_phased_{chromosome}.log'
         shell:
             """
-            bcftools view {input} -O z -o {output}
-            bcftools index {output}
+            bcftools view {input} -O z -o {output.file}
+            bcftools index {output.file}
             """
 
 else:

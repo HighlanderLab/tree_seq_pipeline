@@ -63,16 +63,16 @@ rule extract_vcf_pos:
     # bcftools query -f '%CHROM %POS\n' {input} > {output.sites}
     #     awk '{{print $1"_"$2}}' {output.sites} > {output.file}
 
-if config['ancestralAllele'] not null:
-    ancestral_file = config['ancestralAllele']
-else
-   ancestral_file = "AncestralAllele/AncestralAllele_Vcf.txt"
+if config['ancestralAllele'] is None:
+   ancestral_file = "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
+else:
+   ancestral_file = config['ancestralAllele']
+   
 
 rule match_ancestral_vcf:
     input:
         vcfPos = rules.extract_vcf_pos.output.file,
-        ancestral = ancestral_file
-        #ancestral = "AncestralAllele/AncestralAllele_Vcf.txt",
+        ancestral = ancestral_file,
         major = rules.get_major.output
     output: 
         file = temp(f'{vcfdir}/AncestralVcfMatch{{chromosome}}.txt'),
