@@ -1,4 +1,4 @@
-if config['ploidy'] == 1:
+if int(config['ploidy']) == 1:
     rule rename_phased:
         input: f'{vcfdir}/{{chromosome}}_final.vcf.gz'
         output:
