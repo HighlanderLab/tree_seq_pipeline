@@ -4,7 +4,7 @@ if int(config['ploidy']) == 1:
         output:
             file = f'{vcfdir}/{{chromosome}}_phased.vcf.gz',
             idx = f'{vcfdir}/{{chromosome}}_phased.vcf.gz.csi'
-        log: 'logs/rename_phased_{chromosome}.log'
+        log: 'logs/Rename_phased_{chromosome}.log'
         shell:
             """
             bcftools view {input} -O z -o {output.file}
@@ -24,6 +24,7 @@ else:
         threads: 25
         #resources: cpus=20, mem_mb=25000, time_min=5
         conda: 'shapeit4am'
+        log: 'logs/Phase_{chromosome}.log'
         shell:
             """
             str='{wildcards.chromosome}'

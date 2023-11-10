@@ -1,7 +1,7 @@
-if config['ancestralAllele'] is None:
+if config['ancestral_allele'] is None:
     ancestral_file = "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
 else:
-    ancestral_file = config['ancestralAllele']
+    ancestral_file = config['ancestral_allele']
 
     rule get_af:
         input: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
@@ -30,7 +30,7 @@ else:
         output: temp(f'{vcfdir}/Major{{chromosome}}.txt')
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
-        log: 'logs/get_major_{chromosome}.log'
+        log: 'logs/Get_major_{chromosome}.log'
         shell:
             """
             awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
@@ -43,7 +43,7 @@ else:
             temp(f'{vcfdir}/Ancestral{{chromosome}}.txt')
         params:
             chrNum = lambda wc: wc.get('chromosome')[3:]
-        log: 'logs/extract_ancestral_chromosome_{chromosome}.log'
+        log: 'logs/Extract_ancestral_chromosome_{chromosome}.log'
         shell:
             """
             grep "{params.chrNum}_" {input} | grep -xv 'ambiguous' > {output}
@@ -55,6 +55,7 @@ else:
             major = rules.get_major.output
         output:
             temp(f'{vcfdir}/Major_and_ancestral{{chromosome}}.txt')
+        log: 'logs/Join_major_ancestral_{chromosome}.log'
         shell:
             "awk -F"," 'NR==FNR{A[$1]=$2;next}{print$0 FS (A[$1]?A[$1]:"0")}' {input.ancestral} {input.major} > {output}"
 
@@ -63,6 +64,7 @@ else:
             rules.join_major_ancestral.output
         output:
             temp(f'{vcfdir}/Major_or_ancestral{{chromosome}}.txt')
+        log: 'logs/Determine_major_ancestral_{chromosome}.log'
         shell:
             "awk -F","  '{if ($3 == 0) {print $1" "$2} else {print $1" "$3}}' {input} > {output}"
 
@@ -99,7 +101,7 @@ rule decompress:
     output: f'{vcfdir}/{{chromosome}}_phased_info.vcf' # this is removing both the .gz and the decompressed file
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
-    log: 'logs/decompress_{chromosome}.log'
+    log: 'logs/Decompress_{chromosome}.log'
     shell:
         """
         gunzip {input}
@@ -113,7 +115,7 @@ rule change_infoAA_vcf:
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=100000, time_min=5
-    log: 'logs/change_infoAA_vcf_{chromosome}.log'
+    log: 'logs/Change_infoAA_vcf_{chromosome}.log'
     shell:
         """
         HEADERNUM="$(( $(bcftools view -h {input.vcf} | wc -l) - 1 ))"
@@ -131,7 +133,7 @@ rule compress_vcf:
     conda: "bcftools"
     threads: 1
     resources: cpus=1, mem_mb=64000, time_min=5
-    log: 'logs/compress_{chromosome}.log'
+    log: 'logs/Compress_{chromosome}.log'
     shell:
         """
         bgzip {input}

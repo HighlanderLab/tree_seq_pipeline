@@ -26,7 +26,7 @@ report: "reports/tsinfer.rst"
 # (2) sort into the correct Chr folder in vcfDir.
 
 # defining variables that will be used throughout the script
-vcfdir=config['vcfDir'] # from config file, the path to vcf
+vcfdir=config['vcf_dir'] # from config file, the path to vcf
 # this folder can be any where but must have the following structure:
 # vcfDir:
 #   - RawVCF
@@ -34,14 +34,14 @@ vcfdir=config['vcfDir'] # from config file, the path to vcf
 #   -Chr...
 
 # the final directory name is now editable -- so can be named according to specific project
-# mapdir indicates where to find the genetic map for phasing (full path in the config) 
+# mapdir indicates where to find the genetic map for phasing (full path in the config)
 Project = config['PROJECT']
 mapdir = config['genmap']
 
 # if want to split multiallelic sites set to TRUE:
 #multiallelic = False
 
-chromosomes = [f'chr{n}' for n in range(1, config['noChromosomes'] + 1)]
+chromosomes = [f'chr{n}' for n in range(1, config['no_chromosomes'] + 1)]
 # set a list of 'Chr' + chr# combinations to be used as wildcards
 
 ##### load rules #####

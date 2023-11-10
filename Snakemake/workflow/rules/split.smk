@@ -16,7 +16,7 @@ if len(splitFiles) > 0:
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
-        log: 'logs/move_vcf_{chromosome}_{suffixOne}.log'
+        log: 'logs/Move_vcf_{chromosome}_{suffixOne}.log'
         shell:
             """
             echo {input}
@@ -35,7 +35,7 @@ if len(combinedFiles) > 0:
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
-        log: expand('logs/split_and_move_vcfs_{{chromosome}}_{{suffixTwo}}.log')
+        log: expand('logs/Split_and_move_vcfs_{{chromosome}}_{{suffixTwo}}.log')
         shell:
             """
             str='{wildcards.chromosome}'

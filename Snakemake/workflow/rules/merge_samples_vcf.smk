@@ -9,18 +9,18 @@ if len(allFiles) != 1:
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
-        log: 'logs/get_samples_{chromosome}_{file}.log'
+        log: 'logs/Get_samples_{chromosome}_{file}.log'
         shell:
             """
             bcftools query -l {input} > {output}
             """
-    
+
     rule filter:
-        input: 
+        input:
             [f'{vcfdir}' + x
                 for x in expand('/{{chromosome}}/{{chromosome}}_{file}.txt',
                     file=allFiles)],
-        output: 
+        output:
             temp([f'{vcfdir}' + x for x in
                 expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.{ext}', file=allFiles, ext=['gz', 'gz.csi'])])
         params:
@@ -30,7 +30,7 @@ if len(allFiles) != 1:
             import os
             filtered = []
 
-            for i in range(len(input)):    
+            for i in range(len(input)):
                 print(i)
                 for j, file in enumerate(input):
                     if file != input[i] and j > i:
@@ -42,7 +42,7 @@ if len(allFiles) != 1:
 
                         remove = params.duplicated
                         lremove = os.stat(f'{remove}').st_size
-                       
+
                         if lremove == 0:
                             print(f'Nothing to remove {lremove}')
                         else:
@@ -52,16 +52,16 @@ if len(allFiles) != 1:
 
                             file2 = file2.split('.')[0]
                             print(f'file {file2} filtered')
-                            shell('bcftools view -S ^{params.duplicated} {file2}.vcf.gz -O z -o {file2}.filtered.vcf.gz') 
+                            shell('bcftools view -S ^{params.duplicated} {file2}.vcf.gz -O z -o {file2}.filtered.vcf.gz')
                             shell('bcftools index {file2}.filtered.vcf.gz')
                             shell('rm {params.duplicated}')
-                                           
+
             for file in input:
                 if file not in filtered:
                     file1 = file.split('.')[0]
                     print(f'file {file1} not filtered')
                     shell("cp {file1}.vcf.gz {file1}.filtered.vcf.gz && bcftools index {file1}.filtered.vcf.gz")
-            shell('rm {params.duplicated}') 
+            shell('rm {params.duplicated}')
 
     rule merge:
         input:
@@ -72,7 +72,7 @@ if len(allFiles) != 1:
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
-        log: 'logs/merge_{chromosome}.log'
+        log: 'logs/Merge_{chromosome}.log'
         shell:
             """
             bcftools merge {input} -O z -o {output.vcf}
@@ -93,7 +93,7 @@ else:
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=4000, time_min=5
-        log: 'logs/rename_{chromosome}.log'
+        log: 'logs/Rename_{chromosome}.log'
         shell:
             """
             bcftools view {input} -O z -o {output}
