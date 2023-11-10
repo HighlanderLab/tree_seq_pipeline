@@ -11,7 +11,8 @@ from os.path import isfile, join
 
 
 ##### setup report #####
-configfile: '../config/tsinfer_Eddie.yaml'
+configfile: '../config/ancestral_Eddie.yaml'
+configfile: '../config/tsinfer_honeybee.yaml'
 report: "reports/tsinfer.rst"
 
 ##### setup singularity #####
