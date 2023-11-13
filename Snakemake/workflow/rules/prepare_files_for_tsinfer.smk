@@ -1,7 +1,5 @@
 if config['ancestral_allele'] is None:
     ancestral_file = "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
-else:
-    ancestral_file = config['ancestral_allele']
 
     rule get_af:
         input: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
@@ -19,10 +17,10 @@ else:
             bcftools +fill-tags {input} -Oz -o {output.new_file} -- -t AN,AC,AF
             vcftools --gzvcf {output.new_file} --out {params.prefix} --get-INFO AC --get-INFO AF
 
-        	LOGFILE={params.prefix}.log
-        	if test -f "$LOGFILE"; then
-        	    rm $LOGFILE
-        	fi
+            LOGFILE={params.prefix}.log
+            if test -f "$LOGFILE"; then
+                rm $LOGFILE
+            fi
             """
 
     rule get_major:
@@ -57,7 +55,9 @@ else:
             temp(f'{vcfdir}/Major_and_ancestral{{chromosome}}.txt')
         log: 'logs/Join_major_ancestral_{chromosome}.log'
         shell:
-            "awk -F"," 'NR==FNR{A[$1]=$2;next}{print$0 FS (A[$1]?A[$1]:"0")}' {input.ancestral} {input.major} > {output}"
+            """
+	    awk -F"," 'NR==FNR{{A[$1]=$2;next}}{{print$0 FS (A[$1]?A[$1]:"0")}}' {input.ancestral} {input.major} > {output}
+	    """
 
     rule determine_ancestral_major:
         input:
@@ -69,11 +69,11 @@ else:
             "awk -F","  '{if ($3 == 0) {print $1" "$2} else {print $1" "$3}}' {input} > {output}"
 
 else:
-   ancestral_file = "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
+    ancestral_file = "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
 
-   #If this has been done by snakemake, this already includes eiher the ancestral or the Major_or_ancestral
-   rule get_vcf_position:
-       input:
+    #If this has been done by snakemake, this already includes eiher the ancestral or the Major_or_ancestral
+    rule get_vcf_position:
+        input:
             f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
         output:
             f'{vcfdir}/{{chromosome}}_position.txt'
