@@ -69,7 +69,7 @@ if config['ancestral_allele'] == None:
             vcfAlleles=rules.extract_snps_from_info.output
         conda: "HLab_tsinfer"
         output:
-            expand(f"../{Project}/AncestralAllele/Estsfs/EstSfs_Dict{{chunk}}.csv")
+           [f"../{Project}/AncestralAllele/Estsfs/" + x for x in expand("EstSfs_Dict{{chunk}}.csv", chunk = range(config['no_estsfs_chunks']))]
         wildcard_constraints:
             chunk="\d+"
         params:
