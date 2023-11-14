@@ -220,7 +220,7 @@ if config['ancestral_allele'] == None:
             majorOut="../Project/AncestralAllele/MajorOutgroup.txt"
         output:
             aa="../Project/AncestralAllele/AncestralAllele_Vcf_noPos.txt",
-	        prob="../Project/AncestralAllele/ProbMajorMinorOutgroup.txt"
+            prob="../Project/AncestralAllele/ProbMajorMinorOutgroup.txt"
         threads: 1 #config['no_estsfs_chunks']
         resources: cpus=1, mem_mb=16000, time_min=60
         log: 'logs/DetermineAncestral.log'
@@ -230,14 +230,17 @@ if config['ancestral_allele'] == None:
             awk '{{ if(($1 >= 0.5)) {{print $2}} else if (($1 < 0.5)) {{print $3}} else {{print $4}} }}' {output.prob} > {output.aa}
             #rm ProbMajorMinorOutgroup.txt
             """
+
     rule combine_pos_ancestral:
         input:
-            aa="../Project/AncestralAllele/AncestralAllele_Vcf_noPos.txt",
+            aa=rules.determine_ancestral.output.aa,
             pos=rules.combine_estsfs_pos.output
         output:
             "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
         shell:
-            "paste -d "," {input.pos} {input.aa} > {output}"
+            """
+	    paste -d "," {input.pos} {input.aa} > {output}
+            """
 # Comment this out because if this file does not exist, then the procedure in the prepare_files.smk is different
 # else:
 #     rule move_and_rename_aa:

@@ -1,10 +1,10 @@
-if config['ancestral_allele'] is None:
-    ancestral_file = "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
+if config['ancestral_allele'] is not None:
+    ancestral_file = config['ancestral_allele']
 
     rule get_af:
         input: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
         output:
-            new_file = temp(f'{vcfdir}/{{chromosome}}_phased_info.vcf.gz'),
+            #new_file = temp(f'{vcfdir}/{{chromosome}}_phased_info.vcf.gz'),
             info = temp(f'{vcfdir}/Info{{chromosome}}.INFO')
         params:
             prefix=f'{vcfdir}/Info{{chromosome}}'
@@ -14,8 +14,8 @@ if config['ancestral_allele'] is None:
         log: 'logs/get_af_{chromosome}.log'
         shell:
             """
-            bcftools +fill-tags {input} -Oz -o {output.new_file} -- -t AN,AC,AF
-            vcftools --gzvcf {output.new_file} --out {params.prefix} --get-INFO AC --get-INFO AF
+            bcftools +fill-tags {input} -Oz -o {input} -- -t AN,AC,AF
+            vcftools --gzvcf {input} --out {params.prefix} --get-INFO AC --get-INFO AF
 
             LOGFILE={params.prefix}.log
             if test -f "$LOGFILE"; then
@@ -52,7 +52,7 @@ if config['ancestral_allele'] is None:
             ancestral = rules.extract_ancestral_chromosome.output,
             major = rules.get_major.output
         output:
-            temp(f'{vcfdir}/Major_and_ancestral{{chromosome}}.txt')
+            temp(f'{vcfdir}/Major_and_ancestral_{{chromosome}}.txt')
         log: 'logs/Join_major_ancestral_{chromosome}.log'
         shell:
             """
@@ -63,54 +63,70 @@ if config['ancestral_allele'] is None:
         input:
             rules.join_major_ancestral.output
         output:
-            temp(f'{vcfdir}/Major_or_ancestral{{chromosome}}.txt')
+            temp(f'{vcfdir}/Major_or_ancestral_{{chromosome}}.txt')
         log: 'logs/Determine_major_ancestral_{chromosome}.log'
         shell:
-            "awk -F","  '{if ($3 == 0) {print $1" "$2} else {print $1" "$3}}' {input} > {output}"
+            """
+            awk -F","  '{if ($3 == 0) {print $1" "$2} else {print $1" "$3}}' {input} > {output}
+	    """
 
 else:
-    ancestral_file = "../Project/AncestralAllele/AncestralAllele_Vcf.txt"
+    ancestral_file = rules.combine_pos_ancestral.output
 
     #If this has been done by snakemake, this already includes eiher the ancestral or the Major_or_ancestral
     rule get_vcf_position:
         input:
             f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
         output:
-            f'{vcfdir}/{{chromosome}}_position.txt'
+            temp(f'{vcfdir}/{{chromosome}}_position.txt')
         conda: "bcftools"
         shell:
             """
-            bcftools query -f "%CHROM\_%POS\n" {input} {output}
+            bcftools query -f "%CHROM\_%POS\n" {input} > {output}
+            """
+    rule extract_ancestral_chromosome:
+        input:
+            ancestral_file
+        output:
+            temp(f'{vcfdir}/Ancestral{{chromosome}}.txt')
+        params:
+            chrNum = lambda wc: wc.get('chromosome')[3:]
+        log: 'logs/Extract_ancestral_chromosome_{chromosome}.log'
+        shell:
+            """
+            grep "{params.chrNum}_" {input} | grep -xv 'ambiguous' > {output}
             """
 
     rule sort_ancestral_to_vcf:
         input:
-            aa=ancestral_file,
+            aa=rules.extract_ancestral_chromosome.output,
             vcfPos=rules.get_vcf_position.output
         output:
-            temp(f'{vcfdir}/Major_or_ancestral{{chromosome}}.txt')
+            temp(f'{vcfdir}/Major_or_ancestral_{{chromosome}}.txt')
         shell:
             """
-            awk 'FNR == NR {{ lineno[$1] = NR; next}} {{print lineno[$1], $0;}}' {input.vcfPos} {input.aa} | sort -k 1,1n | cut -d' ' -f2- > {output}
+            awk 'FNR == NR {{ lineno[$1] = NR; next}} {{print lineno[$1]"\t"$0;}}' {input.vcfPos} {input.aa} |  \
+	    cut -f2- | sort -k1,1 -V | awk -F"," '{{print $1" "$2}}' > {output}
             """
 
 
 rule decompress:
     input:
-        f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
-    output: f'{vcfdir}/{{chromosome}}_phased_info.vcf' # this is removing both the .gz and the decompressed file
+        vcf=f'{vcfdir}/{{chromosome}}_phased.vcf.gz',
+	majororaa=f'{vcfdir}/Major_or_ancestral_{{chromosome}}.txt'
+    output: f'{vcfdir}/{{chromosome}}_phased.vcf' # this is removing both the .gz and the decompressed file
     threads: 1
     resources: cpus=1, mem_mb=4000, time_min=5
     log: 'logs/Decompress_{chromosome}.log'
     shell:
         """
-        gunzip {input}
+        gunzip {input.vcf}
         """
 
 rule change_infoAA_vcf:
     input:
         vcf=rules.decompress.output,
-        ancestralAllele=f'{vcfdir}/Major_or_ancestral{{chromosome}}.txt'
+        ancestralAllele=f'{vcfdir}/Major_or_ancestral_{{chromosome}}.txt'
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
     conda: "bcftools"
     threads: 1
