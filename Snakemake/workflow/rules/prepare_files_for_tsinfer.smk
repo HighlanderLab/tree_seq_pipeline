@@ -1,136 +1,115 @@
 if config['ancestral_allele'] is not None:
     ancestral_file = config['ancestral_allele']
-
-    rule get_af:
-        input: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
-        output:
-            #new_file = temp(f'{vcfdir}/{{chromosome}}_phased_info.vcf.gz'),
-            info = temp(f'{vcfdir}/Info{{chromosome}}.INFO')
-        params:
-            prefix=f'{vcfdir}/Info{{chromosome}}'
-        conda: "bcftools"
-        threads: 1
-        resources: cpus=1, mem_mb=4000, time_min=5
-        log: 'logs/get_af_{chromosome}.log'
-        shell:
-            """
-            bcftools +fill-tags {input} -Oz -o {input} -- -t AN,AC,AF
-            vcftools --gzvcf {input} --out {params.prefix} --get-INFO AC --get-INFO AF
-
-            LOGFILE={params.prefix}.log
-            if test -f "$LOGFILE"; then
-                rm $LOGFILE
-            fi
-            """
-
-    rule get_major:
-        input: rules.get_af.output.info
-        output: temp(f'{vcfdir}/Major{{chromosome}}.txt')
-        threads: 1
-        resources: cpus=1, mem_mb=4000, time_min=5
-        log: 'logs/Get_major_{chromosome}.log'
-        shell:
-            """
-            awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
-            """
-
-    rule extract_ancestral_chromosome:
-        input:
-            ancestral_file
-        output:
-            temp(f'{vcfdir}/Ancestral{{chromosome}}.txt')
-        params:
-            chrNum = lambda wc: wc.get('chromosome')[3:]
-        log: 'logs/Extract_ancestral_chromosome_{chromosome}.log'
-        shell:
-            """
-            grep "{params.chrNum}_" {input} | grep -xv 'ambiguous' > {output}
-            """
-
-    rule join_major_ancestral:
-        input:
-            ancestral = rules.extract_ancestral_chromosome.output,
-            major = rules.get_major.output
-        output:
-            temp(f'{vcfdir}/Major_and_ancestral_{{chromosome}}.txt')
-        log: 'logs/Join_major_ancestral_{chromosome}.log'
-        shell:
-            """
-	    awk -F"," 'NR==FNR{{A[$1]=$2;next}}{{print$0 FS (A[$1]?A[$1]:"0")}}' {input.ancestral} {input.major} > {output}
-	    """
-
-    rule determine_ancestral_major:
-        input:
-            rules.join_major_ancestral.output
-        output:
-            temp(f'{vcfdir}/Major_or_ancestral_{{chromosome}}.txt')
-        log: 'logs/Determine_major_ancestral_{chromosome}.log'
-        shell:
-            """
-            awk -F","  '{if ($3 == 0) {print $1" "$2} else {print $1" "$3}}' {input} > {output}
-	    """
-
 else:
-    ancestral_file = rules.combine_pos_ancestral.output
+    ancestral_file = rules.combine_pos_ancestral.output	
 
-    #If this has been done by snakemake, this already includes eiher the ancestral or the Major_or_ancestral
-    rule get_vcf_position:
-        input:
-            f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
-        output:
-            temp(f'{vcfdir}/{{chromosome}}_position.txt')
-        conda: "bcftools"
-        shell:
-            """
-            bcftools query -f "%CHROM\_%POS\n" {input} > {output}
-            """
-    rule extract_ancestral_chromosome:
-        input:
-            ancestral_file
-        output:
-            temp(f'{vcfdir}/Ancestral{{chromosome}}.txt')
-        params:
-            chrNum = lambda wc: wc.get('chromosome')[3:]
-        log: 'logs/Extract_ancestral_chromosome_{chromosome}.log'
-        shell:
-            """
-            grep "{params.chrNum}_" {input} | grep -xv 'ambiguous' > {output}
-            """
 
-    rule sort_ancestral_to_vcf:
-        input:
-            aa=rules.extract_ancestral_chromosome.output,
-            vcfPos=rules.get_vcf_position.output
-        output:
-            temp(f'{vcfdir}/Major_or_ancestral_{{chromosome}}.txt')
-        shell:
-            """
-            awk 'FNR == NR {{ lineno[$1] = NR; next}} {{print lineno[$1]"\t"$0;}}' {input.vcfPos} {input.aa} |  \
-	    cut -f2- | sort -k1,1 -V | awk -F"," '{{print $1" "$2}}' > {output}
-            """
+def getInputVcfFile_af(wildcards):
+    if os.path.isfile(vcfdir + "/" + wildcards.chromosome + '_phased.vcf.gz'):
+        print("Phased file found")
+        vcf_file = vcfdir + "/" + wildcards.chromosome + '_phased.vcf.gz'
+        print(vcf_file)
+    else:
+        print("Phased file not found")
+        file = open(vcfdir + '/Vcf_file_' + wildcards.chromosome + '.txt')
+        vcf_file = file.read().strip("\n")
+        print(vcf_file)
+    return(vcf_file)
 
+rule get_af:
+    input: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
+    output:
+        info = temp(f'{vcfdir}/Info{{chromosome}}.INFO')
+    params:
+        prefix=f'{vcfdir}/Info{{chromosome}}'
+    conda: "bcftools"
+    threads: 1
+    resources: cpus=1, mem_mb=32000, time_min=60
+    log: 'logs/get_af_{chromosome}.log'
+    shell:
+        """
+        bcftools +fill-tags {input} -Oz -o {input} -- -t AN,AC,AF
+        vcftools --gzvcf {input} --out {params.prefix} --get-INFO AC --get-INFO AF
+
+        LOGFILE={params.prefix}.log
+        if test -f "$LOGFILE"; then
+            rm $LOGFILE
+        fi
+        """
+
+rule get_major:
+    input: rules.get_af.output.info
+    output: (f'{vcfdir}/Major{{chromosome}}.txt')  
+    threads: 1
+    resources: cpus=1, mem_mb=32000, time_min=60
+    log: 'logs/Get_major_{chromosome}.log'
+#    wildcard_constraints:
+#        chromosome="^chr | ^Chr"
+    shell:
+        """
+        awk '{{if (NR!=1 && $5>=0.5) {{print $1"_"$2","$4}} else if (NR!=1 && $5<0.5) {{print $1"_"$2","$3}}}}' {input} > {output}
+        """
+
+rule extract_ancestral_chromosome:
+    input:
+        ancestral_file
+    output:
+        (f'{vcfdir}/Ancestral{{chromosome}}.txt')
+    params:
+        chrNum = lambda wc: wc.get('chromosome')[3:]
+    log: 'logs/Extract_ancestral_chromosome_{chromosome}.log'
+    resources: cpus=1, mem_mb=32000, time_min=30
+    shell:  
+        """
+        grep "{params.chrNum}_" {input} | grep -xv 'ambiguous' > {output}
+        """
+
+rule join_major_ancestral:
+    input:
+        ancestral = rules.extract_ancestral_chromosome.output,
+        major = rules.get_major.output
+    output:
+        (f'{vcfdir}/MajAAnc_{{chromosome}}.txt')
+    log: 'logs/Join_major_ancestral_{chromosome}.log'
+    resources: cpus=1, mem_mb=32000, time_min=60
+    shell:
+        """
+        awk -F"," 'NR==FNR{{A[$1]=$2;next}}{{print$0 FS (A[$1]?A[$1]:"0")}}' {input.ancestral} {input.major} > {output}
+        """
+
+rule determine_ancestral_major:
+    input:
+        rules.join_major_ancestral.output
+    output:
+        (f'{vcfdir}/MajOAnc_{{chromosome}}.txt')
+    log: 'logs/Determine_major_ancestral_{chromosome}.log'
+    shell:
+        """
+        awk -F","  '{{if ($3 == 0) {{print $1" "$2}} else {{print $1" "$3}}}}' {input} > {output}
+        """
 
 rule decompress:
     input:
         vcf=f'{vcfdir}/{{chromosome}}_phased.vcf.gz',
-	majororaa=f'{vcfdir}/Major_or_ancestral_{{chromosome}}.txt'
+	majororaa=rules.determine_ancestral_major.output
     output: f'{vcfdir}/{{chromosome}}_phased.vcf' # this is removing both the .gz and the decompressed file
     threads: 1
-    resources: cpus=1, mem_mb=4000, time_min=5
+    resources: cpus=1, mem_mb=32000, time_min=30
     log: 'logs/Decompress_{chromosome}.log'
+    conda: "bcftools"
     shell:
         """
-        gunzip {input.vcf}
+        bcftools view {input.vcf} -O z -o {output}
         """
 
 rule change_infoAA_vcf:
     input:
         vcf=rules.decompress.output,
-        ancestralAllele=f'{vcfdir}/Major_or_ancestral_{{chromosome}}.txt'
+        ancestralAllele=rules.determine_ancestral_major.output
     output: f'{vcfdir}/{{chromosome}}_ancestral.vcf'
     conda: "bcftools"
     threads: 1
-    resources: cpus=1, mem_mb=100000, time_min=5
+    resources: cpus=1, mem_mb=64000, time_min=120
     log: 'logs/Change_infoAA_vcf_{chromosome}.log'
     shell:
         """
@@ -148,11 +127,11 @@ rule compress_vcf:
         idx = f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz.csi'
     conda: "bcftools"
     threads: 1
-    resources: cpus=1, mem_mb=64000, time_min=5
+    resources: cpus=1, mem_mb=64000, time_min=60
     log: 'logs/Compress_{chromosome}.log'
     shell:
         """
         bgzip {input}
-        bcftools index {output.file}
+        bcftools index -f {output.file}
         """
 # keeping the phased files w/o ancestral alleles

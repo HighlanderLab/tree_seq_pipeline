@@ -8,7 +8,7 @@ if len(allFiles) != 1:
         output: temp(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.txt')
         conda: "bcftools"
         threads: 1
-        resources: cpus=1, mem_mb=4000, time_min=5
+        resources: cpus=1, mem_mb=32000, time_min=30
         log: 'logs/Get_samples_{chromosome}_{file}.log'
         shell:
             """
@@ -26,6 +26,7 @@ if len(allFiles) != 1:
         params:
             duplicated = '{chromosome}.ids'
        # conda: 'bcftools'
+        resources: cpus=1, mem_mb=64000, time_min=60
         run:
             import os
             filtered = []
@@ -53,14 +54,14 @@ if len(allFiles) != 1:
                             file2 = file2.split('.')[0]
                             print(f'file {file2} filtered')
                             shell('bcftools view -S ^{params.duplicated} {file2}.vcf.gz -O z -o {file2}.filtered.vcf.gz')
-                            shell('bcftools index {file2}.filtered.vcf.gz')
+                            shell('bcftools index -f {file2}.filtered.vcf.gz')
                             shell('rm {params.duplicated}')
 
             for file in input:
                 if file not in filtered:
                     file1 = file.split('.')[0]
                     print(f'file {file1} not filtered')
-                    shell("cp {file1}.vcf.gz {file1}.filtered.vcf.gz && bcftools index {file1}.filtered.vcf.gz")
+                    shell("cp {file1}.vcf.gz {file1}.filtered.vcf.gz && bcftools index -f {file1}.filtered.vcf.gz")
             shell('rm {params.duplicated}')
 
     rule merge:
@@ -71,12 +72,12 @@ if len(allFiles) != 1:
             index=temp(f'{vcfdir}/{{chromosome}}_final.vcf.gz.csi')
         conda: "bcftools"
         threads: 1
-        resources: cpus=1, mem_mb=4000, time_min=5
+        resources: cpus=1, mem_mb=32000, time_min=60
         log: 'logs/Merge_{chromosome}.log'
         shell:
             """
             bcftools merge {input} -O z -o {output.vcf}
-            bcftools index {output.vcf}
+            bcftools index -f {output.vcf}
             """
 
 else:
@@ -89,13 +90,19 @@ else:
                 for x in expand('/{{chromosome}}/{{chromosome}}_{suffixTwo}.vcf.gz',
                     suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
         output:
-            temp(f'{vcfdir}/{{chromosome}}_final.vcf.gz')
+            vcf = (f'{vcfdir}/{{chromosome}}_final.vcf.gz'),
+            idx = (f'{vcfdir}/{{chromosome}}_final.vcf.gz.csi')
         conda: "bcftools"
-        threads: 1
-        resources: cpus=1, mem_mb=4000, time_min=5
         log: 'logs/Rename_{chromosome}.log'
+        resources: cpus=1, mem_mb=32000, time_min=30
         shell:
             """
-            bcftools view {input} -O z -o {output}
-            bcftools index {output}
+            if [ -h {input} ]; then
+                ln -s $( realpath {input} ) {output.vcf}
+                ln -s $( realpath {input} ).csi {output.vcf}
+            else
+                ln -s {input} {output.vcf}
+                ln -s {input}.csi {output.idx}
+            fi
             """
+
