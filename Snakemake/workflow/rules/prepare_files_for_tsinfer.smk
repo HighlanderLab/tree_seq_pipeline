@@ -99,7 +99,7 @@ rule decompress:
     conda: "bcftools"
     shell:
         """
-        bcftools view {input.vcf} -O z -o {output}
+        bcftools view {input.vcf} -O v -o {output}
         """
 
 rule change_infoAA_vcf:
