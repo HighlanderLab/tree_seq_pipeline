@@ -28,7 +28,7 @@ qlogin -l h_vmem=32G
 # load anaconda and activate snakemake environment
 module load anaconda/5.3.1
 conda deactivate # there should be no (env) in your prompt!
-conda activate HLab_snakemake
+conda activate HLab_tsinfer # better make a Snakemake-only env later
 
 # Go to your workspace
 cd path/to/your/workspace
