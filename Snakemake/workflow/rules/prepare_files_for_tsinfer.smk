@@ -1,20 +1,8 @@
 if config['ancestral_allele'] is not None:
     ancestral_file = config['ancestral_allele']
 else:
-    ancestral_file = rules.combine_pos_ancestral.output	
+    ancestral_file = rules.combine_pos_ancestral.output
 
-
-def getInputVcfFile_af(wildcards):
-    if os.path.isfile(vcfdir + "/" + wildcards.chromosome + '_phased.vcf.gz'):
-        print("Phased file found")
-        vcf_file = vcfdir + "/" + wildcards.chromosome + '_phased.vcf.gz'
-        print(vcf_file)
-    else:
-        print("Phased file not found")
-        file = open(vcfdir + '/Vcf_file_' + wildcards.chromosome + '.txt')
-        vcf_file = file.read().strip("\n")
-        print(vcf_file)
-    return(vcf_file)
 
 rule get_af:
     input: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
@@ -39,7 +27,7 @@ rule get_af:
 
 rule get_major:
     input: rules.get_af.output.info
-    output: temp(f'{vcfdir}/Major{{chromosome}}.txt')  
+    output: temp(f'{vcfdir}/Major{{chromosome}}.txt')
     threads: 1
     resources: cpus=1, mem_mb=32000, time_min=60
     log: 'logs/Get_major_{chromosome}.log'
@@ -59,7 +47,7 @@ rule extract_ancestral_chromosome:
         chrNum = lambda wc: wc.get('chromosome')[3:]
     log: 'logs/Extract_ancestral_chromosome_{chromosome}.log'
     resources: cpus=1, mem_mb=32000, time_min=30
-    shell:  
+    shell:
         """
         grep "{params.chrNum}_" {input} | grep -xv 'ambiguous' > {output}
         """
