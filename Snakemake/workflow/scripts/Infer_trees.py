@@ -24,7 +24,7 @@ outputFile = args[2]
 # Do the inference on the 10 SNPs
 sampleFile = tsinfer.load(sampleFile)
 
-"""
+
 ancestors = tsinfer.generate_ancestors(
     sampleFile,
     num_threads=threads,
@@ -52,15 +52,15 @@ ts = tsinfer.match_samples(
     mismatch_ratio=mismtachratio,
     progress_monitor=True,
 ).simplify(keep_unary=False)
-"""
 
+"""
 ts = tsinfer.infer(sampleFile)
 print(
     "Inferred tree sequence `{}`: {} trees over {} Mb".format(
         "drone_ts", ts.num_trees, ts.sequence_length / 1e6
     )
 )
-
+"""
 # # Check the metadata
 # for sample_node_id in ts.samples():
 #     individual_id = ts.node(sample_node_id).individual
