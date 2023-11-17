@@ -44,7 +44,7 @@ outDir = args[5]
 # Read in the snps file
 snps = pd.read_csv(alignedAlleles, sep=" ", header=None)
 print("Length of SNPS is " + str(len(snps)))
-snps = snps[[0,1,2,4]]
+snps = snps[[0,1,2,3]]
 snps.columns =["Chromosome", "Position", "SnpPattern", "FullPos"]
 nRowCycle = ceil(len(snps) / noCycle)
 print("Nrow cycle is " + str(nRowCycle))

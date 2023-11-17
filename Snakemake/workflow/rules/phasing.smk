@@ -1,27 +1,51 @@
+# def getInputVcfFile_phasing(wildcards):
+#     if os.path.isfile(vcfdir + "/" + wildcards.chromosome + '_final.vcf.gz'):
+#         print("Final file found ")
+#         vcf_file = vcfdir + "/" + wildcards.chromosome + '_final.vcf.gz'
+#         print(vcf_file)
+#     else:
+#         print("No final file ")
+#         file = open(vcfdir + '/Vcf_file_' + wildcards.chromosome + '.txt')
+#         vcf_file = file.read().strip("\n")
+#
+#     return(vcf_file)
+
+
 if config['ploidy'] == 1:
     rule rename_phased:
-        input: f'{vcfdir}/{{chromosome}}_final.vcf.gz'
-        output: f'{vcfdir}/{{chromosome}}_phased.vcf.gz'
-        log: 'logs/rename_phased_{chromosome}.log'
+        input:
+            vcf = f'{vcfdir}/{{chromosome}}_final.vcf.gz',
+            idx = f'{vcfdir}/{{chromosome}}_final.vcf.gz.csi'
+        output:
+            vcf = f'{vcfdir}/{{chromosome}}_phased.vcf.gz',
+            idx = f'{vcfdir}/{{chromosome}}_phased.vcf.gz.csi'
+        log: 'logs/Rename_phased_{chromosome}.log'
+        resources: cpus=1, mem_mb=32000, time_min=60
         shell:
             """
-            bcftools view {input} -O z -o {output}
-            bcftools index {output}
+            if [ -h {input.vcf} ]; then
+                ln -s $( realpath {input.vcf} ) {output.vcf}
+                ln -s $( realpath {input.vcf} ).csi {output.vcf}
+            else
+                ln -s {input.vcf} {output.vcf}
+                ln -s {input.idx} {output.idx}
+            fi
             """
 
 else:
     rule phase:
         input:
             vcf = f'{vcfdir}/{{chromosome}}_final.vcf.gz',
-        output: 
+        output:
             file = f'{vcfdir}/{{chromosome}}_phased.vcf.gz',
             idx = f'{vcfdir}/{{chromosome}}_phased.vcf.gz.csi'
-        params: 
+        params:
             map = f'{mapdir}/{{chromosome}}.txt',
         #log: 'logs/phase_{chromosome}.log'
         threads: 25
-        #resources: cpus=20, mem_mb=25000, time_min=5
+#        resources: cpus=20, mem_mb=25000, time_min=5
         conda: 'shapeit4am'
+        log: 'logs/Phase_{chromosome}.log'
         shell:
             """
             str='{wildcards.chromosome}'
@@ -34,6 +58,5 @@ else:
                              --thread {threads}
             end=`date +%s`
             echo Execution time was `expr $end - $start` seconds > shapeit_{wildcards.chromosome}.time
-            bcftools index {output}
+            bcftools index -f {output}
             """
-# --sequencing

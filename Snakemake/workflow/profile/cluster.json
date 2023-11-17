@@ -2,14 +2,14 @@
  "__default__": 
  {
    "mem": "64G",
-   "threads": "5",
+   "threads": "1",
    "time": "10:00:00"
  },
  "rename":
  {
-  "mem": "150G",
-  "threads": "3",
-  "time": "10:00:00"
+  "mem": "64G",
+  "threads": "1",
+  "time": "03:00:00"
  },
  "phase":
   {
@@ -17,32 +17,77 @@
     "threads": "25",
     "time": "336:00:00"
   },
+ "rename_phased":
+  {
+    "mem": "64G",
+    "threads": "1",
+    "time": "03:00:00"
+  },
+  "get_af":
+  {
+    "mem": "64G",
+    "threads": "1",
+    "time": "03:00:00"
+  },
   "get_major":
   {
-    "mem": "250G",
-    "threads": "1"
+    "mem": "64G",
+    "threads": "1",
+    "time": "03:00:00"
   },
-  "match_ancestral_vcf":
+  "extract_ancestral_chromosome":
   {
-    "mem": "550G",
-    "threads": "1"
+    "mem": "64G",
+    "threads": "1",
+    "time": "02:00:00"
+  },
+  "join_major_ancestral":
+  {
+    "mem": "64G",
+    "threads": "1",
+    "time": "02:00:00"
+  },
+  "determine_ancestral_major":
+  {
+    "mem": "64G",
+    "threads": "1",
+    "time": "04:00:00"
+  },
+  "get_vcf_position":
+  {
+    "mem": "32G",
+    "threads": "1",
+    "time": "03:00:00"
+  },
+  "sort_ancestral_to_vcf":
+  {
+    "mem": "64G",
+    "threads": "1",
+    "time": "03:00:00"
+  },
+  "decompress":
+  {
+    "mem": "64G",
+    "threads": "1",
+    "time": "03:00:00"
   },
   "change_infoAA_vcf":
   {
-    "mem": "550G",
-    "threads": "1"
+    "mem": "128G",
+    "threads": "1",
+    "time": "05:00:00"
   },
   "prepare_sample_file":
   {
-    "mem": "350G",
-    "threads": "20",
-    "time": "336:00:00"
+    "mem": "128G",
+    "threads": "1",
+    "time": "10:00:00"
   },
   "infer":
   {
-    "mem": "350G",
-    "threads": "20",
-    "time": "336:00:00"
+    "mem": "128G",
+    "threads": "1",
+    "time": "40:00:00"
   },
  "extract_aligned_alleles_from_vcf":
  {
