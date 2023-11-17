@@ -7,10 +7,10 @@ if config['ancestralAllele'] == None:
             alignedFocal=config['alignedFocal'],
             vcf=config['rawVcf']
         output:
-            info="../Project/AncestralAllele/RawVcfInfo.INFO",
-            log=temp("../Project/AncestralAllele/RawVcfInfo.log")
+            info="{workdir}/AncestralAllele/RawVcfInfo.INFO",
+            log=temp("{workdir}/AncestralAllele/RawVcfInfo.log")
         params:
-            prefix="../Project/AncestralAllele/RawVcfInfo"
+            prefix="{workdir}/AncestralAllele/RawVcfInfo"
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=64000, time_min=300
