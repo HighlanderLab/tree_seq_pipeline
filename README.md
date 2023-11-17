@@ -93,6 +93,8 @@ The config file to be used on Eddie in the tsinfer_Eddie.yaml file, the same fil
 
 # Representation of the pipeline
 
+Here is the Directed Acyclic Graph (DAG) of all the rules described in the next section. We show how to manage two chromosomes, but obviously, we can run the pipeline for any number of chromosomes.
+
 ![dag](https://github.com/gregorgorjanc/tree_seq_pipeline/assets/725834/04ab9f1b-14c3-4cad-9bc6-c6b6a2f21284)
 
 # Description of rules and workflow
