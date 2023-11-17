@@ -23,7 +23,7 @@ if config['ploidy'] == 1:
         resources: cpus=1, mem_mb=32000, time_min=60
         shell:
             """
-            if [ -h {input} ]; then
+            if [ -h {input.vcf} ]; then
                 ln -s $( realpath {input.vcf} ) {output.vcf}
                 ln -s $( realpath {input.vcf} ).csi {output.vcf}
             else

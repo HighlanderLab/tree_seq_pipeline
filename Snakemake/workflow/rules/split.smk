@@ -21,7 +21,7 @@ if len(splitFiles) > 0:
         log: 'logs/Move_vcf_{chromosome}_{suffixOne}.log'
         shell:
             """
-            if [ -h {input} ]; then
+            if [ -h {input.vcf} ]; then
                 ln -s $( realpath {input.vcf} ) {output.vcf}
                 ln -s $( realpath {input.vcf} ).csi {output.vcf}
             else
