@@ -21,9 +21,9 @@ if config['ancestral_allele'] == None:
 
     rule extract_snps_from_info:
         input:
-            f"../{Project}/AncestralAllele/Raw_vcf_info.INFO"
+            f"../{Project}/AncestralAllele/RawVcfInfo.INFO"
         output:
-            f"../{Project}/AncestralAllele/Raw_vcf_info_SNPs.INFO"
+            f"../{Project}/AncestralAllele/RawVcfInfo_SNPs.INFO"
         threads: 1
         resources: cpus=1, mem_mb=32000, time_min=60
         log: 'logs/Extract_SNPs_from_info.log'
