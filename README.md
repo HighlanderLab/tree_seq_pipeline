@@ -10,11 +10,11 @@
    And adding the pkg directory:
    `conda config --add pkgs_dirs /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pkg`
 
-   Make sure you `~/.condarc` contains the following lines:
+   Make sure your `~/.condarc` contains the following lines:
    ```
    envs_dirs:
     - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs
-    pkgs_dirs:
+   pkgs_dirs:
     - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pk
    ```
 3. Add drmaa path to your `~/.bash_profile` or equivalent:
@@ -28,7 +28,7 @@ qlogin -l h_vmem=32G
 # load anaconda and activate snakemake environment
 module load anaconda/5.3.1
 conda deactivate # there should be no (env) in your prompt!
-conda activate HLab_sanekmake
+conda activate HLab_snakemake
 
 # Go to your workspace
 cd path/to/your/workspace
