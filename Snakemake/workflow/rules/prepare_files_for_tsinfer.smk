@@ -39,7 +39,7 @@ rule get_af:
 
 rule get_major:
     input: rules.get_af.output.info
-    output: (f'{vcfdir}/Major{{chromosome}}.txt')  
+    output: temp(f'{vcfdir}/Major{{chromosome}}.txt')  
     threads: 1
     resources: cpus=1, mem_mb=32000, time_min=60
     log: 'logs/Get_major_{chromosome}.log'
@@ -54,7 +54,7 @@ rule extract_ancestral_chromosome:
     input:
         ancestral_file
     output:
-        (f'{vcfdir}/Ancestral{{chromosome}}.txt')
+        temp(f'{vcfdir}/Ancestral{{chromosome}}.txt')
     params:
         chrNum = lambda wc: wc.get('chromosome')[3:]
     log: 'logs/Extract_ancestral_chromosome_{chromosome}.log'
@@ -69,7 +69,7 @@ rule join_major_ancestral:
         ancestral = rules.extract_ancestral_chromosome.output,
         major = rules.get_major.output
     output:
-        (f'{vcfdir}/MajAAnc_{{chromosome}}.txt')
+        temp(f'{vcfdir}/MajAAnc_{{chromosome}}.txt')
     log: 'logs/Join_major_ancestral_{chromosome}.log'
     resources: cpus=1, mem_mb=32000, time_min=60
     shell:
@@ -81,7 +81,7 @@ rule determine_ancestral_major:
     input:
         rules.join_major_ancestral.output
     output:
-        (f'{vcfdir}/MajOAnc_{{chromosome}}.txt')
+        temp(f'{vcfdir}/MajOAnc_{{chromosome}}.txt')
     log: 'logs/Determine_major_ancestral_{chromosome}.log'
     shell:
         """
