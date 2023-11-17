@@ -7,10 +7,10 @@ if config['ancestral_allele'] == None:
             alignedFocal=config['aligned_focal'],
             vcf=config['raw_vcf']
         output:
-            info=f"{workdir}/AncestralAllele/RawVcfInfo.INFO",
-            log=temp(f"{workdir}/AncestralAllele/RawVcfInfo.log")
+            info=f"{workdir}/AncestralAllele/Raw_vcf_info.INFO",
+            log=temp(f"{workdir}/AncestralAllele/Raw_vcf_info.log")
         params:
-            prefix=f"{workdir}/AncestralAllele/RawVcfInfo"
+            prefix=f"{workdir}/AncestralAllele/Raw_vcf_info"
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=64000, time_min=300
@@ -21,9 +21,9 @@ if config['ancestral_allele'] == None:
 
     rule extract_snps_from_info:
         input:
-            f"../{Project}/AncestralAllele/RawVcfInfo.INFO"
+            f"../{Project}/AncestralAllele/Raw_vcf_info.INFO"
         output:
-            f"../{Project}/AncestralAllele/RawVcfInfo_SNPs.INFO"
+            f"../{Project}/AncestralAllele/Raw_vcf_info_SNPs.INFO"
         threads: 1
         resources: cpus=1, mem_mb=32000, time_min=60
         log: 'logs/Extract_SNPs_from_info.log'
