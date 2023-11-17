@@ -17,7 +17,7 @@
    envs_dirs:
     - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs
    pkgs_dirs:
-    - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pk
+    - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pkg
    ```
 3. Add drmaa path to your `~/.bash_profile` or equivalent:
    `export DRMAA_LIBRARY_PATH=/exports/applications/gridengine/ge-8.6.5/lib/lx-amd64/libdrmaa.so`
