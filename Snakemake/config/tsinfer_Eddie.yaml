@@ -1,7 +1,7 @@
 PROJECT: 'tutorial'
 workdir: "/home/v1jobste/HLab/share/Snakemake/tree_seq_pipeline_Jana/Snakemake/{PROJECT}"
 species: "Apis mellifera"
-ploidy: "1"
+ploidy: 1
 no_chromosomes: 2
 vcf_dir: "/home/v1jobste/HLab/share/Snakemake/Data"
 genmap: null

@@ -1,19 +1,19 @@
-def getInputVcfFile_phasing(wildcards):
-    if os.path.isfile(vcfdir + "/" + wildcards.chromosome + '_final.vcf.gz'):
-        print("Final file found ")
-        vcf_file = vcfdir + "/" + wildcards.chromosome + '_final.vcf.gz'
-        print(vcf_file)
-    else:
-        print("No final file ")
-        file = open(vcfdir + '/Vcf_file_' + wildcards.chromosome + '.txt')
-        vcf_file = file.read().strip("\n")
+# def getInputVcfFile_phasing(wildcards):
+#     if os.path.isfile(vcfdir + "/" + wildcards.chromosome + '_final.vcf.gz'):
+#         print("Final file found ")
+#         vcf_file = vcfdir + "/" + wildcards.chromosome + '_final.vcf.gz'
+#         print(vcf_file)
+#     else:
+#         print("No final file ")
+#         file = open(vcfdir + '/Vcf_file_' + wildcards.chromosome + '.txt')
+#         vcf_file = file.read().strip("\n")
+#
+#     return(vcf_file)
 
-    return(vcf_file)
 
-
-if int(config['ploidy']) == 1:
+if config['ploidy'] == 1:
     rule rename_phased:
-        input: 
+        input:
             vcf = f'{vcfdir}/{{chromosome}}_final.vcf.gz',
             idx = f'{vcfdir}/{{chromosome}}_final.vcf.gz.csi'
         output:
@@ -28,7 +28,7 @@ if int(config['ploidy']) == 1:
                 ln -s $( realpath {input.vcf} ).csi {output.vcf}
             else
                 ln -s {input.vcf} {output.vcf}
-                ln -s {input.vcf}.csi {output.idx}
+                ln -s {input.idx} {output.idx}
             fi
             """
 
@@ -60,4 +60,3 @@ else:
             echo Execution time was `expr $end - $start` seconds > shapeit_{wildcards.chromosome}.time
             bcftools index -f {output}
             """
-
