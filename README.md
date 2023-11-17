@@ -1,7 +1,7 @@
 # README Snakemake Tree sequence pipeline
 
-
 # How to run this pipeline on Eddie
+
 1. (If not done yet) Configure conda by
    Adding the environment directory (read more about it here, also check for updates: https://www.wiki.ed.ac.uk/display/ResearchServices/Anaconda):
    `module load anaconda`
@@ -60,7 +60,8 @@ snakemake -j N --use-conda --drmaa " -l h_vmem=32G" --jobscript jobscript.sh -F 
 # the --drmaa flag takes the same inputs as qsub, in that way, other options can be use in addition to -l h_vmem.
 ```
 
-# Test data:
+# Test data
+
 Test data is provided at:
 `/exports/cmvm/eddie/eb/groups/HighlanderLab/share/Snakemake/Data`
 
@@ -74,9 +75,11 @@ Modify the `Snakemake/config/tsinfer_Eddie.yaml` file so the `vcfDir` points to 
 To run, follow instructions above.
 
 # Important notes
+
 - you can run snakemake in interactive mode or through submitting to the cluster (both need to be performed through the login node for now). When submitting, the jobs still get submit one after the other (according to dependencies), hence the process needs to stay open. You can use either `screen` (https://www.wiki.ed.ac.uk/display/ResearchServices/Bioinformatics#Bioinformatics-Loginnode) or & (not tested yet).
 
 # Description of the config file
+
 The config file to be used on Eddie in the tsinfer_Eddie.yaml file, the same file is specified in the Snakefile. In here, you need to specify:
 - workdir: the path to your working directory, which needs to be a folder named "Project" inside your github directory
 - species: which species are you working with
@@ -88,6 +91,9 @@ The config file to be used on Eddie in the tsinfer_Eddie.yaml file, the same fil
 - meta: path to the meta file (for the format, see below)
 - chromosome_length: a list with chromosome length in base pairs for each chromosome (must be numerical chromosome names for now)
 
+# Representation of the pipeline
+
+![dag](https://github.com/gregorgorjanc/tree_seq_pipeline/assets/725834/04ab9f1b-14c3-4cad-9bc6-c6b6a2f21284)
 
 # Description of rules and workflow
 
@@ -152,12 +158,12 @@ RULES:
 
 OUTPUT: The output is one tree sequence for each chromosome in the ../Project/Tsinfer/trees directory.
 
-
 NOTE:
 We chose to work with conda environments. Currently, we are using the following environments:
 * bcftools: contains bcftools and bcftools
 * HLab_tsinfer: contains snakemake and tsinfer dependencies
 
 An alternative to using the conda environment is to load envmodules through (only for Eddie modules)
+
 # envmodules:
     #     config['bcftoolsModule']
