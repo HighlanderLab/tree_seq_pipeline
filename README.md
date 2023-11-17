@@ -4,18 +4,20 @@
 
 1. (If not done yet) Configure conda by
    Adding the environment directory (read more about it here, also check for updates: https://www.wiki.ed.ac.uk/display/ResearchServices/Anaconda):
-   `module load anaconda`
-   `conda config --add envs_dir /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs`
+   ```
+   module load anaconda
+   conda config --add envs_dirs /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs
+   ```
 
    And adding the pkg directory:
    `conda config --add pkgs_dirs /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pkg`
 
-   Make sure you `~/.condarc` contains the following lines:
+   Make sure your `~/.condarc` contains the following lines:
    ```
    envs_dirs:
     - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs
-    pkgs_dirs:
-    - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pk
+   pkgs_dirs:
+    - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pkg
    ```
 3. Add drmaa path to your `~/.bash_profile` or equivalent:
    `export DRMAA_LIBRARY_PATH=/exports/applications/gridengine/ge-8.6.5/lib/lx-amd64/libdrmaa.so`
@@ -28,7 +30,7 @@ qlogin -l h_vmem=32G
 # load anaconda and activate snakemake environment
 module load anaconda/5.3.1
 conda deactivate # there should be no (env) in your prompt!
-conda activate HLab_sanekmake
+conda activate HLab_tsinfer # better make a Snakemake-only env later
 
 # Go to your workspace
 cd path/to/your/workspace

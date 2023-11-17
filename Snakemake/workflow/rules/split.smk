@@ -10,18 +10,24 @@ allFiles = splitFiles + combinedFiles
 if len(splitFiles) > 0:
     rule move_vcf:
         input:
-            f'{vcfdir}/RawVCF/{{chromosome}}_{{suffixOne}}.vcf.gz'
+            vcf = f'{vcfdir}/RawVCF/{{chromosome}}_{{suffixOne}}.vcf.gz',
+            idx = f'{vcfdir}/RawVCF/{{chromosome}}_{{suffixOne}}.vcf.gz.csi'
         output:
-            f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{suffixOne}}.vcf.gz'
+            vcf = f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{suffixOne}}.vcf.gz',
+            idx = f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{suffixOne}}.vcf.gz.csi'
         conda: "bcftools"
         threads: 1
-        resources: cpus=1, mem_mb=4000, time_min=5
-        log: 'logs/move_vcf_{chromosome}_{suffixOne}.log'
+        resources: cpus=1, mem_mb=32000, time_min=60
+        log: 'logs/Move_vcf_{chromosome}_{suffixOne}.log'
         shell:
             """
-            echo {input}
-            cp {input} {output}
-            bcftools index {output}
+            if [ -h {input.vcf} ]; then
+                ln -s $( realpath {input.vcf} ) {output.vcf}
+                ln -s $( realpath {input.vcf} ).csi {output.vcf}
+            else
+                ln -s {input.vcf} {output.vcf}
+                ln -s {input.idx} {output.idx}
+            fi
             """
 
 if len(combinedFiles) > 0:
@@ -34,13 +40,13 @@ if len(combinedFiles) > 0:
                     chromosome = chromosomes, suffixTwo = combinedFiles)]
         conda: "bcftools"
         threads: 1
-        resources: cpus=1, mem_mb=4000, time_min=5
-        log: expand('logs/split_and_move_vcfs_{{chromosome}}_{{suffixTwo}}.log')
+        resources: cpus=1, mem_mb=64000, time_min=60
+        log: expand('logs/Split_and_move_vcfs_{{chromosome}}_{{suffixTwo}}.log')
         shell:
             """
             str='{wildcards.chromosome}'
             chr=$(echo ${{str:3}})
 
             bcftools view -r ${{chr}} {input} -O z -o {output}
-            bcftools index {output}
+            bcftools index -f {output}
             """

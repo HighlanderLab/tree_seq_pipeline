@@ -1,7 +1,5 @@
-rawVcf: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/RawVCF/Chr1_renamed.vcf.gz"
-alignedFocal: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/testAligned.txt"
-noEstSfsChunks: 3
-estsfsConfig: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/config-kimura_3o.txt"
-estsfsSeed: "/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/seedfile.txt"
-
-
+raw_vcf: "/home/v1jobste/HLab/share/Snakemake/Data/RawVCF/Combined_ReducedSamples1.vcf.gz"
+aligned_focal: "/home/v1jobste/HLab/share/Snakemake/Data/testAligned.txt"
+no_estsfs_chunks: 3
+estsfs_config: "/home/v1jobste/HLab/share/Snakemake/Data/config-kimura_3o.txt"
+estsfs_seed: "/home/v1jobste/HLab/share/Snakemake/Data/seedfile.txt"

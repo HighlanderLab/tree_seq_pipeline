@@ -17,10 +17,10 @@ rule prepare_sample_file:
         ploidy=config['ploidy']
     conda: "HLab_tsinfer"
     threads: 1
-    resources: cpus=1, mem_mb=4000, time_min=5
-    log: 'logs/prepare_sample_file_{chromosome}.log'
+    resources: cpus=1, mem_mb=128000, time_min=200
+    log: 'logs/Prepare_sample_file_{chromosome}.log'
     shell:
-        "python scripts/PrepareTsinferSampleFile.py "
+        "python scripts/Prepare_tsinfer_sample_file.py "
         "{input.vcf} {input.meta} {output} {params.ploidy} {params.chrLength}"
 
 rule infer:
@@ -28,9 +28,9 @@ rule infer:
         f"../{Project}/Tsinfer/samples/{{chromosome}}.samples"
     conda: "HLab_tsinfer"
     threads: 1
-    resources: cpus=1, mem_mb=4000, time_min=5
-    log: 'logs/infer_{chromosome}.log'
+    resources: cpus=1, mem_mb=128000, time_min=300
+    log: 'logs/Infer_{chromosome}.log'
     output:
         f"../{Project}/Tsinfer/trees/{{chromosome}}.trees"
     shell:
-        "python scripts/InferTrees.py {input} {output}"
+        "python scripts/Infer_trees.py {input} {output}"
