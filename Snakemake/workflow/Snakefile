@@ -36,6 +36,7 @@ vcfdir=config['vcfDir'] # from config file, the path to vcf
 # the final directory name is now editable -- so can be named according to specific project
 # mapdir indicates where to find the genetic map for phasing (full path in the config) 
 Project = config['PROJECT']
+workdir = config['workdir']
 mapdir = config['genmap']
 
 # if want to split multiallelic sites set to TRUE:
