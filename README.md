@@ -4,8 +4,10 @@
 # How to run this pipeline on Eddie
 1. (If not done yet) Configure conda by
    Adding the environment directory (read more about it here, also check for updates: https://www.wiki.ed.ac.uk/display/ResearchServices/Anaconda):
-   `module load anaconda`
-   `conda config --add envs_dir /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs`
+   ```
+   module load anaconda
+   conda config --add envs_dirs /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs
+   ```
 
    And adding the pkg directory:
    `conda config --add pkgs_dirs /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pkg`
@@ -15,7 +17,7 @@
    envs_dirs:
     - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/envs
    pkgs_dirs:
-    - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pk
+    - /exports/cmvm/eddie/eb/groups/HighlanderLab/anaconda/pkg
    ```
 3. Add drmaa path to your `~/.bash_profile` or equivalent:
    `export DRMAA_LIBRARY_PATH=/exports/applications/gridengine/ge-8.6.5/lib/lx-amd64/libdrmaa.so`
