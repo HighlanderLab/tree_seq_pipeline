@@ -25,18 +25,29 @@ if len(allFiles) != 1:
                 expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.{ext}', file=allFiles, ext=['gz', 'gz.csi'])])
         params:
             duplicated = '{chromosome}.ids'
-       # conda: 'bcftools'
         resources: cpus=1, mem_mb=64000, time_min=60
         run:
             import os
+
+            for file in input:
+                shell("wc -l {file} >> files_len.txt")
+            
+            shell("sort -s -nr -k 1,1 files_len.txt | cut -d' ' -f 2 > files_reorderd.txt")
+
+            with open('files_reorderd.txt', 'r') as file:
+                files_reord = []
+                for line in file:
+                    line = line.strip()
+                    files_reord.append(line)
+            
             filtered = []
 
-            for i in range(len(input)):
+            for i in range(len(files_reord)):
                 print(i)
-                for j, file in enumerate(input):
-                    if file != input[i] and j > i:
-                        file1 = input[i]
-                        file2 = input[j]
+                for j, file in enumerate(files_reord):
+                    if file != files_reord[i] and j > i:
+                        file1 = files_reord[i]
+                        file2 = files_reord[j]
                         print(file1, file2)
 
                         shell("comm -12 <(sort {file1}) <(sort {file2}) > {params.duplicated}")
@@ -57,7 +68,7 @@ if len(allFiles) != 1:
                             shell('bcftools index -f {file2}.filtered.vcf.gz')
                             shell('rm {params.duplicated}')
 
-            for file in input:
+            for file in files_reord:
                 if file not in filtered:
                     file1 = file.split('.')[0]
                     print(f'file {file1} not filtered')
