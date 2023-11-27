@@ -83,11 +83,11 @@ if len(allFiles) != 1:
 else: # i.e. len(allFiles) == 1
     rule rename:
         input:
-            [f'../{Project}/VCF' + x
+            vcf = [f'../{Project}/VCF' + x
                 for x in expand('/{{chromosome}}/{{chromosome}}_{suffixOne}.vcf.gz',
                     suffixOne = splitFiles)] if len(splitFiles) != 0 else [],
-            [f'../{Project}/VCF' + x
-                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixTwo}.vcf.gz',
+            idx = [f'../{Project}/VCF' + x
+                for x in expand('/{{chromosome}}/{{chromosome}}_{suffixTwo}.vcf.gz.csi',
                     suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
         output:
             vcf = (f'../{Project}/VCF/{{chromosome}}_final.vcf.gz'),
@@ -98,11 +98,11 @@ else: # i.e. len(allFiles) == 1
         shell:
             """
             if [ -h {input} ]; then
-                ln -s $( realpath {input} ) {output.vcf}
-                ln -s $( realpath {input} ).csi {output.vcf}
+                ln -s $( realpath {input.vcf} ) {output.vcf}
+                ln -s $( realpath {input.idx} ) {output.vcf}
             else
-                ln -s {input} {output.vcf}
-                ln -s {input}.csi {output.idx}
+                ln -s {input.vcf} {output.vcf}
+                ln -s {input.idx} {output.idx}
             fi
             """
 
