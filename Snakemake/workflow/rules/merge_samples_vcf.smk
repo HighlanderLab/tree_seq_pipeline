@@ -4,8 +4,8 @@ import yaml
 if len(allFiles) != 1:
     rule get_samples:
         input:
-            f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.vcf.gz'
-        output: temp(f'{vcfdir}/{{chromosome}}/{{chromosome}}_{{file}}.txt')
+            f'../{Project}/VCF/{{chromosome}}/{{chromosome}}_{{file}}.vcf.gz'
+        output: temp(f'../{Project}/VCF/{{chromosome}}/{{chromosome}}_{{file}}.txt')
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=32000, time_min=30
@@ -17,11 +17,11 @@ if len(allFiles) != 1:
 
     rule filter:
         input:
-            [f'{vcfdir}' + x
+            [f'../{Project}/VCF' + x
                 for x in expand('/{{chromosome}}/{{chromosome}}_{file}.txt',
                     file=allFiles)],
         output:
-            temp([f'{vcfdir}' + x for x in
+            temp([f'../{Project}/VCF' + x for x in
                 expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.{ext}', file=allFiles, ext=['gz', 'gz.csi'])])
         params:
             duplicated = '{chromosome}.ids'
@@ -66,10 +66,10 @@ if len(allFiles) != 1:
 
     rule merge:
         input:
-            [f'{vcfdir}' + x for x in expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz', file=allFiles)]
+            [f'../{Project}/VCF' + x for x in expand('/{{chromosome}}/{{chromosome}}_{file}.filtered.vcf.gz', file=allFiles)]
         output:
-            vcf=temp(f'{vcfdir}/{{chromosome}}_final.vcf.gz'),
-            index=temp(f'{vcfdir}/{{chromosome}}_final.vcf.gz.csi')
+            vcf=temp(f'../{Project}/VCF/{{chromosome}}_final.vcf.gz'),
+            index=temp(f'../{Project}/VCF/{{chromosome}}_final.vcf.gz.csi')
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=32000, time_min=60
@@ -83,15 +83,15 @@ if len(allFiles) != 1:
 else: # i.e. len(allFiles) == 1
     rule rename:
         input:
-            [f'{vcfdir}' + x
+            [f'../{Project}/VCF' + x
                 for x in expand('/{{chromosome}}/{{chromosome}}_{suffixOne}.vcf.gz',
                     suffixOne = splitFiles)] if len(splitFiles) != 0 else [],
-            [f'{vcfdir}' + x
+            [f'../{Project}/VCF' + x
                 for x in expand('/{{chromosome}}/{{chromosome}}_{suffixTwo}.vcf.gz',
                     suffixTwo = combinedFiles)] if len(combinedFiles) != 0 else []
         output:
-            vcf = (f'{vcfdir}/{{chromosome}}_final.vcf.gz'),
-            idx = (f'{vcfdir}/{{chromosome}}_final.vcf.gz.csi')
+            vcf = (f'../{Project}/VCF/{{chromosome}}_final.vcf.gz'),
+            idx = (f'../{Project}/VCF/{{chromosome}}_final.vcf.gz.csi')
         conda: "bcftools"
         log: 'logs/Rename_{chromosome}.log'
         resources: cpus=1, mem_mb=32000, time_min=30

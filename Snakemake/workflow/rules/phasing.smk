@@ -14,11 +14,11 @@
 if config['ploidy'] == 1:
     rule rename_phased:
         input:
-            vcf = f'{vcfdir}/{{chromosome}}_final.vcf.gz',
-            idx = f'{vcfdir}/{{chromosome}}_final.vcf.gz.csi'
+            vcf = f'../{Project}/VCF/{{chromosome}}_final.vcf.gz',
+            idx = f'../{Project}/VCF/{{chromosome}}_final.vcf.gz.csi'
         output:
-            vcf = f'{vcfdir}/{{chromosome}}_phased.vcf.gz',
-            idx = f'{vcfdir}/{{chromosome}}_phased.vcf.gz.csi'
+            vcf = f'../{Project}/VCF/{{chromosome}}_phased.vcf.gz',
+            idx = f'../{Project}/VCF/{{chromosome}}_phased.vcf.gz.csi'
         log: 'logs/Rename_phased_{chromosome}.log'
         resources: cpus=1, mem_mb=32000, time_min=60
         shell:
@@ -35,10 +35,10 @@ if config['ploidy'] == 1:
 else:
     rule phase:
         input:
-            vcf = f'{vcfdir}/{{chromosome}}_final.vcf.gz',
+            vcf = f'../{Project}/VCF/{{chromosome}}_final.vcf.gz',
         output:
-            file = f'{vcfdir}/{{chromosome}}_phased.vcf.gz',
-            idx = f'{vcfdir}/{{chromosome}}_phased.vcf.gz.csi'
+            file = f'../{Project}/VCF/{{chromosome}}_phased.vcf.gz',
+            idx = f'../{Project}/VCF/{{chromosome}}_phased.vcf.gz.csi'
         params:
             map = f'{mapdir}/{{chromosome}}.txt',
         #log: 'logs/phase_{chromosome}.log'
