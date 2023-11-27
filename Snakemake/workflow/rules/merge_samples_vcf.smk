@@ -97,11 +97,15 @@ else: # i.e. len(allFiles) == 1
         resources: cpus=1, mem_mb=32000, time_min=30
         shell:
             """
-            if [ -h {input} ]; then
+            if [ -h {input.vcf} ]; then
                 ln -s $( realpath {input.vcf} ) {output.vcf}
-                ln -s $( realpath {input.idx} ) {output.vcf}
             else
                 ln -s {input.vcf} {output.vcf}
+            fi
+
+            if [ -h {input.idx} ]; then
+                ln -s $( realpath {input.idx} ) {output.idx}
+            else
                 ln -s {input.idx} {output.idx}
             fi
             """
