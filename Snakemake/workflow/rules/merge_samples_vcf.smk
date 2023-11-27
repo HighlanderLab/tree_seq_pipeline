@@ -80,7 +80,7 @@ if len(allFiles) != 1:
             bcftools index -f {output.vcf}
             """
 
-else:
+else: # i.e. len(allFiles) == 1
     rule rename:
         input:
             [f'{vcfdir}' + x
