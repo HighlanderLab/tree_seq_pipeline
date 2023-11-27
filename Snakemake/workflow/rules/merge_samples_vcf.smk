@@ -97,14 +97,7 @@ else: # i.e. len(allFiles) == 1
         resources: cpus=1, mem_mb=32000, time_min=30
         shell:
             """
-            if [ -h {input} ]; then
-                echo "Links detected! linking to realpath"
                 ln -s $( realpath {input} ) {output.vcf}
                 ln -s $( realpath {input} ).csi {output.idx}
-            else
-                echo "Real files detected! linking as is"
-                ln -s {input} {output.vcf}
-                ln -s {input}.csi {output.idx}
-            fi
             """
 
