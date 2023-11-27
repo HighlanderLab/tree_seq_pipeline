@@ -35,8 +35,11 @@ if len(combinedFiles) > 0:
         input:
             f'{vcfdir}/RawVCF/Combined_{{suffixTwo}}.vcf.gz'
         output:
-            [f'../{Project}/VCF' + x
+            vcf = [f'../{Project}/VCF' + x
                 for x in expand('/{{chromosome}}/{{chromosome}}_{{suffixTwo}}.vcf.gz',
+                    chromosome = chromosomes, suffixTwo = combinedFiles)],
+            idx = [f'../{Project}/VCF' + x
+                for x in expand('/{{chromosome}}/{{chromosome}}_{{suffixTwo}}.vcf.gz.csi',
                     chromosome = chromosomes, suffixTwo = combinedFiles)]
         conda: "bcftools"
         threads: 1
@@ -47,6 +50,6 @@ if len(combinedFiles) > 0:
             str='{wildcards.chromosome}'
             chr=$(echo ${{str:3}})
 
-            bcftools view -r ${{chr}} {input} -O z -o {output}
-            bcftools index -f {output}
+            bcftools view -r ${{chr}} {input} -O z -o {output.vcf}
+            bcftools index -f {output.vcf}
             """
