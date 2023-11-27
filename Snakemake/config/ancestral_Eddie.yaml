@@ -1,5 +1,5 @@
-raw_vcf: "/home/v1jobste/HLab/share/Snakemake/Data/RawVCF/Combined_ReducedSamples1.vcf.gz"
-aligned_focal: "/home/v1jobste/HLab/share/Snakemake/Data/testAligned.txt"
+raw_vcf: "/exports/eddie/scratch/hbecher/tree_seq_pipeline/TestDataBee/RawVCF/Combined_ReducedSamples1.vcf.gz"
+aligned_focal: "/exports/eddie/scratch/hbecher/tree_seq_pipeline/TestDataBee/testAligned.txt"
 no_estsfs_chunks: 3
-estsfs_config: "/home/v1jobste/HLab/share/Snakemake/Data/config-kimura_3o.txt"
-estsfs_seed: "/home/v1jobste/HLab/share/Snakemake/Data/seedfile.txt"
+estsfs_config: "/exports/eddie/scratch/hbecher/tree_seq_pipeline/TestDataBee/config-kimura_3o.txt"
+estsfs_seed: "/exports/eddie/scratch/hbecher/tree_seq_pipeline/TestDataBee/seedfile.txt"
