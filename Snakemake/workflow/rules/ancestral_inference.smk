@@ -4,8 +4,8 @@ import sys
 if config['ancestral_allele'] == None:
     rule extract_aligned_alleles_from_vcf:
         input:
-            alignedFocal=config['aligned_focal'],
-            vcf=config['raw_vcf']
+            alignedFocal=Path(vcfdir, config['aligned_focal']),
+            vcf=Path(vcfdir, config['raw_vcf'])
         output:
             info=f"../{Project}/AncestralAllele/Raw_vcf_info.INFO", 
             log=temp(f"../{Project}/AncestralAllele/Raw_vcf_info.log")
@@ -51,7 +51,7 @@ if config['ancestral_allele'] == None:
 
     rule extract_vcf_alleles_from_aligned:
         input:
-            alignedFocal=config['aligned_focal'],
+            alignedFocal=Path(vcfdir, config['aligned_focal']),
             vcfPos=rules.extract_pos_aligned_alleles_from_vcf.output
         output:
             f"../{Project}/AncestralAllele/Aligned_snps_focal_sorted_raw_vcf.txt"
@@ -154,8 +154,8 @@ if config['ancestral_allele'] == None:
     rule run_estsfs:
         input:
             dict=f"../{Project}/AncestralAllele/Estsfs/EstSfs_Dict_Total.csv",
-            config=config['estsfs_config'],
-            seed=config['estsfs_seed']
+            config=Path(vcfdir, config['estsfs_config']),
+            seed=Path(vcfdir, config['estsfs_seed'])
         output:
             text=f"../{Project}/AncestralAllele/Estsfs/outputEtsfs.txt",
             pvalue=f"../{Project}/AncestralAllele/Estsfs/output-pvalues.txt"
