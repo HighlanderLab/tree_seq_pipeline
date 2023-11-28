@@ -63,33 +63,43 @@ snakemake -j N --use-conda --drmaa " -l h_vmem=32G" --jobscript jobscript.sh -F 
 ```
 
 # Test data:
-Test data is provided at:
-`/exports/cmvm/eddie/eb/groups/HighlanderLab/share/Snakemake/Data`
+A test data set is now included within the repo in: `TestDataBee/`  
 
 The folder contains:
-* Ancstral allele file -- AncestralAlleleVcf.txt
-* a RawVCf folder
-  - here are examples of `combined` and `split` files
+* seed for SFS estimation -- `seedfile.txt`
+* an alignment with an outgroup species for ancestral allele inference -- `testAligned.txt`
+* sample metadata -- `SampleMetaData.csv`
+* config file for SFS estimation -- `config-kimura_3o.txt`
+* a `RawVCF` folder containing a combined VCF file and index
 
-To use this data to test the pipeline copy the folder into your Eddie working space.
-Modify the `Snakemake/config/tsinfer_Eddie.yaml` file so the `vcfDir` points to the `Data/RawVCf`.
-To run, follow instructions above.
+## Running the pipeline on these data
+- copy/clone this repo into your Eddie working space
+- modify the file `Snakemake/config/tsinfer_Eddie.yaml` so the `vcf_dir` points to `TestDataBee` inside the pipeline repo.
+- run Snakemake as described above 
 
 # Important notes
 - you can run snakemake in interactive mode or through submitting to the cluster (both need to be performed through the login node for now). When submitting, the jobs still get submit one after the other (according to dependencies), hence the process needs to stay open. You can use either `screen` (https://www.wiki.ed.ac.uk/display/ResearchServices/Bioinformatics#Bioinformatics-Loginnode) or & (not tested yet).
 
-# Description of the config file
-The config file to be used on Eddie in the tsinfer_Eddie.yaml file, the same file is specified in the Snakefile. In here, you need to specify:
-- workdir: the path to your working directory, which needs to be a folder named "Project" inside your github directory
-- species: which species are you working with
-- ploidy: ploidy of the organism
-- noChromosomes: the number of chromosomes (we might want to change this to names)
-- vcfDir: the path to the VCF files. Within this directory, you need to have a folder "RawVCF" with **all** raw VCF files. Additionaly, the pipeline will create one folder per chromosome in this folder to store processed data.
-- bcftoolsModule and vcftoolsModule: the module names on Eddie - they two are not used at the moment but could be used via envmodules command
-- ancestralAllele: path to the file with ancestral allele information (for the format, see below)
-- meta: path to the meta file (for the format, see below)
-- chromosome_length: a list with chromosome length in base pairs for each chromosome (must be numerical chromosome names for now)
+# Description of the config files
+The config file to be used on Eddie in the `tsinfer_Eddie.yaml` file, the same file is specified in the Snakefile. In here, you need to specify:
+- `PROJECT`: the name of the project and the output folder
+- `o_dir`: the directory inside which the project directory is going ot be created
+- `process_vcf_in_original_dir`: whether or not to process the VCFs in the original directory, `true` or `false`
+- `species`: which species are you working with
+- `ploidy`: ploidy of the organism
+- `noChromosomes`: the number of chromosomes (we might want to change this to names)
+- `vcf_dir`: the path to the VCF files. Within this directory, you need to have a folder "RawVCF" with **all** raw VCF files. Additionaly, the pipeline will create one folder per chromosome in this folder to store processed data (unless ). *All other files and paths are intepreted as relative path starting at this location*.
+- `bcftoolsModule` and `vcftoolsModule`: the module names on Eddie - they two are not used at the moment but could be used via envmodules command
+- `ancestralAllele`: the relative path to the file with ancestral allele information (for the format, see below)
+- `meta`: relative path to the meta file (for the format, see below)
+- `chromosome_length`: a list with chromosome length in base pairs for each chromosome (must be numerical chromosome names for now)
 
+There is a second config file for the ancestral allele inference called `ancestral_Eddie.yaml`. This contains mainly relative paths to data an config files. Again, *all these path are relative to the vcf_dir set in `tsinfer_Eddie.yaml`*:
+- `raw_vcf`: "RawVCF/Combined_ReducedSamples1.vcf.gz"
+- `aligned_focal`: "testAligned.txt"
+- `no_estsfs_chunks`: 3
+- `estsfs_config`: "config-kimura_3o.txt"
+- `estsfs_seed`: "seedfile.txt" 
 
 # Description of rules and workflow
 
