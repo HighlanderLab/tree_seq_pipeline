@@ -32,7 +32,7 @@ report: "reports/tsinfer.rst"
 # mapdir indicates where to find the genetic map for phasing (full path in the config)
 Project = config['PROJECT']
 mapdir = config['genmap']
-oDir = config['o_dir']
+oDir = Path(config['o_dir'], Project)
 
 vcfdir=config['vcf_dir'] # from config file, the directory containing the VCF(s) to process
 # the path where to save intermetdiate and final VCFs
