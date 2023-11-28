@@ -1,17 +1,17 @@
 import re
 
 # if multiallelic:
-#     vcf_4_inference = f'{vcfdir}/{{chromosome}}_allbi.vcf.gz'
+#     vcf_4_inference = f'{vcfOut}/{{chromosome}}_allbi.vcf.gz'
 # else:
-#     vcf_4_inference = f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz'
+#     vcf_4_inference = f'{vcfOut}/{{chromosome}}_ancestral.vcf.gz'
 
 rule prepare_sample_file:
     input:
         #vcf=vcf_4_inference,
-        vcf = f'{vcfdir}/{{chromosome}}_ancestral.vcf.gz',
-        meta = config['meta']
+        vcf = f'{vcfOut}/{{chromosome}}_ancestral.vcf.gz',
+        meta = Path(vcfdir, config['meta'])
     output:
-        f"../{Project}/Tsinfer/samples/{{chromosome}}.samples"
+        f"{oDir}/Tsinfer/samples/{{chromosome}}.samples"
     params:
         chrLength= lambda wildcards:  config['chromosome_length'][int(re.findall(r'\d+', wildcards.chromosome)[0])],
         ploidy=config['ploidy']
@@ -25,12 +25,12 @@ rule prepare_sample_file:
 
 rule infer:
     input:
-        f"../{Project}/Tsinfer/samples/{{chromosome}}.samples"
+        f"{oDir}/Tsinfer/samples/{{chromosome}}.samples"
     conda: "HLab_tsinfer"
     threads: 1
     resources: cpus=1, mem_mb=128000, time_min=300
     log: 'logs/Infer_{chromosome}.log'
     output:
-        f"../{Project}/Tsinfer/trees/{{chromosome}}.trees"
+        f"{oDir}/Tsinfer/trees/{{chromosome}}.trees"
     shell:
         "python scripts/Infer_trees.py {input} {output}"

@@ -29,7 +29,7 @@ import tqdm as tqdm
 
 # chromosome = snakemake.wildcards['chromosome']
 # vcfFile = snakemake.input[0]
-# meta = snakemake.config['meta']
+# meta = Path(vcfdir, snakemake.config['meta'])
 # sampleFile = snakemake.output[0]
 # ploidy = snakemake.config['ploidy']
 # chrLength = snakemake.config['chrLength']

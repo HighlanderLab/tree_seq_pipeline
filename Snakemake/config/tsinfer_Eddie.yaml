@@ -1,14 +1,19 @@
 PROJECT: 'tutorial'
-workdir: "/home/v1jobste/HLab/share/Snakemake/tree_seq_pipeline_Jana/Snakemake/{PROJECT}"
+#workdir: "/exports/eddie/scratch/hbecher/tree_seq_pipeline_Jana/Snakemake/{PROJECT}"
+# the directory where to save all the output
+#o_dir: /exports/eddie/scratch/hbecher/beeTestOut # can be an absolute path ...
+o_dir: ../ # ... or relative to the position of the Snakefile
 species: "Apis mellifera"
 ploidy: 1
 no_chromosomes: 2
-vcf_dir: "/home/v1jobste/HLab/share/Snakemake/Data"
+vcf_dir: "/exports/eddie/scratch/hbecher/tree_seq_pipeline/TestDataBee"
+process_vcf_in_original_dir: false # makes a VCF dir inside the output dir. Set to true to stay in original dir.
 genmap: null
 bcftools_module: "igmm/apps/bcftools/1.9" # Currently not used but can be used with envmodules
 vcftools_module: "igmm/apps/vcftools/0.1.13" # Currently not used but can be used with envmodules
-ancestral_allele: null #"/home/v1jobste/jobsteter/HighlanderLab/share/Snakemake/Data/AncestralAlleleVcf.txt"
-meta: "/home/v1jobste/HLab/share/Snakemake/Data/SampleMetaData.csv"
+# specify the following two relative to vcf_dir
+ancestral_allele: null #"AncestralAlleleVcf.txt" 
+meta: "SampleMetaData.csv"
 chromosome_length:
   1 : 100000
   2 : 100000
