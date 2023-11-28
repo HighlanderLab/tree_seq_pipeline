@@ -39,7 +39,7 @@ vcfdir=config['vcf_dir'] # from config file, the directory containing the VCF(s)
 if config['process_vcf_in_original_dir']:
     vcfOut = config['vcf_dir'] # same as above
 else:
-    vcfOut = f"../{Poject}/VCF" # VCF dir inside the output dir
+    vcfOut = f"../{Project}/VCF" # VCF dir inside the output dir
 
 
 # this folder can be any where but must have the following structure:
