@@ -4,6 +4,7 @@ species: "Apis mellifera"
 ploidy: 1
 no_chromosomes: 2
 vcf_dir: "/exports/eddie/scratch/hbecher/tree_seq_pipeline/TestDataBee"
+process_vcf_in_original_dir: false # makes a VCF dir inside the output dir. Set to true to stay in original dir.
 genmap: null
 bcftools_module: "igmm/apps/bcftools/1.9" # Currently not used but can be used with envmodules
 vcftools_module: "igmm/apps/vcftools/0.1.13" # Currently not used but can be used with envmodules

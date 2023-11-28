@@ -13,8 +13,8 @@ if len(splitFiles) > 0:
             vcf = f'{vcfdir}/RawVCF/{{chromosome}}_{{suffixOne}}.vcf.gz',
             idx = f'{vcfdir}/RawVCF/{{chromosome}}_{{suffixOne}}.vcf.gz.csi'
         output:
-            vcf = f'../{Project}/VCF/{{chromosome}}/{{chromosome}}_{{suffixOne}}.vcf.gz',
-            idx = f'../{Project}/VCF/{{chromosome}}/{{chromosome}}_{{suffixOne}}.vcf.gz.csi'
+            vcf = f'{vcfOut}/{{chromosome}}/{{chromosome}}_{{suffixOne}}.vcf.gz',
+            idx = f'{vcfOut}/{{chromosome}}/{{chromosome}}_{{suffixOne}}.vcf.gz.csi'
         conda: "bcftools"
         threads: 1
         resources: cpus=1, mem_mb=32000, time_min=60
@@ -35,10 +35,10 @@ if len(combinedFiles) > 0:
         input:
             f'{vcfdir}/RawVCF/Combined_{{suffixTwo}}.vcf.gz'
         output:
-            vcf = [f'../{Project}/VCF' + x
+            vcf = [f'{vcfOut}' + x
                 for x in expand('/{{chromosome}}/{{chromosome}}_{{suffixTwo}}.vcf.gz',
                     chromosome = chromosomes, suffixTwo = combinedFiles)],
-            idx = [f'../{Project}/VCF' + x
+            idx = [f'{vcfOut}' + x
                 for x in expand('/{{chromosome}}/{{chromosome}}_{{suffixTwo}}.vcf.gz.csi',
                     chromosome = chromosomes, suffixTwo = combinedFiles)]
         conda: "bcftools"
