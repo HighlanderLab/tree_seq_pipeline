@@ -1,8 +1,8 @@
 PROJECT: 'tutorial'
 #workdir: "/exports/eddie/scratch/hbecher/tree_seq_pipeline_Jana/Snakemake/{PROJECT}"
 # the directory where to save all the output
-#o_dir: /exports/eddie/scratch/hbecher/beeTestOut
-o_dir: ../
+#o_dir: /exports/eddie/scratch/hbecher/beeTestOut # can be an absolute path ...
+o_dir: ../ # ... or relative to the position of the Snakefile
 species: "Apis mellifera"
 ploidy: 1
 no_chromosomes: 2
