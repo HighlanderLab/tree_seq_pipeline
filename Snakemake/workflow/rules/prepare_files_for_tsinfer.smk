@@ -1,5 +1,5 @@
 if config['ancestral_allele'] is not None:
-    ancestral_file = config['ancestral_allele']
+    ancestral_file = Path(vcfdir, config['ancestral_allele'])
 else:
     ancestral_file = rules.combine_pos_ancestral.output
 

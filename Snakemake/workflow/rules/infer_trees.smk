@@ -9,7 +9,7 @@ rule prepare_sample_file:
     input:
         #vcf=vcf_4_inference,
         vcf = f'{vcfOut}/{{chromosome}}_ancestral.vcf.gz',
-        meta = config['meta']
+        meta = Path(vcfdir, config['meta'])
     output:
         f"../{Project}/Tsinfer/samples/{{chromosome}}.samples"
     params:
