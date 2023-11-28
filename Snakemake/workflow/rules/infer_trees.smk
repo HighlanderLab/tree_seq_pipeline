@@ -11,7 +11,7 @@ rule prepare_sample_file:
         vcf = f'{vcfOut}/{{chromosome}}_ancestral.vcf.gz',
         meta = Path(vcfdir, config['meta'])
     output:
-        f"../{Project}/Tsinfer/samples/{{chromosome}}.samples"
+        f"{oDir}/Tsinfer/samples/{{chromosome}}.samples"
     params:
         chrLength= lambda wildcards:  config['chromosome_length'][int(re.findall(r'\d+', wildcards.chromosome)[0])],
         ploidy=config['ploidy']
@@ -25,12 +25,12 @@ rule prepare_sample_file:
 
 rule infer:
     input:
-        f"../{Project}/Tsinfer/samples/{{chromosome}}.samples"
+        f"{oDir}/Tsinfer/samples/{{chromosome}}.samples"
     conda: "HLab_tsinfer"
     threads: 1
     resources: cpus=1, mem_mb=128000, time_min=300
     log: 'logs/Infer_{chromosome}.log'
     output:
-        f"../{Project}/Tsinfer/trees/{{chromosome}}.trees"
+        f"{oDir}/Tsinfer/trees/{{chromosome}}.trees"
     shell:
         "python scripts/Infer_trees.py {input} {output}"
