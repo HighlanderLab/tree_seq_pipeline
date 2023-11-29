@@ -27,29 +27,29 @@ sampleFile = tsinfer.load(sampleFile)
 
 ancestors = tsinfer.generate_ancestors(
     sampleFile,
-    num_threads=threads,
+    num_threads=snakemake.config["tsi_threads"],
     progress_monitor=True,
 ).truncate_ancestors(
-    lower_time_bound=lwertime,
-    upper_time_bound=uprtime,
-    length_multiplier=lenmultiply,
+    lower_time_bound=snakemake.config["tsi_lwertime"],
+    upper_time_bound=snakemake.config["tsi_uprtime"],
+    length_multiplier=snakemake.config["tsi_lenmultiply"],
 )
 
 ancestors_ts = tsinfer.match_ancestors(
     sampleFile,
     ancestors,
-    num_threads=threads,
-    recombination_rate=recombratio,
-    mismatch_ratio=mismtachratio,
+    num_threads=snakemake.config["tsi_threads"],
+    recombination_rate=snakemake.config["tsi_recombratio"],
+    mismatch_ratio=snakemake.config["tsi_mismtachratio"],
     progress_monitor=True,
 )
 
 ts = tsinfer.match_samples(
     sampleFile,
     ancestors_ts,
-    num_threads=threads,
-    recombination_rate=recombratio,
-    mismatch_ratio=mismtachratio,
+    num_threads=snakemake.config["tsi_threads"],
+    recombination_rate=snakemake.config["tsi_recombratio"],
+    mismatch_ratio=snakemake.config["tsi_mismtachratio"],
     progress_monitor=True,
 ).simplify(keep_unary=False)
 
