@@ -11,9 +11,12 @@ from os.path import isfile, join
 
 
 ##### setup report #####
-configfile: '../config/ancestral_Eddie.yaml'
-configfile: '../config/tsinfer_Eddie.yaml'
 report: "reports/tsinfer.rst"
+
+# specify config files on the command line using --configfile
+#configfile: '../config/ancestral_Eddie.yaml'
+#configfile: '../config/tsinfer_Eddie.yaml'
+
 
 ##### setup singularity #####
 # Can we set conda env here???
