@@ -21,7 +21,7 @@ chromosome_length:
 
 
 #### species-specific tsinfer params here
-# these are read by scripts/tsparam.py
+# these are now read by scripts/Infer_trees.py
 tsi_threads: 20
 #tsi_lwertime: 0.4 # cattle
 #tsi_uprtime: 0.6 # cattle
