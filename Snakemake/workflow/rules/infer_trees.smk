@@ -33,4 +33,4 @@ rule infer:
     output:
         f"{oDir}/Tsinfer/trees/{{chromosome}}.trees"
     script:
-        "scripts/Infer_trees.py"
+        "../scripts/Infer_trees.py" # path to script is relative to the file containing this rule. Hence the prepended "../"
