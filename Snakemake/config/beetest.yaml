@@ -20,7 +20,16 @@ chromosome_length:
   2 : 100000
 
 
-#### species-specific tsinfer params here (soon)
+#### species-specific tsinfer params here
+# these are read by scripts/tsparam.py
+tsi_threads: 20
+#tsi_lwertime: 0.4 # cattle
+#tsi_uprtime: 0.6 # cattle
+tsi_lwertime: 0.0 # bee test data
+tsi_uprtime: 0.1 # bee test data
+tsi_lenmultiply: 2
+tsi_recombratio: 1.1e-8
+tsi_mismtachratio: 1
 
 #### ancestral allele config here
 # all these path ar set relative to the input directory (i.e., vcf_dir specified in tsinfer_Eddie.yaml)

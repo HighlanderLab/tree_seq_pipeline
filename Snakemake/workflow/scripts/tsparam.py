@@ -1,9 +1,7 @@
-# parameters for tsinfer --- change accordingly
-threads=20
-#lwertime=0.4 # cattle
-#uprtime=0.6 # cattle
-lwertime=0.0 # bee test data
-uprtime=0.1 # bee test data
-lenmultiply=2
-recombratio=1.1e-8
-mismtachratio=1
+# parameters for tsinfer --- change accordingly (these are now read in from the config file(s))
+threads = config["tsi_threads"]
+lwertime = config["tsi_lwertime"]
+uprtime = config["tsi_uprtime"]
+lenmultiply = config["tsi_lenmultiply"]
+recombratio = config["tsi_recombratio"]
+mismtachratio = config["tsi_mismtachratio"]
