@@ -30,7 +30,7 @@ qlogin -l h_vmem=32G
 # load anaconda and activate snakemake environment
 module load anaconda/5.3.1
 conda deactivate # there should be no (env) in your prompt!
-conda activate HLab_tsinfer # better make a Snakemake-only env later
+conda activate snakemake
 
 # Go to your workspace
 cd path/to/your/workspace
@@ -40,7 +40,7 @@ git clone https://github.com/HighlanderLab/tree_seq_pipeline.git
 cd tree_seq_pipeline
 
 # Create a config file for you dataset. You can use `Snakemake/config/beetest.yaml` as a template.
-- change o_dir (the place where to create the out put folder)to a location in your workspace
+- change o_dir to a location in your workspace (this is the place where the output folder is going to be created)
 - change vcf_dir to the folder where your input vcfs are stored (and ancestral inference input, if required)
 - all other paths are relative to vcf_dir
 - change meta to the (relative) path where your metafile is stored
@@ -75,7 +75,7 @@ The folder contains:
 
 ## Running the pipeline on the bee test data
 - copy/clone this repo into your Eddie working space
-- run Snakemake (cf notes above): `snakemake -j 1 --use-conda -F --configfile ../config/beetest.yaml`
+- inside `Snakemake/workflow` (where the `Snakefile` is located), run: `snakemake -j 1 --use-conda -F --configfile ../config/beetest.yaml`
 
 # Important notes
 - you can run snakemake in interactive mode or through submitting to the cluster (both need to be performed through the login node for now). When submitting, the jobs still get submit one after the other (according to dependencies), hence the process needs to stay open. You can use either `screen` (https://www.wiki.ed.ac.uk/display/ResearchServices/Bioinformatics#Bioinformatics-Loginnode) or & (not tested yet).
