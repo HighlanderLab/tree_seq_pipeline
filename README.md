@@ -81,7 +81,7 @@ The folder contains:
 - you can run snakemake in interactive mode or through submitting to the cluster (both need to be performed through the login node for now). When submitting, the jobs still get submit one after the other (according to dependencies), hence the process needs to stay open. You can use either `screen` (https://www.wiki.ed.ac.uk/display/ResearchServices/Bioinformatics#Bioinformatics-Loginnode) or & (not tested yet).
 
 # About config files
-Snakemake config files are in YAML format. You can specify multiple config files for a run if desired. This can be hradcoded inside the Snakefile. But it is more flexible to specify configfiles on the commandline via `--configfile`. You can also supply individual key-value pairs on the command line using `--config`, this takes priority over what's stated the config file(s). Useful, e.g., to change the output directory `--config o_dir="../../myOutputDir"`.
+Snakemake config files are in YAML format. You can specify multiple config files for a run if desired. This can be hardcoded inside the Snakefile. But it is more flexible to specify configfiles on the commandline via `--configfile`. You can also supply individual key-value pairs on the command line using `--config`, this takes priority over what's stated the config file(s). Useful, e.g., to change the output directory `--config o_dir="../../myOutputDir"`.
 
 ## Description of the config files
 We used to have two config files the contents of which are described below. Both are merged in the bee example (see `Snakemake/config/beetest.yaml`)
