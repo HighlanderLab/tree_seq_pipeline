@@ -10,12 +10,14 @@ import numpy as np
 import sys
 import os
 # from tsparam import * not needed anymore, params are read in from config by the Snakefile
-# sampleFile = snakemake.input[0]
-# outputFile = snakemake.output[0]
 
-args = sys.argv
-sampleFile = args[1]
-outputFile = args[2]
+
+# args = sys.argv
+# sampleFile = args[1]
+# outputFile = args[2]
+sampleFile = snakemake.input[0]
+outputFile = snakemake.output[0]
+
 
 #######################################################################
 # Do the inference and write the outputs
