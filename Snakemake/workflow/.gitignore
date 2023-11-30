@@ -4,8 +4,8 @@ scripts/__pycache__
 .snakemake
 
 # exclude project folder
-../Project/*
-../*
+../Project/* # this would be outside the repo anyway?
+../* # same here
 # except
 ../workflow/*
 ../config/*
