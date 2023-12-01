@@ -97,7 +97,7 @@ We used to have two config files the contents of which are described below. Both
 - `meta`: relative path to the meta file (for the format, see below)
 - `chromosome_length`: a list with chromosome length in base pairs for each chromosome (must be numerical chromosome names for now)
 
-All the following file paths are relative to the vcf_dir set in `tsinfer_Eddie.yaml`:  
+All the following file paths are relative to the vcf_dir set in `vcf_dir` above:  
 - `raw_vcf`: "RawVCF/Combined_ReducedSamples1.vcf.gz"
 - `aligned_focal`: "testAligned.txt"
 - `no_estsfs_chunks`: 3
