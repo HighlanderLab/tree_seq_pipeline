@@ -96,13 +96,15 @@ We used to have two config files the contents of which are described below. Both
 - `ancestralAllele`: the relative path to the file with ancestral allele information (for the format, see below)
 - `meta`: relative path to the meta file (for the format, see below)
 - `chromosome_length`: a list with chromosome length in base pairs for each chromosome (must be numerical chromosome names for now)
-All the following file paths are relative to the vcf_dir set in `tsinfer_Eddie.yaml`:
+
+All the following file paths are relative to the vcf_dir set in `tsinfer_Eddie.yaml`:  
 - `raw_vcf`: "RawVCF/Combined_ReducedSamples1.vcf.gz"
 - `aligned_focal`: "testAligned.txt"
 - `no_estsfs_chunks`: 3
 - `estsfs_config`: "config-kimura_3o.txt"
 - `estsfs_seed`: "seedfile.txt" 
-Tsinfer parameters (these here work for bee):
+
+Tsinfer parameters (these here work for bee):  
 - `tsi_threads`: 20
 - `tsi_lwertime`: 0.0 # bee test data
 - `tsi_uprtime`: 0.1 # bee test data
