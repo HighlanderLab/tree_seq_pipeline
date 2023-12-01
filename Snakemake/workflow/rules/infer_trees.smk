@@ -32,5 +32,5 @@ rule infer:
     log: 'logs/Infer_{chromosome}.log'
     output:
         f"{oDir}/Tsinfer/trees/{{chromosome}}.trees"
-    shell:
-        "python scripts/Infer_trees.py {input} {output}"
+    script:
+        "../scripts/Infer_trees.py" # path to script is relative to the file containing this rule. Hence the prepended "../"

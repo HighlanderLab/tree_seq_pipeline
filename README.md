@@ -30,7 +30,7 @@ qlogin -l h_vmem=32G
 # load anaconda and activate snakemake environment
 module load anaconda/5.3.1
 conda deactivate # there should be no (env) in your prompt!
-conda activate HLab_tsinfer # better make a Snakemake-only env later
+conda activate snakemake
 
 # Go to your workspace
 cd path/to/your/workspace
@@ -39,49 +39,52 @@ cd path/to/your/workspace
 git clone https://github.com/HighlanderLab/tree_seq_pipeline.git
 cd tree_seq_pipeline
 
-# edit Snakemake/config/tsinfer_Eddie.yaml according to your work
-# - change workdir to a location in your workspace
-# - change vcfDir to the folder where your vcfs are stored
-# - change meta to the folder where your metafile is stored
-# - change ancestralAllele to the folder where your ancetralfile is stored
+# Create a config file for you dataset. You can use `Snakemake/config/beetest.yaml` as a template.
+- change o_dir to a location in your workspace (this is the place where the output folder is going to be created)
+- change vcf_dir to the folder where your input vcfs are stored (and ancestral inference input, if required)
+- all other paths are relative to vcf_dir
+- change meta to the (relative) path where your metafile is stored
+- change ancestralAllele to the (relative) path where your ancetralfile is stored
 
 # pipeline is executed from the workflow folder
 cd Snakemake/workflow
 
 # for interactive use
-snakemake -j 1 --use-conda -n # for a dry run
-snakemake -j 1 --use-conda # real run
-snakemake -j 1 --use-conda -F # force run
+snakemake -j 1 --use-conda -n --configfile path/to/config.yaml # for a dry run
+snakemake -j 1 --use-conda --configfile path/to/config.yaml # real run
+snakemake -j 1 --use-conda -F --configfile path/to/config.yaml # force run (overwrites existing outputs)
 
 # to submit to cluster use
 # N = number of chromosomes (so they run in parallel)
-snakemake -j N --use-conda --drmaa " -l h_vmem=32G" --jobscript jobscript.sh &
-snakemake -j N --use-conda --drmaa " -l h_vmem=32G" --jobscript jobscript.sh -F &
+snakemake -j N --use-conda --configfile path/to/config.yaml --drmaa " -l h_vmem=32G" --jobscript jobscript.sh &
+snakemake -j N --use-conda --configfile path/to/config.yaml --drmaa " -l h_vmem=32G" --jobscript jobscript.sh -F &
 
 # the commands listed here are only an example.
 # the --drmaa flag takes the same inputs as qsub, in that way, other options can be use in addition to -l h_vmem.
 ```
 
-# Test data:
+# Test data
 A test data set is now included within the repo in: `TestDataBee/`  
 
 The folder contains:
+* a `RawVCF` folder containing a combined VCF file and its index
 * seed for SFS estimation -- `seedfile.txt`
 * an alignment with an outgroup species for ancestral allele inference -- `testAligned.txt`
 * sample metadata -- `SampleMetaData.csv`
 * config file for SFS estimation -- `config-kimura_3o.txt`
-* a `RawVCF` folder containing a combined VCF file and index
 
-## Running the pipeline on these data
+## Running the pipeline on the bee test data
 - copy/clone this repo into your Eddie working space
-- modify the file `Snakemake/config/tsinfer_Eddie.yaml` so the `vcf_dir` points to `TestDataBee` inside the pipeline repo.
-- run Snakemake as described above 
+- inside `Snakemake/workflow` (where the `Snakefile` is located), run: `snakemake -j 1 --use-conda -F --configfile ../config/beetest.yaml`
 
 # Important notes
 - you can run snakemake in interactive mode or through submitting to the cluster (both need to be performed through the login node for now). When submitting, the jobs still get submit one after the other (according to dependencies), hence the process needs to stay open. You can use either `screen` (https://www.wiki.ed.ac.uk/display/ResearchServices/Bioinformatics#Bioinformatics-Loginnode) or & (not tested yet).
 
-# Description of the config files
-The config file to be used on Eddie in the `tsinfer_Eddie.yaml` file, the same file is specified in the Snakefile. In here, you need to specify:
+# About config files
+Snakemake config files are in YAML format. You can specify multiple config files for a run if desired. This can be hardcoded inside the Snakefile. But it is more flexible to specify configfiles on the commandline via `--configfile`. You can also supply individual key-value pairs on the command line using `--config`, this takes priority over what's stated the config file(s). Useful, e.g., to change the output directory `--config o_dir="../../myOutputDir"`.
+
+## Description of the config files
+We used to have two config files the contents of which are described below. Both are merged in the bee example (see `Snakemake/config/beetest.yaml`) Important settings are:
 - `PROJECT`: the name of the project and the output folder
 - `o_dir`: the directory inside which the project directory is going ot be created
 - `process_vcf_in_original_dir`: whether or not to process the VCFs in the original directory, `true` or `false`
@@ -94,12 +97,20 @@ The config file to be used on Eddie in the `tsinfer_Eddie.yaml` file, the same f
 - `meta`: relative path to the meta file (for the format, see below)
 - `chromosome_length`: a list with chromosome length in base pairs for each chromosome (must be numerical chromosome names for now)
 
-There is a second config file for the ancestral allele inference called `ancestral_Eddie.yaml`. This contains mainly relative paths to data an config files. Again, *all these path are relative to the vcf_dir set in `tsinfer_Eddie.yaml`*:
+All the following file paths are relative to the vcf_dir set in `vcf_dir` above:  
 - `raw_vcf`: "RawVCF/Combined_ReducedSamples1.vcf.gz"
 - `aligned_focal`: "testAligned.txt"
 - `no_estsfs_chunks`: 3
 - `estsfs_config`: "config-kimura_3o.txt"
 - `estsfs_seed`: "seedfile.txt" 
+
+Tsinfer parameters (these here work for bee):  
+- `tsi_threads`: 20
+- `tsi_lwertime`: 0.0 # bee test data
+- `tsi_uprtime`: 0.1 # bee test data
+- `tsi_lenmultiply`: 2
+- `tsi_recombratio`: 1.1e-8
+- `tsi_mismtachratio`: 1
 
 # Description of rules and workflow
 
