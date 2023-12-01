@@ -84,8 +84,7 @@ The folder contains:
 Snakemake config files are in YAML format. You can specify multiple config files for a run if desired. This can be hardcoded inside the Snakefile. But it is more flexible to specify configfiles on the commandline via `--configfile`. You can also supply individual key-value pairs on the command line using `--config`, this takes priority over what's stated the config file(s). Useful, e.g., to change the output directory `--config o_dir="../../myOutputDir"`.
 
 ## Description of the config files
-We used to have two config files the contents of which are described below. Both are merged in the bee example (see `Snakemake/config/beetest.yaml`)
-The config file to be used on Eddie in the `tsinfer_Eddie.yaml` file, the same file is specified in the Snakefile. In here, you need to specify:
+We used to have two config files the contents of which are described below. Both are merged in the bee example (see `Snakemake/config/beetest.yaml`) Important settings are:
 - `PROJECT`: the name of the project and the output folder
 - `o_dir`: the directory inside which the project directory is going ot be created
 - `process_vcf_in_original_dir`: whether or not to process the VCFs in the original directory, `true` or `false`
@@ -97,13 +96,19 @@ The config file to be used on Eddie in the `tsinfer_Eddie.yaml` file, the same f
 - `ancestralAllele`: the relative path to the file with ancestral allele information (for the format, see below)
 - `meta`: relative path to the meta file (for the format, see below)
 - `chromosome_length`: a list with chromosome length in base pairs for each chromosome (must be numerical chromosome names for now)
-
-There is a second config file for the ancestral allele inference called `ancestral_Eddie.yaml`. This contains mainly relative paths to data an config files. Again, *all these path are relative to the vcf_dir set in `tsinfer_Eddie.yaml`*:
+All the following file paths are relative to the vcf_dir set in `tsinfer_Eddie.yaml`:
 - `raw_vcf`: "RawVCF/Combined_ReducedSamples1.vcf.gz"
 - `aligned_focal`: "testAligned.txt"
 - `no_estsfs_chunks`: 3
 - `estsfs_config`: "config-kimura_3o.txt"
 - `estsfs_seed`: "seedfile.txt" 
+Tsinfer parameters (these here work for bee):
+- `tsi_threads`: 20
+- `tsi_lwertime`: 0.0 # bee test data
+- `tsi_uprtime`: 0.1 # bee test data
+- `tsi_lenmultiply`: 2
+- `tsi_recombratio`: 1.1e-8
+- `tsi_mismtachratio`: 1
 
 # Description of rules and workflow
 
