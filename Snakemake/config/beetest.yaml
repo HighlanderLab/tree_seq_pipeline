@@ -34,7 +34,7 @@ tsi_recombratio: 1.1e-8
 tsi_mismtachratio: 1
 
 #### ancestral allele config here
-# all these path ar set relative to the input directory (i.e., vcf_dir specified in tsinfer_Eddie.yaml)
+# all these paths ar set relative to the input directory (i.e., vcf_dir)
 raw_vcf: "RawVCF/Combined_ReducedSamples1.vcf.gz"
 aligned_focal: "testAligned.txt"
 no_estsfs_chunks: 3
