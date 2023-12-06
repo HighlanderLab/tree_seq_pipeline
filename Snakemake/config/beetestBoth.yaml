@@ -1,0 +1,42 @@
+#### general config here
+PROJECT: 'beeTestBothOutput'
+o_dir: ../ # ... or relative to the position of the Snakefile
+#o_dir: /exports/eddie/scratch/hbecher/beeTestOut # can be an absolute path ...
+species: "Apis mellifera"
+ploidy: 1
+no_chromosomes: 2
+#vcf_dir: "/exports/eddie/scratch/hbecher/tree_seq_pipeline/TestDataBee" # can be absolute...
+vcf_dir: "../../TestDataBeeBoth" # ...or relative to the position of the Snakefile
+
+process_vcf_in_original_dir: false # makes a VCF dir inside the output dir. Set to true to stay in original dir.
+genmap: null
+bcftools_module: "igmm/apps/bcftools/1.9" # Currently not used but can be used with envmodules
+vcftools_module: "igmm/apps/vcftools/0.1.13" # Currently not used but can be used with envmodules
+
+# specify the following two relative to vcf_dir
+ancestral_allele: null #null means to infer the ancestral allele, otherwise give relative path to file, e.g. "AncestralAlleleVcf.txt" 
+meta: "SampleMetaData.csv"
+
+chromosome_length:
+  1 : 100000
+  2 : 100000
+
+
+#### species-specific tsinfer params here
+# these are now read by scripts/Infer_trees.py
+tsi_threads: 20
+#tsi_lwertime: 0.4 # cattle
+#tsi_uprtime: 0.6 # cattle
+tsi_lwertime: 0.0 # bee test data
+tsi_uprtime: 0.1 # bee test data
+tsi_lenmultiply: 2
+tsi_recombratio: 1.1e-8
+tsi_mismtachratio: 1
+
+#### ancestral allele config here
+# all these path ar set relative to the input directory (i.e., vcf_dir specified in tsinfer_Eddie.yaml)
+raw_vcf: "RawVCF/Combined_ReducedSamples1.vcf.gz"
+aligned_focal: "testAligned.txt"
+no_estsfs_chunks: 3
+estsfs_config: "config-kimura_3o.txt"
+estsfs_seed: "seedfile.txt"
