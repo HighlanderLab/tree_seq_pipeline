@@ -182,5 +182,9 @@ We chose to work with conda environments. Currently, we are using the following 
 * HLab_tsinfer: contains snakemake and tsinfer dependencies
 
 An alternative to using the conda environment is to load envmodules through (only for Eddie modules)
+# DAG
+The specific wroflow daw will depend on the input files and config. Here is one example:  
+![exampleDag](img/dag.png)
+
 # envmodules:
     #     config['bcftoolsModule']
