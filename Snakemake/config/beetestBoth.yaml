@@ -1,12 +1,12 @@
 #### general config here
-PROJECT: 'beeTestOutput'
+PROJECT: 'beeTestBothOutput'
 o_dir: ../ # ... or relative to the position of the Snakefile
 #o_dir: /exports/eddie/scratch/hbecher/beeTestOut # can be an absolute path ...
 species: "Apis mellifera"
 ploidy: 1
 no_chromosomes: 2
 #vcf_dir: "/exports/eddie/scratch/hbecher/tree_seq_pipeline/TestDataBee" # can be absolute...
-vcf_dir: "../../TestDataBee" # ...or relative to the position of the Snakefile
+vcf_dir: "../../TestDataBeeBoth" # ...or relative to the position of the Snakefile
 
 process_vcf_in_original_dir: false # makes a VCF dir inside the output dir. Set to true to stay in original dir.
 genmap: null

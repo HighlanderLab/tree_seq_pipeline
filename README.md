@@ -182,5 +182,11 @@ We chose to work with conda environments. Currently, we are using the following 
 * HLab_tsinfer: contains snakemake and tsinfer dependencies
 
 An alternative to using the conda environment is to load envmodules through (only for Eddie modules)
+
 # envmodules:
     #     config['bcftoolsModule']
+
+
+# DAG
+The specific workflow DAG daw will depend on the input files and config. Here is one example, starting with a combined (i.e., multi-chromosome) VCF file:  
+![exampleDag](img/dag.png)
