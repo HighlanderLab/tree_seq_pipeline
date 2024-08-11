@@ -1,0 +1,53 @@
+PROJECT: "global_cattle"
+work_dir: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/tree_sequence"
+species: "Bos taurus"
+ploidy: 2
+no_chromosomes: 29
+start_chromosome: 1
+end_chromosome: 29
+vcf_dir: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/genomes/global"
+genmap: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/resources/ma2015_shapeit_ARS-UCD1.2"
+reference_genome: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/resources/Reference_genomes/ARS-UCD1.2_Btau5.0.1Y.fa"
+ancestral_allele: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/resources/ancestral_alleles/Dorji_et_al/data/new_cattle_ancestral.txt"
+meta: "/exports/cmvm/eddie/eb/groups/HighlanderLab/gfortuna/giro_popgen/genomes/global/files/metadata_correct.csv"
+phase_only: False
+remove_indel: True
+missing_data: "0.2"
+truncate_upper: "0.4"
+truncate_lower: "0.2"
+recombination_rate_tree: False # "1e-8"
+recombination_rate_anc: False
+mismatch_ratio_anc: False
+mismatch_ratio_tree: False # "1"
+mutation_rate: "1e-8"
+generation_interval: 5
+chromosome_length:
+  1 : 158534110
+  2 : 136231102
+  3 : 121005158
+  4 : 120000601
+  5 : 120089316
+  6 : 117806340
+  7 : 110682743
+  8 : 113319770
+  9 : 105454467
+  10 : 103308737
+  11 : 106982474
+  12 : 87216183
+  13 : 83472345
+  14 : 82403003
+  15 : 85007780
+  16 : 81013979
+  17 : 73167244
+  18 : 65820629
+  19 : 63449741
+  20 : 71974595
+  21 : 69862954
+  22 : 60773035
+  23 : 52498615
+  24 : 62317253
+  25 : 42350435
+  26 : 51992305
+  27 : 45612108
+  28 : 45940150
+  29 : 51098607

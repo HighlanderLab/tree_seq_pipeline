@@ -8,6 +8,8 @@ import subprocess
 import numpy as np
 import pandas as pd
 import pkg_resources
+from itertools import chain
+from tsinfer import MISSING_DATA
 
 print(sys.executable)
 
@@ -70,7 +72,9 @@ def add_sites(vcf, samples, ploidy):
     for variant in vcf:  # Loop over variants, each assumed at a unique site
         progressbar.update(variant.POS - pos)
         if pos == variant.POS:
-            raise ValueError("Duplicate positions for variant at position", pos)
+            print("Duplicate positions for variant at position", pos)
+            continue
+        
         else:
             pos = variant.POS
         if ploidy > 1:
@@ -83,10 +87,10 @@ def add_sites(vcf, samples, ploidy):
              alleles = alleles + [letter for letter in string]
              #ALT = ALT + [letter for letter in string]
 
-        print(alleles)
+        #print(alleles)
         # ignores non-bialllelic sites
         if len(alleles) > 2:
-            print('Ignoring non-biallelic site')
+         #   print('Ignoring non-biallelic site')
             continue
 
         # if len([*ancestral]) > 1:
@@ -95,7 +99,7 @@ def add_sites(vcf, samples, ploidy):
         #     #continue
 
         ancestral = variant.INFO.get("AA", variant.REF)
-        print(f'alleles: {alleles} | ancestal: {[*ancestral]}')
+        #print(f'alleles: {alleles} | ancestal: {[*ancestral]}')
         
         try:
            ancestral_allele = alleles.index(ancestral[0])
@@ -111,6 +115,7 @@ def add_sites(vcf, samples, ploidy):
                              ancestral_allele=alleles.index(ancestral[0]))
 
 
+
 def add_populations(vcf, samples, metaData):
     """
     This is a modified add populations function for drones from David Wragg data
@@ -121,10 +126,23 @@ def add_populations(vcf, samples, metaData):
     """
     pop_lookup = {}
     metaPop = metaData.iloc[:, 1:].drop_duplicates().dropna(axis = 0, how = 'all')
-    sample_subpop = [list(metaData.SubPop[metaData.ID == x]) for x in vcf.samples]
-    for subpop, pop in zip(metaPop.SubPop, metaPop.Pop):
-        pop_lookup[subpop] = samples.add_population(metadata={"pop": pop, "subpop": subpop})
-    return [pop_lookup[subpop[0]] for subpop in sample_subpop]
+    
+    # to account for same subpop in different countries - creating a 'fake subpop' to be used as key
+    # if subpop is repeated new code is subpop+origin, else subpop
+    d = [a if not (sum(j == a for j in metaPop.SubPop[:i])) else f'{a}{c}' for (i,a),c in zip(enumerate(metaPop.SubPop),metaPop.Origin)]
+    metaPop['code'] = d
+    # add code col to the full meatafile
+    metaData = pd.merge(metaData, metaPop[['Pop', 'SubPop', 'Origin', 'code']], on = ['Pop', 'SubPop', 'Origin'], how = 'inner')
+    
+    # list population per sample based on recoded subpop
+    sample_subpop = [list(metaData.code[metaData.ID == x]) for x in vcf.samples]
+    
+    # the dictionary key will be based on the recoding - so keeps the correct amount of population
+    # but the metadata takes in the real subpop value
+    for subpop, pop, origin, lat, lon, code in zip(metaPop.SubPop, metaPop.Pop, metaPop.Origin, metaPop.Lat, metaPop.Lon, metaPop.code):
+        pop_lookup[code] = samples.add_population(metadata={"pop": pop, "subpop": subpop, "origin": origin, "coord1": lat, "coord2":lon})
+    return [pop_lookup[code[0]] for code in sample_subpop]
+
 
 #######################################################################
 # Read in the information and prepare the data
@@ -138,7 +156,7 @@ vcfD = cyvcf2.VCF(vcfFile, strict_gt=True)
 # Create samples for haploid data
 with tsinfer.SampleData(path=sampleFile,
                         sequence_length=chrLength,
-                        num_flush_threads=20, max_file_size=2**30) as samples:
+                        num_flush_threads=16, max_file_size=2**30) as samples:
    populations = add_populations(vcf = vcfD, samples = samples, metaData = metaFile)
    print("populations determined")
    add_individuals(vcf = vcfD, samples = samples, populations = populations, metaData = metaFile, ploidy = ploidy)
@@ -148,5 +166,6 @@ with tsinfer.SampleData(path=sampleFile,
 print(
    "Sample file created for {} samples ".format(samples.num_samples)
    + "({} individuals) ".format(samples.num_individuals)
-   + "with {} variable sites.".format(samples.num_sites)
+   + "with {} variable sites.".format(samples.num_sites),
+   flush=True,
 )

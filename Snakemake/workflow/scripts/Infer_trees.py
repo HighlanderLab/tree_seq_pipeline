@@ -42,6 +42,8 @@ ancestors_ts = tsinfer.match_ancestors(
     progress_monitor=True,
 )
 
+ancestors_ts.dump(f'{outputfile}.ancestors')
+
 ts = tsinfer.match_samples(
     sampleFile,
     ancestors_ts,
@@ -51,25 +53,24 @@ ts = tsinfer.match_samples(
     progress_monitor=True,
 ).simplify(keep_unary=False)
 
-"""
-ts = tsinfer.infer(sampleFile)
+#ts = tsinfer.infer(sampleFile)
 print(
     "Inferred tree sequence `{}`: {} trees over {} Mb".format(
-        "drone_ts", ts.num_trees, ts.sequence_length / 1e6
+        "ts", ts.num_trees, ts.sequence_length / 1e6
     )
 )
-"""
-# # Check the metadata
-# for sample_node_id in ts.samples():
-#     individual_id = ts.node(sample_node_id).individual
-#     population_id = ts.node(sample_node_id).population
-#     print(
-#         "Node",
-#         sample_node_id,
-#         "labels genome sampled from",
-#         json.loads(ts.individual(individual_id).metadata),
-#         "in",
-#         json.loads(ts.population(population_id).metadata)["subpop"],
-#     )
+
+# Check the metadata
+for sample_node_id in ts.samples():
+    individual_id = ts.node(sample_node_id).individual
+    population_id = ts.node(sample_node_id).population
+    print(
+        "Node",
+        sample_node_id,
+        "labels genome sampled from",
+        json.loads(ts.individual(individual_id).metadata),
+        "in",
+        json.loads(ts.population(population_id).metadata)["subpop"],
+    )
 
 ts.dump(outputFile)

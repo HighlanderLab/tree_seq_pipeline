@@ -11,16 +11,12 @@ from os.path import isfile, join
 
 
 ##### setup report #####
-report: "reports/tsinfer.rst"
-
-# specify config files on the command line using --configfile
 #configfile: '../config/ancestral_Eddie.yaml'
-#configfile: '../config/tsinfer_Eddie.yaml'
-
+configfile: '../config/glob_cattle.yaml'
+report: "reports/tsinfer.rst"
 
 ##### setup singularity #####
 # Can we set conda env here???
-
 
 ##### Define some variables #####
 # all files should be in the vcfDir/RawVCF folder
@@ -30,47 +26,45 @@ report: "reports/tsinfer.rst"
 # (2) sort into the correct Chr folder in vcfDir.
 
 # defining variables that will be used throughout the script
-
-# the final directory name is now editable -- so can be named according to specific project
-# mapdir indicates where to find the genetic map for phasing (full path in the config)
-mapdir = config['genmap']
-oDir = Path(config['o_dir'], config['PROJECT'])
-
-vcfdir=config['vcf_dir'] # from config file, the directory containing the VCF(s) to process
-# the path where to save intermetdiate and final VCFs
-if config['process_vcf_in_original_dir']:
-    vcfOut = config['vcf_dir'] # same as above
-else:
-    vcfOut = f"{oDir}/VCF" # VCF dir inside the output dir
-
-
+vcfdir=config['vcf_dir'] # from config file, the path to vcf
 # this folder can be any where but must have the following structure:
 # vcfDir:
 #   - RawVCF
 #   - Chr1
 #   -Chr...
 
+# the final directory name is now editable -- so can be named according to specific project
+# mapdir indicates where to find the genetic map for phasing (full path in the config)
+Project = config['PROJECT']
+projdir = config['work_dir'] + '/' + Project
+mapdir = config['genmap']
 
-# if want to split multiallelic sites set to TRUE:
-#multiallelic = False
-
-chromosomes = [f'Chr{n}' for n in range(1, config['no_chromosomes'] + 1)]
+chromosomes = [f'chr{n}' for n in range(config['start_chromosome'], config['end_chromosome'] + 1)]
 # set a list of 'Chr' + chr# combinations to be used as wildcards
 
+wildcard_constraints:
+    chromosome = r'chr\d+'
+# constraining the wildcard to avoid errors 
+
 ##### load rules #####
-include: "rules/ancestral_inference.smk"
+#include: "rules/ancestral_inference.smk"
 include: "rules/split.smk"
+include: "rules/filter.smk"
 include: "rules/merge_samples_vcf.smk"
 include: "rules/phasing.smk"
-include: "rules/prepare_files_for_tsinfer.smk"
-#include: "rules/multiallelic.smk"
-include: "rules/infer_trees.smk"
+include: "rules/ancestral_info_to_vcf.smk"
+include: "rules/new_infer_trees.smk"
+
+##### Conditional inputs for rule all based on the existence of phased VCFs and config['phase_only'] #####
+if not config['phase_only']:
+    rule_all_input = expand(f'{projdir}/Tsinfer/trees/{{chromosome}}.dated.trees', chromosome=chromosomes)
+else:
+    rule_all_input = expand(f'{vcfdir}/{{chromosome}}/{{chromosome}}_phased.vcf.gz.csi', chromosome=chromosomes)
+
 
 ##### target rules #####
 # At the end it should generate a phased vcf file that combines all files for
 # each chromosome. These files are stored in the vcf folder declaired in the
 # configuration file. It also checks that vcfs have been filtered before merged
 rule all:
-    input:
-        expand(f'{oDir}/Tsinfer/trees/{{chromosome}}.trees', chromosome=chromosomes)
-        # tree inference
+    input: rule_all_input

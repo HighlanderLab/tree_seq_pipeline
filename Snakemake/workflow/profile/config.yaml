@@ -3,10 +3,8 @@ use-conda: true
 jobscript: "jobscript.sh"
 cluster-config: "cluster.json"
 jobname: "{rule}.{jobid}"
-jobs: 16
-#drmaa: " -cwd -l h_vmem={cluster.mem} -l h_rt={cluster.time} -pe sharedmem {cluster.threads} -P roslin_HighlanderLab"
+drmaa: " -P roslin_HighlanderLab -cwd -l h_vmem={cluster.mem} -l h_rt={cluster.time} -pe sharedmem {cluster.threads} -R y"
 rerun-incomplete: true
-rerun-triggers: mtime
-cores: 16 # how many jobs you want to submit to your cluster queue
-local-cores: 1
+rerun-triggers: [mtime, input]
+local-cores: 99
 keep-going: false
